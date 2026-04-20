@@ -210,3 +210,7 @@ __marimo__/
 node_modules/
 frontend/dist/
 frontend/.vite/
+
+# Claude Code — per-user overrides + Serena cache
+.claude/settings.local.json
+.serena/

@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "skills": {
+    "clean-code": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "551e1ac1c416d9df11fce8bc613c3595794f1f5e634d20c5b3e257afded11ed7"
+    },
+    "clean-ddd-hexagonal": {
+      "source": "ccheney/robust-skills",
+      "sourceType": "github",
+      "computedHash": "37d516cad994acaf692e6d57761601ef9477dce0bc98e8b6b76329e17afe90b6"
+    },
+    "fastapi-python": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "computedHash": "4521c6090735152b7b8df670cefe5c1c6d1dcaa115de67bb96e74ebf802d4f24"
+    },
+    "fastapi-templates": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "1a5fe66bd2683afd1db9afdf37a25cd8b9195c369c98489333badf0406fc91b3"
+    },
+    "mintlify": {
+      "source": "mintlify.com",
+      "sourceType": "well-known",
+      "computedHash": "c356cce82c421e8d1e7eff1774a43de9313cf110dc224f4b5e3b353b58a227cf"
+    },
+    "mintlify-api": {
+      "source": "mintlify.com",
+      "sourceType": "well-known",
+      "computedHash": "46e945237682ceb1e52f0013fc4f72b25b30f148338ea9ad11b912e1a763ad14"
+    },
+    "mintlify-docs": {
+      "source": "mintlify.com",
+      "sourceType": "well-known",
+      "computedHash": "c356cce82c421e8d1e7eff1774a43de9313cf110dc224f4b5e3b353b58a227cf"
+    },
+    "python-code-style": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "c375dffa8d94962e10193079af1527b149f43b68d60043830d89cbce1228cec7"
+    },
+    "python-design-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "8646a52fb34f1b88954aa84c86d5de04fbda1f415e509045c7f3ffff5886ded4"
+    },
+    "uv-package-manager": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "3aaa4f0a3d50061e023783236866b97f326cd1fef7f27166893c302a1a3c04fa"
+    }
+  }
+}

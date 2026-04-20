@@ -1,0 +1,49 @@
+---
+title: "API reference"
+description: "OpenAPI-driven reference with interactive playground. Base URL, auth, and conventions."
+sidebarTitle: "Introduction"
+---
+
+The Endpoints section on the left is generated from the live FastAPI OpenAPI
+schema shipped inside the repo at [`docs/openapi.json`](https://github.com/ThiagoPanini/campfire/blob/main/docs/openapi.json).
+Every endpoint has an interactive playground that targets your local server.
+
+## Base URL
+
+```
+http://localhost:8000/api/v1
+```
+
+The prefix comes from `CAMPFIRE_API_PREFIX` (default `/api`) plus the
+versioned router (`/v1`). Change the prefix with an environment variable; the
+docs assume defaults.
+
+## Authentication
+
+Every endpoint except `GET /health` requires an `X-User-Id` header. See
+[Features · Authentication](/features/authentication) for the full story and
+[API · Authentication](/api-reference/authentication) for a short reference.
+
+## Conventions
+
+- **IDs** are UUIDs.
+- **Timestamps** are ISO 8601 with UTC offset.
+- **Errors** are JSON: `{"detail": "..."}` — see [Errors](/api-reference/errors).
+- **Pagination** — not yet implemented. `limit` bounds the response but there
+  is no cursor.
+
+## Regenerate the spec
+
+If you change the backend and want the docs to reflect it:
+
+```bash
+cd backend
+python -c "import json, sys; sys.path.insert(0,'src'); \
+  from campfire.main import create_app; \
+  open('../docs/openapi.json','w').write(json.dumps(create_app().openapi(), indent=2))"
+```
+
+<Tip>
+  Commit `docs/openapi.json` so the hosted Mintlify site always renders a
+  consistent reference. A CI job can rerun the command above on every merge.
+</Tip>

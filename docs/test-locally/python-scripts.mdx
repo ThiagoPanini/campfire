@@ -1,0 +1,62 @@
+---
+title: "Python scripts"
+description: "Repeatable flows in pure Python with requests."
+---
+
+A small Python script is the cleanest way to rerun the full loop after each
+restart.
+
+## Minimal script
+
+```python first_loop.py
+import os
+import requests
+
+BASE_URL = os.environ.get("CAMPFIRE_BASE_URL", "http://localhost:8000/api/v1")
+USER_ID = os.environ["CAMPFIRE_USER_ID"]
+headers = {"X-User-Id": USER_ID}
+
+# 1. health (no auth)
+print(requests.get(f"{BASE_URL}/health").json())
+
+# 2. search
+print(requests.get(f"{BASE_URL}/songs/search", params={"q": "beatles"}, headers=headers).json())
+
+# 3. register
+payload = {
+    "song_title": "Black",
+    "song_artist": "Pearl Jam",
+    "instrument": "guitar",
+    "proficiency": 8,
+}
+r = requests.post(f"{BASE_URL}/repertoire", json=payload, headers=headers)
+print(r.status_code, r.json())
+
+# 4. read it back
+print(requests.get(f"{BASE_URL}/repertoire/me", headers=headers).json())
+```
+
+## Run it
+
+```bash
+export CAMPFIRE_USER_ID="paste-alice-id-here"
+python first_loop.py
+```
+
+<Tip>
+  Keep scripts in `examples/python/` and share a common helper that reads
+  `CAMPFIRE_BASE_URL` + `CAMPFIRE_USER_ID` from the environment. Running from
+  the repo root means imports need to resolve — run `python examples/python/first_loop.py`
+  from `examples/python/` itself.
+</Tip>
+
+## Idempotent re-runs
+
+Register raises `409 Conflict` on the second run. To keep the script
+idempotent, accept `409` as "already registered":
+
+```python
+r = requests.post(f"{BASE_URL}/repertoire", json=payload, headers=headers)
+if r.status_code not in (201, 409):
+    r.raise_for_status()
+```

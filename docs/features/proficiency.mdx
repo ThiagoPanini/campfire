@@ -1,0 +1,45 @@
+---
+title: "Proficiency"
+description: "Integer score 0–10 with a derived category label."
+---
+
+Proficiency is the only signal Campfire stores about how well you play a song
+on a given instrument.
+
+## The value object
+
+```python
+@dataclass(frozen=True, slots=True)
+class Proficiency:
+    score: int
+    # label is a derived @property, never stored separately
+```
+
+- Must be `int`.
+- Out of `0..10` → `ValueError`.
+- Label is computed, not stored:
+
+| Score | Label |
+|---:|---|
+| 0–3 | `beginner` |
+| 4–7 | `intermediate` |
+| 8–9 | `advanced` |
+| 10 | `expert` |
+
+## Why integer, not float
+
+Simplicity. A single integer is enough to rank entries and render a badge.
+Finer gradations can come later without breaking the stored representation —
+adding a `precision` field to an entry is additive.
+
+## Proficiency in the API
+
+- `POST /api/v1/repertoire` validates `0 ≤ proficiency ≤ 10` at the pydantic
+  layer — bad values return `422`.
+- `GET /api/v1/repertoire/me` recomputes the label on each read.
+
+<Tip>
+  If you need to change a recorded proficiency, the current slice has no
+  update endpoint. Restart the server (wipes memory) or pick a different
+  `(song, instrument)` pair.
+</Tip>

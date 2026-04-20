@@ -1,0 +1,52 @@
+---
+title: "Design decisions"
+description: "Why the current slice looks the way it does."
+---
+
+Short, non-exhaustive notes on decisions you will run into while reading the code.
+
+## Why `PlaceholderAuthenticator` at all
+
+Real auth is a commitment — OAuth provider, session store, UI. The project
+wanted the hexagonal boundary in place **before** any of that. The
+placeholder lets every other layer be correct today and collapses to a
+one-file swap tomorrow.
+
+## Why `SongSearchProvider` and `SongRepository` are separate
+
+The search provider answers "does this song exist out there?". The
+repository stores songs a user actually registered. They have different
+lifecycles, different failure modes (network vs storage), and different
+testing needs. Collapsing them would force one adapter to do both jobs.
+
+## Why proficiency is an integer 0..10
+
+Integer ranks + a derived label give every UI everything it needs today. A
+future `precision` field (half-scores, confidence) is additive and does not
+break the stored representation.
+
+## Why find-or-create on `Song`
+
+There is no canonical catalog yet. Blocking registration on "pick a song
+first" would create a chicken-and-egg problem for a scaffold. When a real
+catalog lands, `RegisterRepertoireEntry` changes to "find-only, 404 if
+missing" — the endpoint shape stays the same.
+
+## Why in-memory repositories
+
+The domain model and use cases must work without a database. Shipping an
+in-memory adapter day one forces the abstractions to be correct before the
+SQL schema exists. A SQLAlchemy adapter is the next additive step.
+
+## Why group-level repertoire was removed
+
+The initial scaffold experimented with "what can we all play tonight?". It
+required a presence model (who is here?), which forked into several
+half-answered questions. Removing it kept the slice tight and left the seam
+(`present_user_ids`) ready for a future dedicated use case.
+
+## Why FastAPI routes are `def`, not `async def`
+
+No async I/O today. Adding `async` would introduce awaits around sync
+repositories and add ceremony with no benefit. When a real DB adapter lands,
+routes that touch it move to `async def`.

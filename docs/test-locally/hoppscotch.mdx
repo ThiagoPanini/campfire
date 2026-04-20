@@ -1,0 +1,41 @@
+---
+title: "Hoppscotch"
+description: "Browser-based API client. Good for quick shared explorations."
+---
+
+[Hoppscotch](https://hoppscotch.io/) runs entirely in the browser. Works great
+for quick checks and for sharing request recipes.
+
+## Setup
+
+<Steps>
+  <Step title="Open hoppscotch.io">
+    Or install the desktop/browser-extension variant if the web app's HTTPS
+    origin blocks calls to `http://localhost` (see gotcha below).
+  </Step>
+  <Step title="Create an environment">
+    Variables:
+    - `baseUrl` → `http://localhost:8000/api/v1`
+    - `userId` → your seeded user UUID
+
+    Activate it.
+  </Step>
+  <Step title="Send your first request">
+    `GET <<baseUrl>>/health` — no header needed.
+  </Step>
+  <Step title="Add the auth header">
+    For every other endpoint: add header `X-User-Id: <<userId>>`.
+  </Step>
+</Steps>
+
+## Common gotchas
+
+<AccordionGroup>
+  <Accordion title="Network Error calling http://localhost:8000">
+    The Hoppscotch **web app** runs on HTTPS and cannot call plain HTTP.
+    Install the Hoppscotch browser extension or use the desktop app.
+  </Accordion>
+  <Accordion title="Variables render as <<baseUrl>>">
+    The environment is not active. Pick it from the environment selector.
+  </Accordion>
+</AccordionGroup>
