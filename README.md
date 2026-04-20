@@ -17,6 +17,22 @@ See [INITIAL_BUSINESS_CONTEXT.md](./INITIAL_BUSINESS_CONTEXT.md) for the full
 product brief. Note: the current codebase scopes down that brief to the
 repertoire-registration foundation described below.
 
+**Looking for the user-facing docs?** A Mintlify site lives in
+[`docs/`](./docs/) — `docs.json` plus MDX pages. To preview it locally:
+
+```bash
+npm i -g mint
+cd docs
+mint dev
+# open http://localhost:3000
+```
+
+The site covers a guided onboarding flow, five testing paths (Swagger, curl,
+Python scripts, Bruno, Hoppscotch), per-feature pages, troubleshooting, an
+OpenAPI-driven API reference with interactive playground, and explicit scope
+and limits. The OpenAPI spec is committed at
+[`docs/openapi.json`](./docs/openapi.json).
+
 ---
 
 ## Current scope (first slice)
@@ -50,8 +66,8 @@ Hexagonal / Clean Architecture. Dependencies point inward:
 `interfaces → application → domain`, with `infrastructure` adapting to domain
 contracts.
 
-See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for the rationale and
-extension seams.
+See [docs/explanation/architecture.mdx](./docs/explanation/architecture.mdx)
+for the rationale and extension seams.
 
 ```
 .
@@ -63,7 +79,7 @@ extension seams.
 │       ├── interfaces/       FastAPI HTTP layer
 │       ├── config.py
 │       └── main.py
-├── docs/ARCHITECTURE.md
+├── docs/                    Mintlify docs site (docs.json + MDX)
 ├── INITIAL_BUSINESS_CONTEXT.md
 └── README.md
 ```
