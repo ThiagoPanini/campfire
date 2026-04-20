@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from typing import Protocol
 from uuid import UUID
 
@@ -15,5 +14,3 @@ class RepertoireRepository(Protocol):
     def exists(self, user_id: UUID, song_id: UUID, instrument_name: str) -> bool: ...
 
     def list_for_user(self, user_id: UUID) -> list[RepertoireEntry]: ...
-
-    def list_for_users(self, user_ids: Iterable[UUID]) -> list[RepertoireEntry]: ...

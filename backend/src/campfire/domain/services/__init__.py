@@ -1,3 +1,7 @@
-from campfire.domain.services.repertoire_service import PossibleRepertoireService
+"""Domain services.
 
-__all__ = ["PossibleRepertoireService"]
+No active domain services in the current scope. Pure domain rules (e.g.
+proficiency validation and labeling) live on their respective value objects.
+"""
+
+__all__: list[str] = []
