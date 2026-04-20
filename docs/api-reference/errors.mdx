@@ -1,0 +1,44 @@
+---
+title: "Errors"
+description: "Status codes returned by the current slice and when they appear."
+---
+
+Campfire returns errors as JSON with a `detail` string:
+
+```json
+{"detail": "proficiency score must be between 0 and 10"}
+```
+
+## Map
+
+| Status | Meaning in Campfire | Typical cause |
+|---:|---|---|
+| `200` | OK | Successful GET |
+| `201` | Created | Successful `POST /repertoire` |
+| `401` | Unauthorized | Missing / unknown `X-User-Id` |
+| `404` | Not Found | Wrong route — compare against the endpoint list |
+| `409` | Conflict | Duplicate `(user, song, instrument)` on `POST /repertoire` |
+| `422` | Unprocessable Entity | pydantic validation failed (empty field, out-of-range proficiency, wrong type) |
+| `500` | Internal Server Error | Invariant violation (e.g. `SongNotFoundError` inside `list_user_repertoire`) — means data corruption |
+
+## Validation examples
+
+<AccordionGroup>
+  <Accordion title="proficiency outside 0..10">
+    ```json
+    {"detail":[{"type":"less_than_equal", "loc":["body","proficiency"], "msg":"..."}]}
+    ```
+  </Accordion>
+  <Accordion title="empty instrument">
+    ```json
+    {"detail":[{"type":"string_too_short", "loc":["body","instrument"]}]}
+    ```
+  </Accordion>
+  <Accordion title="proficiency sent as string">
+    Bare string `"8"` parses in some clients — FastAPI rejects it because the
+    field is typed as `int`.
+  </Accordion>
+</AccordionGroup>
+
+See [Troubleshooting · common errors](/troubleshooting/common-errors) for
+beginner-friendly fixes.

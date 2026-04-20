@@ -1,0 +1,148 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Campfire",
+  "description": "Private music repertoire portal — backend-first docs for the current slice.",
+  "colors": {
+    "primary": "#E85D2F",
+    "light": "#F2A07B",
+    "dark": "#9C3416"
+  },
+  "favicon": "/logo/light.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "background": {
+    "color": {
+      "light": "#FFFBF5",
+      "dark": "#141210"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Welcome",
+            "pages": [
+              "index",
+              "what-is-campfire",
+              "scope"
+            ]
+          },
+          {
+            "group": "Get started",
+            "pages": [
+              "get-started/prerequisites",
+              "get-started/install",
+              "get-started/run-backend",
+              "get-started/first-request"
+            ]
+          },
+          {
+            "group": "Test locally",
+            "pages": [
+              "test-locally/overview",
+              "test-locally/swagger-ui",
+              "test-locally/curl",
+              "test-locally/python-scripts",
+              "test-locally/bruno",
+              "test-locally/hoppscotch"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/overview",
+              "features/authentication",
+              "features/song-search",
+              "features/instruments",
+              "features/register-repertoire",
+              "features/my-repertoire",
+              "features/proficiency"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/common-errors",
+              "troubleshooting/debug-checklist"
+            ]
+          },
+          {
+            "group": "Explanation",
+            "pages": [
+              "explanation/architecture",
+              "explanation/design-decisions"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication",
+              "api-reference/errors"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "/openapi.json"
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/ThiagoPanini/campfire",
+          "icon": "github"
+        },
+        {
+          "anchor": "Business brief",
+          "href": "https://github.com/ThiagoPanini/campfire/blob/main/INITIAL_BUSINESS_CONTEXT.md",
+          "icon": "book-open"
+        }
+      ]
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Issues",
+        "href": "https://github.com/ThiagoPanini/campfire/issues"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Run locally",
+      "href": "/get-started/install"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/ThiagoPanini/campfire"
+    }
+  },
+  "api": {
+    "playground": {
+      "display": "interactive"
+    },
+    "mdx": {
+      "server": "http://localhost:8000/api/v1"
+    }
+  },
+  "seo": {
+    "indexing": "navigable"
+  }
+}

@@ -1,0 +1,66 @@
+---
+title: "curl"
+description: "Copy-paste commands that exercise every endpoint."
+---
+
+Every command assumes the backend is running on `http://localhost:8000` and
+that you exported `USER_ID` to a valid seeded user UUID.
+
+<Tabs>
+  <Tab title="Git Bash / macOS / Linux">
+    ```bash
+    export USER_ID="paste-alice-id-here"
+    ```
+  </Tab>
+  <Tab title="PowerShell">
+    ```powershell
+    $env:USER_ID = "paste-alice-id-here"
+    ```
+  </Tab>
+</Tabs>
+
+## Health
+
+```bash
+curl http://localhost:8000/api/v1/health
+```
+
+## Users
+
+```bash
+curl -H "X-User-Id: $USER_ID" http://localhost:8000/api/v1/users
+curl -H "X-User-Id: $USER_ID" http://localhost:8000/api/v1/users/me
+```
+
+## Song search
+
+```bash
+curl -H "X-User-Id: $USER_ID" \
+  "http://localhost:8000/api/v1/songs/search?q=beatles&limit=5"
+```
+
+## Instruments
+
+```bash
+curl -H "X-User-Id: $USER_ID" \
+  "http://localhost:8000/api/v1/instruments?query=guitar"
+```
+
+## Register repertoire
+
+```bash
+curl -X POST http://localhost:8000/api/v1/repertoire \
+  -H "X-User-Id: $USER_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"song_title":"Black","song_artist":"Pearl Jam","instrument":"guitar","proficiency":8}'
+```
+
+## List your repertoire
+
+```bash
+curl -H "X-User-Id: $USER_ID" http://localhost:8000/api/v1/repertoire/me
+```
+
+<Tip>
+  Pipe through `jq` (`| jq`) for readable output. Install with your package manager.
+</Tip>

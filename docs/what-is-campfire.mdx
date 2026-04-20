@@ -1,0 +1,75 @@
+---
+title: "What Campfire is today"
+description: "The current slice, the product shape, and what you should expect before you install anything."
+---
+
+Campfire is a private music repertoire portal for a small group of friends —
+around ten authorized users. It is being built **slice by slice**. The slice
+that exists today is user-owned repertoire registration and consultation.
+
+## The question it answers
+
+> "What songs do I know, on which instruments, and how well?"
+
+You search a song, pick an instrument (from suggestions or a custom name),
+declare a proficiency score 0–10, and later retrieve your repertoire.
+
+## Product shape
+
+<Columns cols={2}>
+  <Card title="Backend only" icon="server">
+    Python 3.11+ · FastAPI · hexagonal architecture. A UI will consume this
+    contract later.
+  </Card>
+  <Card title="In-memory" icon="database">
+    No SQL yet. Every restart resets all state. The repository interfaces are
+    ready for a real adapter.
+  </Card>
+  <Card title="Placeholder auth" icon="key">
+    `X-User-Id` header → seeded user lookup. The real auth port is defined and
+    waiting for an implementation.
+  </Card>
+  <Card title="Local song catalog" icon="music">
+    A small seeded list behind a `SongSearchProvider` port. An external
+    provider (MusicBrainz, Spotify, …) can replace it without touching the
+    rest of the code.
+  </Card>
+</Columns>
+
+## What you can do today
+
+- Authenticate as a seeded user via `X-User-Id`.
+- Search the seeded song catalog.
+- Read the curated instrument list with optional substring filter.
+- Register a `(song, instrument, proficiency)` entry.
+- List your own repertoire with the derived proficiency label.
+
+## What is intentionally out of scope
+
+<AccordionGroup>
+  <Accordion title="Group-level 'what can we play tonight?'">
+    An earlier scaffold prototyped presence + group repertoire. It was removed
+    on purpose. The seam (`present_user_ids` as a query input) can return
+    later as a dedicated use case without breaking the current code.
+  </Accordion>
+  <Accordion title="Real authentication">
+    No OAuth, no magic links, no passwords yet. The `Authenticator` port is
+    defined; a real adapter plugs in at `infrastructure/auth/`.
+  </Accordion>
+  <Accordion title="Durable storage">
+    Repositories are in-memory. A SQL or file-based adapter can be dropped in
+    next to `infrastructure/persistence/memory/` and flipped in `bootstrap.py`.
+  </Accordion>
+  <Accordion title="Frontend">
+    No SPA, no mobile app. The OpenAPI contract is the product surface today.
+  </Accordion>
+</AccordionGroup>
+
+## Who this is for
+
+- Beginners who want to clone, run, and poke.
+- Contributors who want to extend a specific slice without reading the whole
+  codebase.
+- Reviewers evaluating the architecture.
+
+If you fit, [install and run](/get-started/install).

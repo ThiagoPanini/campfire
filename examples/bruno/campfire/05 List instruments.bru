@@ -1,0 +1,20 @@
+meta {
+  name: List instruments
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/instruments?query=guitar&limit=50
+  body: none
+  auth: none
+}
+
+params:query {
+  query: guitar
+  limit: 50
+}
+
+headers {
+  X-User-Id: {{userId}}
+}

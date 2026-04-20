@@ -1,0 +1,105 @@
+---
+title: "Welcome to Campfire"
+description: "Private music repertoire portal. Backend-first, API-only today — built slice by slice for a small group of friends."
+sidebarTitle: "Welcome"
+mode: "wide"
+---
+
+<Note>
+  Campfire is **backend-only** right now. There is no web UI. Everything on this
+  site helps you run the API locally and exercise the one slice that exists today.
+</Note>
+
+## What Campfire answers today
+
+> **"What songs do I know, on which instruments, and how well?"**
+
+Each authorized user searches songs, picks an instrument, declares a proficiency
+score 0–10, and reads their own repertoire back. Group-level questions
+("what can we all play tonight?") are intentionally deferred.
+
+<CardGroup cols={2}>
+  <Card title="Run it in 5 minutes" icon="rocket" href="/get-started/install">
+    Install dependencies, boot the FastAPI backend, hit `/health`.
+  </Card>
+  <Card title="Your first request" icon="bolt" href="/get-started/first-request">
+    Guided walkthrough: list users, search songs, register an entry, read it back.
+  </Card>
+  <Card title="Test locally" icon="flask" href="/test-locally/overview">
+    Four paths — Swagger UI, curl, Python scripts, Bruno, Hoppscotch.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    OpenAPI-driven endpoint reference with an interactive playground.
+  </Card>
+</CardGroup>
+
+## What you can exercise today
+
+<Columns cols={3}>
+  <Card title="Health check" icon="heart-pulse">
+    Confirm the backend is alive. No auth.
+  </Card>
+  <Card title="List demo users" icon="users">
+    Seeded Alice + Bob. Grab an ID for the `X-User-Id` header.
+  </Card>
+  <Card title="Search songs" icon="magnifying-glass">
+    Substring search over a small seeded catalog.
+  </Card>
+  <Card title="Browse instruments" icon="guitar">
+    Curated suggestions plus custom names at registration time.
+  </Card>
+  <Card title="Register a repertoire entry" icon="circle-plus">
+    `(song, instrument, proficiency)` triple tied to your user.
+  </Card>
+  <Card title="List your repertoire" icon="list-music">
+    Everything you have declared, proficiency label included.
+  </Card>
+</Columns>
+
+## The 60-second tour
+
+<Steps>
+  <Step title="Start the backend">
+    ```bash
+    cd backend
+    uv sync --extra dev
+    uv run uvicorn campfire.main:app --reload
+    ```
+  </Step>
+  <Step title="List seeded users and copy an ID">
+    ```bash
+    curl http://localhost:8000/api/v1/users -H "X-User-Id: 00000000-0000-0000-0000-000000000000"
+    ```
+    The `401` response is expected — open Swagger at [localhost:8000/docs](http://localhost:8000/docs) to read Alice's and Bob's ids.
+  </Step>
+  <Step title="Register your first entry">
+    ```bash
+    curl -X POST http://localhost:8000/api/v1/repertoire \
+      -H "X-User-Id: <alice-id>" \
+      -H "Content-Type: application/json" \
+      -d '{"song_title":"Black","song_artist":"Pearl Jam","instrument":"guitar","proficiency":8}'
+    ```
+  </Step>
+  <Step title="Read it back">
+    ```bash
+    curl http://localhost:8000/api/v1/repertoire/me -H "X-User-Id: <alice-id>"
+    ```
+  </Step>
+</Steps>
+
+## Know before you start
+
+<CardGroup cols={2}>
+  <Card title="In-memory storage" icon="database" href="/scope">
+    Everything resets on server restart. By design.
+  </Card>
+  <Card title="Placeholder auth" icon="key" href="/features/authentication">
+    `X-User-Id` header against seeded users. No OAuth yet.
+  </Card>
+  <Card title="No frontend yet" icon="browser" href="/scope">
+    The API contract is the product right now.
+  </Card>
+  <Card title="Scope and limits" icon="list-check" href="/scope">
+    What is intentionally out of scope and why.
+  </Card>
+</CardGroup>

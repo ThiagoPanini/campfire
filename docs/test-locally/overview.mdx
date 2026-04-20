@@ -1,0 +1,46 @@
+---
+title: "Test locally"
+description: "Five paths to exercise the API — same endpoints, different surface."
+sidebarTitle: "Overview"
+---
+
+Campfire is API-only. There is no UI to click through. This section gives you
+five ways to hit the same endpoints, ordered from zero-install to fully scripted.
+
+<CardGroup cols={2}>
+  <Card title="Swagger UI" icon="browser" href="/test-locally/swagger-ui">
+    Ships with FastAPI. Zero setup, endpoint list in the browser.
+  </Card>
+  <Card title="curl" icon="terminal" href="/test-locally/curl">
+    The universal baseline. Every example on this site is curl-first.
+  </Card>
+  <Card title="Python scripts" icon="python" href="/test-locally/python-scripts">
+    Reusable snippets in `examples/python/` for repeatable flows.
+  </Card>
+  <Card title="Bruno" icon="folder" href="/test-locally/bruno">
+    Git-friendly API client. Collections live alongside the code.
+  </Card>
+  <Card title="Hoppscotch" icon="bolt" href="/test-locally/hoppscotch">
+    Browser-based Postman alternative.
+  </Card>
+</CardGroup>
+
+## Pick your path
+
+| You want… | Use |
+|---|---|
+| Fastest first test | [Swagger UI](/test-locally/swagger-ui) |
+| Copy-paste into any shell | [curl](/test-locally/curl) |
+| Repeatable scripts for later | [Python scripts](/test-locally/python-scripts) |
+| Versioned API collections | [Bruno](/test-locally/bruno) |
+| Stay in the browser | [Hoppscotch](/test-locally/hoppscotch) |
+
+## Prerequisites for every path
+
+- Backend running on `http://localhost:8000` — see [Run the backend](/get-started/run-backend).
+- A valid `X-User-Id` (seeded Alice or Bob) — see [Authentication](/features/authentication).
+
+<Warning>
+  Every restart regenerates the seeded user IDs and wipes the repertoire.
+  When things suddenly "stop working", check whether you restarted the server.
+</Warning>

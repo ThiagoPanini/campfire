@@ -1,0 +1,52 @@
+---
+title: "My repertoire"
+description: "List every entry the current user has declared."
+---
+
+## Endpoint
+
+```http
+GET /api/v1/repertoire/me
+X-User-Id: <uuid>
+```
+
+Returns a list of entries for the authenticated user. Proficiency labels are
+computed on every read.
+
+## Example
+
+```bash
+curl -H "X-User-Id: $USER_ID" http://localhost:8000/api/v1/repertoire/me
+```
+
+```json
+[
+  {
+    "entry_id": "…",
+    "user_id": "…",
+    "song_id": "…",
+    "song_title": "Black",
+    "song_artist": "Pearl Jam",
+    "instrument": "guitar",
+    "proficiency": 8,
+    "proficiency_label": "advanced"
+  }
+]
+```
+
+## Shape notes
+
+<ResponseField name="entry_id" type="uuid">
+  Stable id of the repertoire entry.
+</ResponseField>
+<ResponseField name="song_id" type="uuid">
+  Id of the resolved song. Regenerated on every server restart.
+</ResponseField>
+<ResponseField name="proficiency_label" type="string">
+  Derived on the fly: `beginner` (0–3), `intermediate` (4–7), `advanced` (8–9),
+  `expert` (10).
+</ResponseField>
+
+<Note>
+  State is in-memory. Restarting the server empties this list.
+</Note>

@@ -1,0 +1,40 @@
+---
+title: "Authentication"
+description: "The X-User-Id header, applied to every route except /health."
+---
+
+Campfire's placeholder authenticator expects a UUID in the `X-User-Id`
+request header.
+
+```http
+GET /api/v1/users/me HTTP/1.1
+Host: localhost:8000
+X-User-Id: 2f1d0b1d-e0f2-4a86-9d8a-9c7d3e8f1234
+```
+
+| Condition | Response |
+|---|---|
+| Header missing | `401 Unauthorized` · `{"detail":"missing user identity"}` |
+| Header present, unknown id | `401 Unauthorized` · detail contains the UUID |
+| Header present, seeded id | `200` (or the endpoint's success code) |
+
+<Info>
+  `GET /api/v1/health` is the only public endpoint.
+</Info>
+
+## Finding a valid id
+
+See [Features · Authentication](/features/authentication#reading-the-seeded-ids).
+
+## Replacing placeholder auth
+
+The authenticator port is:
+
+```python
+class Authenticator(Protocol):
+    def authenticate(self, user_id: UUID | None) -> User: ...
+```
+
+Any adapter that satisfies this Protocol plugs in at
+`infrastructure/auth/` and is wired in `bootstrap.py`. No domain or interface
+change required.
