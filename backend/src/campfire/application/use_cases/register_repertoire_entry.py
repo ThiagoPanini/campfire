@@ -1,4 +1,4 @@
-"""Use case: a user declares they know how to play a song on an instrument."""
+"""Use case: a user links a song to their repertoire with proficiency."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from campfire.application.dto import RegisterRepertoireEntryCommand, RepertoireEntryView
 from campfire.domain.exceptions import DuplicateRepertoireEntryError, UserNotFoundError
 from campfire.domain.models.instrument import Instrument
+from campfire.domain.models.proficiency import Proficiency
 from campfire.domain.models.repertoire_entry import RepertoireEntry
 from campfire.domain.models.song import Song
 from campfire.domain.repositories import RepertoireRepository, SongRepository, UserRepository
@@ -29,13 +30,19 @@ class RegisterRepertoireEntry:
             self.songs.add(song)
 
         instrument = Instrument(name=command.instrument_name)
+        proficiency = Proficiency(score=command.proficiency_score)
 
         if self.repertoire.exists(user.id, song.id, instrument.name):
             raise DuplicateRepertoireEntryError(
                 f"{user.id} already declared {song.title} on {instrument.name}"
             )
 
-        entry = RepertoireEntry(user_id=user.id, song_id=song.id, instrument=instrument)
+        entry = RepertoireEntry(
+            user_id=user.id,
+            song_id=song.id,
+            instrument=instrument,
+            proficiency=proficiency,
+        )
         self.repertoire.add(entry)
 
         return RepertoireEntryView(
@@ -45,4 +52,6 @@ class RegisterRepertoireEntry:
             song_title=song.title,
             song_artist=song.artist,
             instrument=instrument.name,
+            proficiency_score=proficiency.score,
+            proficiency_label=proficiency.label,
         )

@@ -33,6 +33,8 @@ class ListUserRepertoire:
                     song_title=song.title,
                     song_artist=song.artist,
                     instrument=entry.instrument.name,
+                    proficiency_score=entry.proficiency.score,
+                    proficiency_label=entry.proficiency.label,
                 )
             )
         return views

@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
+from campfire.domain.models.proficiency import ProficiencyLabel
+
 
 @dataclass(frozen=True, slots=True)
 class RegisterRepertoireEntryCommand:
@@ -12,6 +14,7 @@ class RegisterRepertoireEntryCommand:
     song_title: str
     song_artist: str
     instrument_name: str
+    proficiency_score: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,11 +25,13 @@ class RepertoireEntryView:
     song_title: str
     song_artist: str
     instrument: str
+    proficiency_score: int
+    proficiency_label: ProficiencyLabel
 
 
 @dataclass(frozen=True, slots=True)
-class PossibleSongView:
-    song_id: UUID
-    song_title: str
-    song_artist: str
-    supporters: dict[UUID, tuple[str, ...]]
+class SongSearchItemView:
+    title: str
+    artist: str
+    source: str
+    external_id: str | None
