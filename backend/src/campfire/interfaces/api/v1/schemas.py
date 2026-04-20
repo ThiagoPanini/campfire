@@ -16,6 +16,7 @@ class RegisterRepertoireEntryRequest(BaseModel):
     song_title: str = Field(min_length=1)
     song_artist: str = Field(min_length=1)
     instrument: str = Field(min_length=1)
+    proficiency: int = Field(ge=0, le=10)
 
 
 class RepertoireEntryResponse(BaseModel):
@@ -25,17 +26,15 @@ class RepertoireEntryResponse(BaseModel):
     song_title: str
     song_artist: str
     instrument: str
+    proficiency: int
+    proficiency_label: str
 
 
-class PossibleSongResponse(BaseModel):
-    song_id: UUID
-    song_title: str
-    song_artist: str
-    supporters: dict[UUID, list[str]]
-
-
-class PossibleRepertoireRequest(BaseModel):
-    present_user_ids: list[UUID] = Field(min_length=1)
+class SongSearchItemResponse(BaseModel):
+    title: str
+    artist: str
+    source: str
+    external_id: str | None = None
 
 
 class UserResponse(BaseModel):
