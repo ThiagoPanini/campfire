@@ -1,8 +1,0 @@
-{
-  "v": 1,
-  "name": "campfire-local",
-  "variables": [
-    { "key": "baseUrl", "value": "http://localhost:8000" },
-    { "key": "userId", "value": "paste-alice-or-bob-uuid-here" }
-  ]
-}
