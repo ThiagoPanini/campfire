@@ -1,5 +1,9 @@
 {
   "servers": {
+    "GitHub": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
     "Mintlify": {
       "type": "http",
       "url": "https://mintlify.com/docs/mcp"
