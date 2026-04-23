@@ -1,0 +1,74 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Campfire",
+  "description": "Documentation for Campfire, a music hub for groups of friends who meet for amateur jam sessions.",
+  "colors": {
+    "primary": "#27D3FF",
+    "light": "#63E6BE",
+    "dark": "#0B0B0F"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/architecture",
+              "concepts/auth-bootstrap"
+            ]
+          },
+          {
+            "group": "Platform",
+            "pages": [
+              "guides/platform/index",
+              "guides/platform/local-environment",
+              "guides/platform/localstack-services"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "openapi.yaml"
+          }
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Spec",
+        "href": "https://github.com/paninit/campfire/tree/main/specs/002-cicd-local-env"
+      }
+    ],
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/paninit/campfire"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/paninit/campfire"
+    }
+  }
+}
