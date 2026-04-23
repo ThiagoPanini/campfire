@@ -22,6 +22,13 @@ Campfire is a greenfield music hub for groups of friends who meet for amateur ja
 - Do not dump whole directories or generated artifacts into context when a narrow lookup will do.
 - Preserve user changes and avoid unrelated refactors.
 - Record durable project decisions in a focused doc instead of repeating them in chat.
+- Frontend implementation should follow `DESIGN.md` and the `frontend-design` skill when relevant.
+- Python backend implementation should follow `python-code-style` and `python-design-patterns`.
+- Terraform implementation should follow `terraform-style-guide`.
 
 ## Current State
 - This repository is still early-stage. If a referenced Spec-Kit plan file does not exist yet, proceed from the available spec, prompt, or repository instructions instead of searching repeatedly.
+
+<!-- SPECKIT START -->
+Active Spec-Kit plan: `specs/002-cicd-local-env/plan.md`
+<!-- SPECKIT END -->

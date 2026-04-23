@@ -1,5 +1,12 @@
 {
   "mcpServers": {
+    "serena": {
+      "command": "serena",
+      "args": [
+        "start-mcp-server",
+        "--project-from-cwd"
+      ]
+    },
     "mintlify": {
       "type": "http",
       "url": "https://mintlify.com/docs/mcp"

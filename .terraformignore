@@ -1,0 +1,13 @@
+.git/
+.github/
+.vscode/
+.terraform/
+*.tfstate*
+*.tfvars
+*.tfplan
+.env*
+node_modules/
+dist/
+build/
+coverage/
+.terraform.lock.hcl

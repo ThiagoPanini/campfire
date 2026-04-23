@@ -1,3 +1,6 @@
+# Temp dir
+tmp/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -210,7 +213,36 @@ __marimo__/
 node_modules/
 frontend/dist/
 frontend/.vite/
+apps/web/dist/
+apps/web/.vite/
+apps/web/playwright-report/
+apps/web/test-results/
+apps/web/coverage/
+apps/web/node_modules/
+apps/web/tsconfig.tsbuildinfo
+
+# Local platform artifacts
+dist/
+apps/api/.local/
+.terraform.lock.hcl
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/launch.json
 
 # Claude Code — per-user overrides + Serena cache
 .claude/settings.local.json
+
+# Campfire local backend runtime artifacts
+apps/api/.local/
 .serena/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan

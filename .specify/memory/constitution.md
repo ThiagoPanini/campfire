@@ -31,9 +31,8 @@ Templates requiring updates:
   - ⚠ .specify/templates/checklist-template.md (compatible — no change required now)
 
 Follow-up TODOs:
-  - TODO(ADR-REGISTER): Establish `docs/adr/` (or Mintlify equivalent) with an index of
-      Architectural Decision Records; create ADR-0001 recording this constitution's
-      ratification.
+  - PARTIAL(ADR-REGISTER): `docs/adr/` now exists with an index and ADR-0001/0002.
+      A dedicated ADR for the constitution ratification still requires validation.
   - TODO(DOMAIN-GLOSSARY): Publish the ubiquitous language defined here as a living
       glossary under the documentation surface (Mintlify).
   - TODO(SECURITY-BASELINE): On first infrastructure commit, produce a baseline threat
