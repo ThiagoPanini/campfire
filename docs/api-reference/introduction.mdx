@@ -1,0 +1,85 @@
+---
+title: "API overview"
+description: "How to reach the Campfire API, how authentication works, and what the current endpoints do."
+---
+
+The Campfire API is the backend half of the [auth bootstrap](/concepts/auth-bootstrap) slice. It currently exposes one unauthenticated health endpoint and one authenticated user-context endpoint. The OpenAPI contract that generates the endpoint pages lives in `specs/001-auth-bootstrap/contracts/auth-bootstrap-api.openapi.yaml` and is mirrored at `docs/openapi.yaml` for Mintlify.
+
+## Base URL
+
+| Environment | URL |
+|-------------|-----|
+| Local | `http://localhost:8010` |
+| AWS | `https://api.<your-domain>` |
+
+## Authentication
+
+Protected endpoints require a bearer token in the `Authorization` header:
+
+```http
+Authorization: Bearer <jwt>
+```
+
+In AWS, tokens are issued by Cognito and validated by the API Gateway JWT authorizer. Locally, the API process verifies locally signed RS256 tokens before building the Lambda-like event.
+
+<Info>
+The application use case never handles raw credentials. It receives normalized verified claims after the boundary has accepted the token.
+</Info>
+
+## Endpoints
+
+Two endpoints are generated from the OpenAPI contract and appear under **Endpoints** in the sidebar:
+
+- `GET /health` — liveness check. Returns quickly without touching auth or persistence.
+- `GET /me` — returns the authenticated user's bootstrap context. Creates the local record on first login.
+
+## Response shape
+
+The `/me` response is stable across first-login and returning-login cases. Only the `bootstrap.firstLogin` flag differs:
+
+```json
+{
+  "user": {
+    "id": "usr_01J...",
+    "email": "jamie@example.com",
+    "displayName": "Jamie",
+    "status": "active",
+    "lastLoginAt": "2026-04-23T18:30:00Z"
+  },
+  "bootstrap": {
+    "firstLogin": true
+  }
+}
+```
+
+## Errors
+
+Authentication failures return a JSON error body:
+
+```json
+{
+  "error": "unauthorized",
+  "message": "Missing or invalid authentication"
+}
+```
+
+The most common causes:
+
+| Cause | Where it surfaces |
+|-------|-------------------|
+| Missing `Authorization` header | API Gateway authorizer in AWS; local adapter on a local run |
+| Expired or malformed token | Same as above |
+| Wrong audience or issuer | Same as above |
+| Missing `email_verified` claim | Application layer, before persistence |
+
+## Try it locally
+
+See [Quickstart](/quickstart) and [Local environment](/guides/platform/local-environment) for the full local setup. The short version:
+
+```bash
+make up
+make run
+
+TOKEN="$(make -s token)"
+curl -H "Authorization: Bearer ${TOKEN}" http://localhost:8010/me
+```
