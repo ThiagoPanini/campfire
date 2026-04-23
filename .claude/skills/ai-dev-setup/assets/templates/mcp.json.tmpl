@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "_comment": "This is a template. Remove `_comment` keys and add only the servers you approved. Do not hardcode secrets — use env vars.",
+
+    "mintlify": {
+      "type": "http",
+      "url": "https://mintlify.com/docs/mcp"
+    },
+
+    "serena": {
+      "command": "serena",
+      "args": ["mcp", "--project-from-cwd"]
+    },
+
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PAT_TOKEN}"
+      }
+    }
+  }
+}

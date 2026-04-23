@@ -46,6 +46,11 @@
       "sourceType": "github",
       "computedHash": "8646a52fb34f1b88954aa84c86d5de04fbda1f415e509045c7f3ffff5886ded4"
     },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2"
+    },
     "uv-package-manager": {
       "source": "wshobson/agents",
       "sourceType": "github",
