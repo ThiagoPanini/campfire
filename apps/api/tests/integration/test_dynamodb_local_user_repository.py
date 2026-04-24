@@ -56,4 +56,82 @@ def test_dynamodb_repository_bootstraps_and_reuses_local_user(local_dynamodb) ->
     assert first_result.first_login is True
     assert second_result.first_login is False
     assert first_result.user.user_id == second_result.user.user_id
-    assert len(stored_items) == 1
+    assert len(stored_items) == 2
+    assert {item["sk"] for item in stored_items} == {"PROFILE", "IDENTITY#cognito#subject-1"}
+
+
+def _make_table(settings):
+    return boto3.resource(
+        "dynamodb",
+        endpoint_url=settings.dynamodb_endpoint_url,
+        region_name=settings.aws_region,
+    ).Table(settings.local_users_table)
+
+
+def test_dynamodb_email_lookup_returns_user(local_dynamodb) -> None:
+    settings = load_settings()
+    repository = DynamoDbLocalUserRepository(_make_table(settings))
+    service = GetOrBootstrapLocalUser(repository=repository)
+    claims = VerifiedIdentityClaims(
+        provider_name="cognito",
+        provider_subject="subject-email-lookup",
+        email="lookup@example.com",
+        email_verified=True,
+        display_name="Lookup User",
+    )
+
+    created = service.execute(claims)
+    found = repository.get_by_email("lookup@example.com")
+
+    assert found is not None
+    assert found.user_id == created.user.user_id
+
+
+def test_dynamodb_provider_identity_lookup_returns_user(local_dynamodb) -> None:
+    settings = load_settings()
+    repository = DynamoDbLocalUserRepository(_make_table(settings))
+    service = GetOrBootstrapLocalUser(repository=repository)
+    claims = VerifiedIdentityClaims(
+        provider_name="cognito",
+        provider_subject="identity-lookup-sub",
+        email="identity@example.com",
+        email_verified=True,
+        display_name="Identity User",
+    )
+
+    created = service.execute(claims)
+    found = repository.get_by_provider_identity("cognito", "identity-lookup-sub")
+
+    assert found is not None
+    assert found.user_id == created.user.user_id
+
+
+def test_dynamodb_google_identity_links_to_existing_email_user(local_dynamodb) -> None:
+    settings = load_settings()
+    repository = DynamoDbLocalUserRepository(_make_table(settings))
+    service = GetOrBootstrapLocalUser(repository=repository)
+
+    cognito_claims = VerifiedIdentityClaims(
+        provider_name="cognito",
+        provider_subject="cognito-sub",
+        email="shared@example.com",
+        email_verified=True,
+        display_name="Shared User",
+    )
+    google_claims = VerifiedIdentityClaims(
+        provider_name="google",
+        provider_subject="google-sub",
+        email="shared@example.com",
+        email_verified=True,
+        display_name="Shared User",
+    )
+
+    first_result = service.execute(cognito_claims)
+    google_result = service.execute(google_claims)
+
+    assert google_result.user.user_id == first_result.user.user_id
+    assert google_result.first_login is False
+
+    google_found = repository.get_by_provider_identity("google", "google-sub")
+    assert google_found is not None
+    assert google_found.user_id == first_result.user.user_id

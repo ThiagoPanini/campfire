@@ -61,15 +61,19 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      APP_NAME            = "${var.application_name}-api"
-      APP_ENV             = var.environment
-      AWS_REGION          = var.aws_region
-      LOCAL_USERS_TABLE   = var.local_users_table_name
-      API_BASE_URL        = "https://${var.api_domain}"
-      WEB_BASE_URL        = "https://${var.web_domain}"
-      USER_POOL_ID        = var.user_pool_id
-      USER_POOL_CLIENT_ID = var.user_pool_client_id
-      USER_POOL_DOMAIN    = var.user_pool_domain
+      APP_NAME                    = "${var.application_name}-api"
+      APP_ENV                     = var.environment
+      AWS_REGION                  = var.aws_region
+      LOCAL_USERS_TABLE           = var.local_users_table_name
+      API_BASE_URL                = "https://${var.api_domain}"
+      WEB_BASE_URL                = "https://${var.web_domain}"
+      USER_POOL_ID                = var.user_pool_id
+      USER_POOL_CLIENT_ID         = var.user_pool_client_id
+      USER_POOL_DOMAIN            = var.user_pool_domain
+      USER_POOL_ISSUER            = "https://cognito-idp.${var.aws_region}.amazonaws.com/${var.user_pool_id}"
+      GOOGLE_PROVIDER_ENABLED     = tostring(var.google_provider_enabled)
+      NORMALIZED_EMAIL_INDEX_NAME = var.normalized_email_index_name
+      PROVIDER_IDENTITY_INDEX_NAME = var.provider_identity_index_name
     }
   }
 
@@ -84,7 +88,7 @@ resource "aws_apigatewayv2_api" "http" {
 
   cors_configuration {
     allow_headers  = ["Authorization", "Content-Type"]
-    allow_methods  = ["GET", "OPTIONS"]
+    allow_methods  = ["GET", "OPTIONS", "PUT", "PATCH"]
     allow_origins  = ["https://${var.web_domain}"]
     expose_headers = ["Content-Type"]
     max_age        = 3600
@@ -121,6 +125,30 @@ resource "aws_apigatewayv2_route" "health" {
 resource "aws_apigatewayv2_route" "me" {
   api_id             = aws_apigatewayv2_api.http.id
   route_key          = "GET /me"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.jwt.id
+}
+
+resource "aws_apigatewayv2_route" "me_preferences_get" {
+  api_id             = aws_apigatewayv2_api.http.id
+  route_key          = "GET /me/preferences"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.jwt.id
+}
+
+resource "aws_apigatewayv2_route" "me_preferences_put" {
+  api_id             = aws_apigatewayv2_api.http.id
+  route_key          = "PUT /me/preferences"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.jwt.id
+}
+
+resource "aws_apigatewayv2_route" "me_onboarding_patch" {
+  api_id             = aws_apigatewayv2_api.http.id
+  route_key          = "PATCH /me/onboarding"
   target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
   authorization_type = "JWT"
   authorizer_id      = aws_apigatewayv2_authorizer.jwt.id

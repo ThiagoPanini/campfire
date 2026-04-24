@@ -73,6 +73,8 @@ def ensure_local_users_table(settings: Settings, *, reset: bool = False) -> None
                 {"AttributeName": "sk", "AttributeType": "S"},
                 {"AttributeName": "gsi1pk", "AttributeType": "S"},
                 {"AttributeName": "gsi1sk", "AttributeType": "S"},
+                {"AttributeName": "gsi2pk", "AttributeType": "S"},
+                {"AttributeName": "gsi2sk", "AttributeType": "S"},
             ],
             GlobalSecondaryIndexes=[
                 {
@@ -80,6 +82,14 @@ def ensure_local_users_table(settings: Settings, *, reset: bool = False) -> None
                     "KeySchema": [
                         {"AttributeName": "gsi1pk", "KeyType": "HASH"},
                         {"AttributeName": "gsi1sk", "KeyType": "RANGE"},
+                    ],
+                    "Projection": {"ProjectionType": "ALL"},
+                },
+                {
+                    "IndexName": "gsi2",
+                    "KeySchema": [
+                        {"AttributeName": "gsi2pk", "KeyType": "HASH"},
+                        {"AttributeName": "gsi2sk", "KeyType": "RANGE"},
                     ],
                     "Projection": {"ProjectionType": "ALL"},
                 }

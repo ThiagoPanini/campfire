@@ -4,9 +4,9 @@
   "name": "Campfire",
   "description": "Documentation for Campfire, a music hub for groups of friends who meet for amateur jam sessions.",
   "colors": {
-    "primary": "#27D3FF",
-    "light": "#63E6BE",
-    "dark": "#0B0B0F"
+    "primary": "#E8813A",
+    "light": "#FFB07A",
+    "dark": "#131313"
   },
   "navigation": {
     "tabs": [
@@ -25,6 +25,12 @@
             "pages": [
               "concepts/architecture",
               "concepts/auth-bootstrap"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/auth-and-onboarding"
             ]
           },
           {
@@ -58,7 +64,7 @@
     "links": [
       {
         "label": "Spec",
-        "href": "https://github.com/paninit/campfire/tree/main/specs/002-cicd-local-env"
+        "href": "https://github.com/paninit/campfire/tree/main/specs/003-refactor-auth-preferences"
       }
     ],
     "primary": {

@@ -1,17 +1,20 @@
 ---
-title: "Auth bootstrap"
-description: "The first secure end-to-end slice: domain access, sign-in, protected routes, and a bootstrapped local user."
+title: "Auth and user context"
+description: "Self-service Cognito authentication, Google OAuth linking, and the Campfire user context bootstrap."
 ---
 
-`auth-bootstrap` is the first deployable feature of Campfire. It establishes the minimum secure foundation that every later product feature can rely on: a public domain, a managed identity flow, a protected authenticated area, and an internal user record bootstrapped on first login.
+Campfire uses **Cognito email/password** and **Google OAuth** for self-service authentication. There is no admin-only or pre-provisioned user path in the MVP — every user signs up and is verified through Cognito.
 
 ## What this slice delivers
 
 - A public landing page reachable on the Campfire domain over TLS.
-- A managed sign-in and sign-out flow through Cognito Hosted UI.
-- Protected routes that block unauthenticated visitors and redirect them into auth.
-- A backend `/me` endpoint that validates the bearer token and returns a Campfire user-context view.
-- Automatic creation of a minimum local user record on the first successful login, with idempotent reuse on every subsequent login.
+- Self-service Cognito email/password sign-up with mandatory email verification.
+- Google OAuth redirect sign-in with automatic identity linking to existing email accounts.
+- Password recovery via Cognito's built-in forgot-password flow.
+- Protected routes that block unauthenticated visitors and redirect to sign-in with `returnTo`.
+- A backend `/me` endpoint that validates the Cognito bearer token and returns the full Campfire user context, including auth summary, onboarding state, and first-login flag.
+- Automatic creation of a Campfire local user record on the first successful login, with identity linking and idempotent reuse on every subsequent login.
+- Single Campfire account per normalized verified email regardless of auth provider.
 
 ## What this slice intentionally excludes
 

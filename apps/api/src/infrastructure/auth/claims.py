@@ -23,6 +23,12 @@ def map_verified_claims(claims: Mapping[str, object]) -> VerifiedIdentityClaims:
     provider_subject = str(claims.get("sub") or "").strip()
     email = str(claims.get("email") or "").strip()
     email_verified = _to_bool(claims.get("email_verified"))
+    provider_name = str(
+        claims.get("identity_provider")
+        or claims.get("provider")
+        or claims.get("cognito:identity_provider")
+        or "cognito"
+    ).strip().lower()
 
     if not provider_subject:
         raise ClaimsMappingError("Missing subject claim.")
@@ -31,9 +37,9 @@ def map_verified_claims(claims: Mapping[str, object]) -> VerifiedIdentityClaims:
         raise ClaimsMappingError("Missing email claim.")
 
     return VerifiedIdentityClaims(
-        provider_name="cognito",
+        provider_name=provider_name or "cognito",
         provider_subject=provider_subject,
-        email=email,
+        email=email.lower(),
         email_verified=email_verified,
         display_name=str(claims.get("name") or claims.get("cognito:username") or email).strip(),
     )

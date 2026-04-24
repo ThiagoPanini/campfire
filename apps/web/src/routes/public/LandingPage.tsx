@@ -1,150 +1,277 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import { AuthActions } from "../../features/auth/AuthActions";
+import {
+  AccentButton,
+  DesignGlobalStyles,
+  MonoLabel,
+  Nav,
+  NavLink,
+  pageBaseStyle,
+} from "../../design/primitives";
+import { ACCENT, ACCENT_DARK, FONT_DISPLAY, SURFACE } from "../../design/tokens";
+
+type CardIconType = "list" | "target" | "people";
+
+function CardIcon({ type, color }: { type: CardIconType; color: string }): JSX.Element {
+  if (type === "list") {
+    return (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect x="2" y="6" width="10" height="2" rx="1" fill={color} />
+        <rect x="2" y="12" width="10" height="2" rx="1" fill={color} opacity={0.7} />
+        <rect x="2" y="18" width="10" height="2" rx="1" fill={color} opacity={0.4} />
+        <rect x="16" y="5" width="10" height="4" rx="2" fill={color} opacity={0.25} />
+        <rect x="16" y="11" width="7" height="4" rx="2" fill={color} opacity={0.25} />
+        <rect x="16" y="17" width="8" height="4" rx="2" fill={color} opacity={0.25} />
+      </svg>
+    );
+  }
+  if (type === "target") {
+    return (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <circle cx="14" cy="14" r="11" stroke={color} strokeWidth="1.5" opacity={0.3} />
+        <circle cx="14" cy="14" r="7" stroke={color} strokeWidth="1.5" opacity={0.6} />
+        <circle cx="14" cy="14" r="3" fill={color} />
+        <line x1="22" y1="6" x2="17" y2="11" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="19" y1="4" x2="22" y2="6" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="22" y1="6" x2="24" y2="3" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <circle cx="9" cy="10" r="4" stroke={color} strokeWidth="1.5" opacity={0.5} />
+      <circle cx="19" cy="10" r="4" stroke={color} strokeWidth="1.5" opacity={0.5} />
+      <circle cx="14" cy="9" r="4" fill={color} opacity={0.9} />
+      <path d="M4 24c0-4 2.5-6 5-6" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity={0.4} />
+      <path d="M24 24c0-4-2.5-6-5-6" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity={0.4} />
+      <path d="M8 24c0-3.5 2.7-6 6-6s6 2.5 6 6" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+type TileVariant = "accent" | "surface" | "dark";
+
+const FEATURES: Array<{
+  kicker: string;
+  body: string;
+  icon: CardIconType;
+  variant: TileVariant;
+}> = [
+  {
+    kicker: "YOUR REPERTOIRE",
+    body: "Every song you know, organised by instrument and how well you play it.",
+    icon: "list",
+    variant: "accent",
+  },
+  {
+    kicker: "WHAT TO PRACTICE",
+    body: "Songs you're still learning surface automatically so you always know what to work on next.",
+    icon: "target",
+    variant: "surface",
+  },
+  {
+    kicker: "SHARE WITH YOUR CIRCLE",
+    body: "Let your group see your set — so everyone knows what the room can play before the session starts.",
+    icon: "people",
+    variant: "dark",
+  },
+];
+
+function tileColors(variant: TileVariant): {
+  background: string;
+  iconColor: string;
+  kickerColor: string;
+  textColor: string;
+} {
+  if (variant === "accent") {
+    return {
+      background: ACCENT,
+      iconColor: "#000",
+      kickerColor: "rgba(0,0,0,0.6)",
+      textColor: "#000",
+    };
+  }
+  if (variant === "dark") {
+    return {
+      background: ACCENT_DARK,
+      iconColor: "#FFD9B8",
+      kickerColor: "#FFD9B8",
+      textColor: "#F2D4BC",
+    };
+  }
+  return {
+    background: SURFACE,
+    iconColor: ACCENT,
+    kickerColor: "#b5b5b5",
+    textColor: "#bbb",
+  };
+}
 
 export function LandingPage(): JSX.Element {
+  const navigate = useNavigate();
+
+  const goSignIn = (): void => navigate("/signin");
+  const goSignUp = (): void => navigate("/signup");
+
   return (
-    <main className="page page-landing">
-      <div className="landing-wrap">
-        <section className="landing-topbar" aria-label="Campfire product overview">
-          <div className="brand-lockup">
-            <div className="brand-mark">CF</div>
-            <div>
-              <p className="brand-name">Campfire</p>
-              <p className="brand-copy">Private rehearsal coordination for serious friend bands.</p>
-            </div>
-          </div>
-          <div className="topbar-meta">
-            <span className="signal-dot" aria-hidden="true" />
-            <span>Secure auth bootstrap</span>
-            <span>Music-room layout</span>
-            <span>Responsive shell</span>
-          </div>
-        </section>
+    <main style={{ ...pageBaseStyle, display: "flex", flexDirection: "column" }}>
+      <DesignGlobalStyles />
+      <Nav rightSlot={<NavLink onClick={goSignIn}>SIGN IN</NavLink>} />
 
-        <section className="landing-showcase">
-          <div className="hero-panel">
-            <div className="hero-copy">
-              <p className="eyebrow">Authenticated music workspace</p>
-              <h1>The private rehearsal room your group can actually rally around.</h1>
-              <p className="lede">
-                Campfire borrows the confidence and density of modern streaming products, then
-                refits it for jam sessions: trusted sign-in, a polished shell, and a shared sense
-                of what happens next before anyone loads in an amp.
-              </p>
-              <div className="hero-actions">
-                <AuthActions />
-                <Link className="button button-ghost" to="/app">
-                  Preview shell
-                </Link>
+      <section
+        style={{
+          flex: 1,
+          padding: "clamp(110px, 18vw, 168px) clamp(24px, 6vw, 80px) clamp(60px, 8vw, 100px)",
+          maxWidth: 1300,
+          margin: "0 auto",
+          width: "100%",
+        }}
+      >
+        <div
+          className="cf-fade-up"
+          style={{ marginBottom: 28, display: "flex", alignItems: "center", gap: 14 }}
+        >
+          <div style={{ width: 32, height: 1, background: ACCENT }} />
+          <MonoLabel size={10} color={ACCENT}>
+            EARLY ACCESS · CURRENTLY IN ALPHA
+          </MonoLabel>
+        </div>
+
+        <h1
+          className="cf-fade-up"
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontSize: "clamp(52px, 11.5vw, 118px)",
+            lineHeight: 0.93,
+            letterSpacing: "0.025em",
+            color: "#fff",
+            marginBottom: "clamp(28px, 5vw, 48px)",
+            maxWidth: 860,
+            animationDelay: "0.06s",
+            fontWeight: 400,
+          }}
+        >
+          TRACK THE SONGS
+          <br />
+          YOU KNOW TO PLAY
+          <br />
+          AND SHARE
+          <br />
+          <span style={{ color: ACCENT }}>WITH YOUR GROUP.</span>
+        </h1>
+
+        <p
+          className="cf-fade-up"
+          style={{
+            fontSize: "clamp(15px, 1.8vw, 17px)",
+            fontWeight: 300,
+            lineHeight: 1.7,
+            color: "#777",
+            maxWidth: 480,
+            marginBottom: "clamp(36px, 6vw, 56px)",
+            letterSpacing: "0.01em",
+            animationDelay: "0.12s",
+          }}
+        >
+          Build your personal repertoire by instrument, track what you&apos;re learning, and share
+          your set with your group.
+        </p>
+
+        <div className="cf-fade-up" style={{ animationDelay: "0.18s" }}>
+          <AccentButton size="lg" onClick={goSignUp}>
+            ENTER CAMPFIRE
+          </AccentButton>
+        </div>
+      </section>
+
+      <section
+        style={{
+          borderTop: "1px solid #1e1e1e",
+          padding: "clamp(40px, 7vw, 72px) clamp(24px, 6vw, 80px)",
+          maxWidth: 1300,
+          margin: "0 auto",
+          width: "100%",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            border: "1px solid #222",
+            borderRadius: 20,
+            overflow: "hidden",
+            gap: 0,
+          }}
+        >
+          {FEATURES.map((feature, index) => {
+            const colors = tileColors(feature.variant);
+            return (
+              <div
+                key={feature.kicker}
+                style={{
+                  background: colors.background,
+                  padding: "clamp(24px, 3vw, 36px)",
+                  minHeight: 220,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  gap: 20,
+                  borderRight: index < FEATURES.length - 1 ? "1px solid #222" : "none",
+                }}
+              >
+                <CardIcon type={feature.icon} color={colors.iconColor} />
+                <div>
+                  <MonoLabel
+                    size={10}
+                    color={colors.kickerColor}
+                    style={{
+                      display: "block",
+                      marginBottom: 10,
+                      whiteSpace: "normal",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {feature.kicker}
+                  </MonoLabel>
+                  <p
+                    style={{
+                      fontSize: "clamp(13px, 1.3vw, 15px)",
+                      fontWeight: 400,
+                      lineHeight: 1.6,
+                      color: colors.textColor,
+                      letterSpacing: "0.01em",
+                    }}
+                  >
+                    {feature.body}
+                  </p>
+                </div>
               </div>
-            </div>
+            );
+          })}
+        </div>
+      </section>
 
-            <div className="hero-spotlight" aria-label="Campfire session preview">
-              <article className="cover-card">
-                <div className="cover-art" aria-hidden="true" />
-                <div className="cover-card__meta">
-                  <p className="cover-card__title">Friday Loft Warm-Up</p>
-                  <p className="cover-card__subtitle">4 players synced, setlist draft live, room brief ready.</p>
-                </div>
-              </article>
-              <aside className="queue-card">
-                <p className="eyebrow">Queue for the room</p>
-                <div className="queue-row">
-                  <span className="queue-row__index">01</span>
-                  <div>
-                    <strong className="queue-row__title">Secure sign-in via Hosted UI</strong>
-                    <span className="queue-row__meta">Identity stays in managed auth infrastructure.</span>
-                  </div>
-                  <span className="queue-row__length">PKCE</span>
-                </div>
-                <div className="queue-row">
-                  <span className="queue-row__index">02</span>
-                  <div>
-                    <strong className="queue-row__title">Protected shell with dense navigation</strong>
-                    <span className="queue-row__meta">Sidebar, utility bar, and responsive rails.</span>
-                  </div>
-                  <span className="queue-row__length">UI</span>
-                </div>
-                <div className="queue-row">
-                  <span className="queue-row__index">03</span>
-                  <div>
-                    <strong className="queue-row__title">Bootstrap the local Campfire member</strong>
-                    <span className="queue-row__meta">First authenticated fetch creates the app profile.</span>
-                  </div>
-                  <span className="queue-row__length">/me</span>
-                </div>
-              </aside>
-            </div>
-          </div>
-
-          <aside className="hero-sidebar" aria-label="Campfire highlights">
-            <section className="panel-card">
-              <p className="eyebrow">Moodboard</p>
-              <h2>Streaming-product clarity, tuned for bands.</h2>
-              <p className="body-copy">
-                Dark immersive surfaces, pill controls, dense hierarchy, and careful accent usage
-                keep the experience recognizable for music apps without borrowing Spotify assets.
-              </p>
-              <div className="tag-row">
-                <span className="tag">Electric aqua accent</span>
-                <span className="tag">Near-black surfaces</span>
-                <span className="tag">Accessible contrast</span>
-              </div>
-            </section>
-
-            <section className="snapshot-grid">
-              <article className="snapshot-card">
-                <p className="eyebrow">Front door</p>
-                <strong>CloudFront-ready shell</strong>
-                <span>Static app delivery with a premium first impression.</span>
-              </article>
-              <article className="snapshot-card">
-                <p className="eyebrow">Identity</p>
-                <strong>Cognito hosted handoff</strong>
-                <span>Credentials stay outside Campfire application code.</span>
-              </article>
-              <article className="snapshot-card">
-                <p className="eyebrow">Bootstrap</p>
-                <strong>Local member record</strong>
-                <span>Profile context appears the moment the room opens.</span>
-              </article>
-            </section>
-          </aside>
-        </section>
-
-        <section className="landing-section">
-          <div className="section-header">
-            <div>
-              <p className="eyebrow">Authenticated surfaces</p>
-              <h2>Built like a real music product, not a placeholder dashboard.</h2>
-            </div>
-            <div className="pill-row">
-              <span className="metric-pill metric-pill--accent">Sidebar navigation</span>
-              <span className="metric-pill metric-pill--success">Responsive shell</span>
-              <span className="metric-pill metric-pill--warning">Clear failure states</span>
-            </div>
-          </div>
-
-          <div className="landing-grid">
-            <article className="rail-card">
-              <div className="rail-card__art" aria-hidden="true" />
-              <strong>Utility-first top bar</strong>
-              <p>Search, session identity, and account actions stay visible without crowding the main rail.</p>
-            </article>
-            <article className="rail-card">
-              <div className="rail-card__art rail-card__art--warm" aria-hidden="true" />
-              <strong>Dense room overview</strong>
-              <p>Important rehearsal state is stacked into clear cards the way listeners expect from streaming UIs.</p>
-            </article>
-            <article className="rail-card">
-              <div className="rail-card__art rail-card__art--violet" aria-hidden="true" />
-              <strong>Bootstrap with confidence</strong>
-              <p>Loading, success, and recovery states are part of the product language, not an afterthought.</p>
-            </article>
-          </div>
-        </section>
-      </div>
+      <footer
+        style={{
+          borderTop: "1px solid #1a1a1a",
+          padding: "20px clamp(24px, 6vw, 80px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 10,
+          maxWidth: 1300,
+          margin: "0 auto",
+          width: "100%",
+        }}
+      >
+        <MonoLabel size={9} color="#444">
+          Campfire is in alpha. Expect rough edges.
+        </MonoLabel>
+        <MonoLabel size={9} color="#333">
+          © 2025 CAMPFIRE
+        </MonoLabel>
+      </footer>
     </main>
   );
 }

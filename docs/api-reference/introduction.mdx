@@ -3,7 +3,9 @@ title: "API overview"
 description: "How to reach the Campfire API, how authentication works, and what the current endpoints do."
 ---
 
-The Campfire API is the backend half of the [auth bootstrap](/concepts/auth-bootstrap) slice. It currently exposes one unauthenticated health endpoint and one authenticated user-context endpoint. The OpenAPI contract that generates the endpoint pages lives in `specs/001-auth-bootstrap/contracts/auth-bootstrap-api.openapi.yaml` and is mirrored at `docs/openapi.yaml` for Mintlify.
+The Campfire API exposes the user context, preferences, and onboarding endpoints that back the MVP. The OpenAPI contract lives in `specs/003-refactor-auth-preferences/contracts/auth-and-preferences-api.openapi.yaml` and is mirrored at `docs/openapi.yaml` for Mintlify.
+
+**Current endpoints:** `GET /health`, `GET /me`, `GET /me/preferences`, `PUT /me/preferences`, `PATCH /me/onboarding`.
 
 ## Base URL
 

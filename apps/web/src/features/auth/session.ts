@@ -3,7 +3,7 @@ import { User, UserManager, WebStorageStateStore } from "oidc-client-ts";
 import { env } from "../../lib/env";
 import { authConfig } from "./config";
 
-const STORAGE_KEY = "campfire.mock.session";
+const STORAGE_KEY = "campfire.session";
 
 export type SessionState = {
   accessToken: string;
@@ -50,6 +50,20 @@ function persistSession(session: SessionState | null): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
 }
 
+export function persistSessionFromTokens(tokens: {
+  accessToken: string;
+  idToken?: string;
+  expiresAt: number;
+}): void {
+  persistSession({
+    accessToken: tokens.accessToken,
+    displayName: "Campfire member",
+    email: "",
+    expiresAt: tokens.expiresAt,
+  });
+  window.dispatchEvent(new CustomEvent("campfire-auth-changed"));
+}
+
 export function getSession(): SessionState | null {
   return readSession();
 }
@@ -81,30 +95,18 @@ function createUserManager(): UserManager {
   });
 }
 
-export async function beginSignIn(): Promise<void> {
-  if (import.meta.env.DEV) {
-    persistSession(await createDevSession());
-    window.dispatchEvent(new CustomEvent("campfire-auth-changed"));
-    return;
-  }
-
+export async function beginGoogleSignIn(): Promise<void> {
   await createUserManager().signinRedirect();
 }
 
-export async function completeSignIn(): Promise<void> {
-  if (import.meta.env.DEV) {
-    const url = new URL(window.location.href);
-
-    if (url.searchParams.get("code")) {
-      persistSession(await createDevSession());
-      window.dispatchEvent(new CustomEvent("campfire-auth-changed"));
-    }
-
-    return;
-  }
-
+export async function completeRedirectSignIn(): Promise<void> {
   const user = await createUserManager().signinRedirectCallback();
   persistOidcSession(user);
+  window.dispatchEvent(new CustomEvent("campfire-auth-changed"));
+}
+
+export async function createLocalDevSessionForTests(): Promise<void> {
+  persistSession(await createDevSession());
   window.dispatchEvent(new CustomEvent("campfire-auth-changed"));
 }
 
@@ -133,6 +135,13 @@ export function requireAuthenticatedPath(pathname: string): string {
 
 export function subscribeToSessionChanges(listener: () => void): () => void {
   const onChange = (): void => listener();
+  const onStorage = (event: StorageEvent): void => {
+    if (event.key === STORAGE_KEY) listener();
+  };
   window.addEventListener("campfire-auth-changed", onChange);
-  return () => window.removeEventListener("campfire-auth-changed", onChange);
+  window.addEventListener("storage", onStorage);
+  return () => {
+    window.removeEventListener("campfire-auth-changed", onChange);
+    window.removeEventListener("storage", onStorage);
+  };
 }

@@ -4,9 +4,17 @@ Campfire is a pre-launch music hub for small groups of friends who meet for amat
 
 ## Current Status
 
-The first deployable slice, `auth-bootstrap`, is implemented. It provides the public entry point, managed sign-in flow, protected app shell, and the authenticated `/me` endpoint that bootstraps a Campfire-local user record.
+The active MVP slice is **`003-refactor-auth-preferences`** — real Cognito email/password and Google authentication, onboarding preferences, and the returning-user home flow. See `specs/003-refactor-auth-preferences/` for the full spec, plan, contracts, and tasks.
 
-The active implementation plan is `specs/002-cicd-local-env/plan.md`. That work makes the local backend and CI/CD surface reproducible through one root `Makefile`, with LocalStack as the canonical local AWS plane.
+**MVP scope (implemented):**
+1. **Landing** — public entry, sign-up CTA, sign-in nav link.
+2. **Authentication** — Cognito email/password sign-up/sign-in, email verification, Google OAuth redirect, single Campfire account per verified email.
+3. **Onboarding** — preferences capture (instrument, genre, play context, goals, experience), save or defer before home.
+4. **Home** — returning user enters directly with completed or deferred onboarding; update preferences; sign out.
+
+**Real auth is required.** There is no mock-session acceptance path in the MVP. The local backend (`make run`) supports testing with LocalStack and `amazon-cognito-identity-js`; end-to-end acceptance requires a configured Cognito user pool (dev or staging).
+
+**LocalStack boundary:** LocalStack provides DynamoDB and SSM locally. Cognito flows are real; there is no Cognito emulator in the local stack.
 
 ## Repository Layout
 

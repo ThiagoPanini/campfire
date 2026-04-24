@@ -43,6 +43,8 @@ parameters = {
     "/campfire/local/api/base-url": settings.api_base_url,
     "/campfire/local/web/base-url": settings.web_base_url,
     "/campfire/local/auth/issuer": f"http://localhost:{settings.api_base_url.split(':')[-1]}" if settings.api_base_url.startswith("http://localhost:") else settings.api_base_url,
+    "/campfire/local/identity/metadata": '{"user_pool_id":"local","user_pool_client":"campfire-web","google_enabled":false}',
+    "/campfire/local/google/client-id": "local-placeholder-client-id",
 }
 for name, value in parameters.items():
     ssm.put_parameter(Name=name, Value=value, Type="String", Overwrite=True)
@@ -50,6 +52,7 @@ for name, value in parameters.items():
 auth_key_path = Path("src").resolve().parent / ".local" / "auth" / "private-key.pem"
 secret_payloads = {
     "campfire/local/auth/private-key": auth_key_path.read_text(encoding="utf-8"),
+    "campfire/local/google/client-secret": "local-placeholder-client-secret",
     "campfire/local/third-party/example": "dev-only-placeholder",
 }
 for name, value in secret_payloads.items():

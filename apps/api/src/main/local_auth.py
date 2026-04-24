@@ -92,6 +92,7 @@ def issue_access_token(
     subject: str,
     email: str,
     display_name: str,
+    provider_name: str = "cognito",
     email_verified: bool = True,
     lifetime_seconds: int = DEFAULT_TOKEN_LIFETIME_SECONDS,
 ) -> str:
@@ -109,6 +110,7 @@ def issue_access_token(
         "iat": now,
         "iss": settings.issuer,
         "name": display_name,
+        "provider": provider_name,
         "sub": subject,
         "token_use": "access",
     }
@@ -165,6 +167,7 @@ def _build_parser() -> argparse.ArgumentParser:
     issue_parser.add_argument("--subject", default="local-user-1", help="JWT subject claim.")
     issue_parser.add_argument("--email", default="ash@example.com", help="Email claim.")
     issue_parser.add_argument("--display-name", default="Ash Rivera", help="Display name claim.")
+    issue_parser.add_argument("--provider", default="cognito", help="Provider name claim.")
     issue_parser.add_argument(
         "--email-verified",
         choices=("true", "false"),
@@ -198,6 +201,7 @@ def main() -> None:
             subject=args.subject,
             email=args.email,
             display_name=args.display_name,
+            provider_name=args.provider,
             email_verified=args.email_verified == "true",
             lifetime_seconds=args.lifetime_seconds,
         )

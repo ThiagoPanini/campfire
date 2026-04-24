@@ -94,3 +94,13 @@ When network access is restricted, `make doctor --check=network` reports a fast 
 | `make test/backend/integration` fails quickly | LocalStack is not healthy yet | Check `docker compose -f docker-compose.backend.yml logs localstack` and rerun `make up` |
 | Debugger does not attach | Wrong port or stale process | Run `make down`, then `make debug`, then attach to `localhost:5678` |
 | Seeded resources look stale | Persistent LocalStack volume kept old state | Run `make reset` |
+
+## Real Cognito validation
+
+The local backend uses a local JWT signer (`apps/api/src/main/local_auth.py`) so unit and integration tests run without Cognito. End-to-end acceptance of Cognito auth flows requires a dev Cognito user pool:
+
+1. Apply the Terraform dev environment with your Google OAuth client ID/secret in SSM.
+2. Set `VITE_AUTH_AUTHORITY`, `VITE_AUTH_CLIENT_ID`, and `VITE_AUTH_REDIRECT_URI` in `apps/web/.env.local`.
+3. Run `E2E_REAL_AUTH=true E2E_TEST_EMAIL=... E2E_TEST_PASSWORD=... npm --workspace apps/web run test:e2e -- auth-real-cognito`.
+
+Cognito flows are real; there is no Cognito emulator in the local stack. LocalStack only provides DynamoDB and SSM.

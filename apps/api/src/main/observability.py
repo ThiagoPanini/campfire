@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 from collections import Counter
 
+SENSITIVE_FIELD_NAMES = {"authorization", "code", "email", "password", "token"}
+
 
 class Observability:
     """Small metrics/logger helper for auth-bootstrap flows."""
@@ -15,7 +17,11 @@ class Observability:
         """Increment an application metric and write a structured log line."""
 
         self._metrics[name] += 1
-        payload = " ".join(f"{key}={value}" for key, value in fields.items())
+        safe_fields = {
+            key: "[redacted]" if key.lower() in SENSITIVE_FIELD_NAMES else value
+            for key, value in fields.items()
+        }
+        payload = " ".join(f"{key}={value}" for key, value in safe_fields.items())
         self._logger.info("event=%s %s", name, payload)
 
     def snapshot(self) -> dict[str, int]:

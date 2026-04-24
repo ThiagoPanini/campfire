@@ -39,13 +39,16 @@ module "frontend_hosting" {
 module "identity" {
   source = "../../modules/identity"
 
-  application_name        = var.application_name
-  callback_url            = "https://${local.web_domain}/auth/callback"
-  environment             = var.environment
-  logout_url              = "https://${local.web_domain}/"
-  metadata_parameter_name = local.identity_parameter_name
-  tags                    = local.common_tags
-  user_pool_domain_prefix = var.user_pool_domain_prefix
+  application_name           = var.application_name
+  callback_urls              = concat(["https://${local.web_domain}/auth/callback"], var.local_callback_urls)
+  environment                = var.environment
+  google_oauth_client_id     = var.google_oauth_client_id
+  google_oauth_client_secret = var.google_oauth_client_secret
+  google_provider_enabled    = var.google_provider_enabled
+  logout_urls                = concat(["https://${local.web_domain}/"], var.local_logout_urls)
+  metadata_parameter_name    = local.identity_parameter_name
+  tags                       = local.common_tags
+  user_pool_domain_prefix    = var.user_pool_domain_prefix
 }
 
 module "persistence" {
@@ -74,14 +77,17 @@ module "api_runtime" {
   environment                     = var.environment
   identity_metadata_parameter_arn = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${local.identity_parameter_name}"
   lambda_zip_path                 = var.lambda_zip_path
-  local_users_table_arn           = module.persistence.local_users_table_arn
-  local_users_table_name          = module.persistence.local_users_table_name
-  log_group_arn                   = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:${module.observability.api_log_group_name}"
-  tags                            = local.common_tags
-  user_pool_client_id             = module.identity.user_pool_client_id
-  user_pool_domain                = module.identity.user_pool_domain
-  user_pool_id                    = module.identity.user_pool_id
-  web_domain                      = local.web_domain
+  local_users_table_arn            = module.persistence.local_users_table_arn
+  local_users_table_name           = module.persistence.local_users_table_name
+  log_group_arn                    = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:${module.observability.api_log_group_name}"
+  normalized_email_index_name      = module.persistence.normalized_email_index_name
+  provider_identity_index_name     = module.persistence.provider_identity_index_name
+  google_provider_enabled          = var.google_provider_enabled
+  tags                             = local.common_tags
+  user_pool_client_id              = module.identity.user_pool_client_id
+  user_pool_domain                 = module.identity.user_pool_domain
+  user_pool_id                     = module.identity.user_pool_id
+  web_domain                       = local.web_domain
 }
 
 data "aws_caller_identity" "current" {}

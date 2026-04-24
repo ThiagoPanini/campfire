@@ -58,9 +58,20 @@ class CampfireRequestHandler(BaseHTTPRequestHandler):
             self._write_json(HTTPStatus.OK, self._issue_local_session())
             return
 
+        self._dispatch_authenticated(body=None)
+
+    def do_PUT(self) -> None:  # noqa: N802
+        self._dispatch_authenticated(body=self._read_body())
+
+    def do_PATCH(self) -> None:  # noqa: N802
+        self._dispatch_authenticated(body=self._read_body())
+
+    def _dispatch_authenticated(self, *, body: bytes | None) -> None:
+        route = urlsplit(self.path).path
+        authed_routes = {"/me", "/me/preferences", "/me/onboarding"}
         claims: dict[str, Any] | None = None
 
-        if self.path == "/me":
+        if route in authed_routes:
             token = self._bearer_token()
             if not token:
                 self._write_json(
@@ -75,8 +86,17 @@ class CampfireRequestHandler(BaseHTTPRequestHandler):
                 self._write_json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized", "message": str(error)})
                 return
 
-        response = lambda_handler(self._event(claims=claims), None)
+        response = lambda_handler(self._event(claims=claims, body=body), None)
         self._write_lambda_response(response)
+
+    def _read_body(self) -> bytes | None:
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            length = 0
+        if length <= 0:
+            return None
+        return self.rfile.read(length)
 
     def log_message(self, format: str, *args: object) -> None:
         return
@@ -93,7 +113,7 @@ class CampfireRequestHandler(BaseHTTPRequestHandler):
     def _cors_headers(self) -> dict[str, str]:
         return {
             "Access-Control-Allow-Headers": "Authorization, Content-Type",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Methods": "GET, PUT, PATCH, OPTIONS",
             "Access-Control-Allow-Origin": self.server.settings.allow_origin,
             "Access-Control-Expose-Headers": "Content-Type",
             "Access-Control-Max-Age": "3600",
@@ -104,6 +124,7 @@ class CampfireRequestHandler(BaseHTTPRequestHandler):
         subject = query.get("subject", ["dev-user"])[0]
         email = query.get("email", ["ash@example.com"])[0]
         display_name = query.get("displayName", ["Ash Rivera"])[0]
+        provider = query.get("provider", ["cognito"])[0]
         lifetime_seconds = int(query.get("lifetimeSeconds", ["3600"])[0])
         expires_at = datetime.now(UTC) + timedelta(seconds=lifetime_seconds)
 
@@ -113,6 +134,7 @@ class CampfireRequestHandler(BaseHTTPRequestHandler):
                 subject=subject,
                 email=email,
                 display_name=display_name,
+                provider_name=provider,
                 lifetime_seconds=lifetime_seconds,
             ),
             "displayName": display_name,
@@ -120,17 +142,22 @@ class CampfireRequestHandler(BaseHTTPRequestHandler):
             "expiresAt": int(expires_at.timestamp() * 1000),
         }
 
-    def _event(self, *, claims: dict[str, Any] | None) -> dict[str, object]:
+    def _event(
+        self, *, claims: dict[str, Any] | None, body: bytes | None = None
+    ) -> dict[str, object]:
         request_context: dict[str, object] = {"http": {"method": self.command}}
 
         if claims is not None:
             request_context["authorizer"] = {"jwt": {"claims": claims}}
 
-        return {
+        event: dict[str, object] = {
             "headers": dict(self.headers.items()),
-            "rawPath": self.path,
+            "rawPath": urlsplit(self.path).path,
             "requestContext": request_context,
         }
+        if body is not None:
+            event["body"] = body.decode("utf-8")
+        return event
 
     def _write_json(self, status: HTTPStatus, payload: dict[str, object]) -> None:
         body = json.dumps(payload).encode("utf-8")

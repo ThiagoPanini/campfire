@@ -23,7 +23,27 @@ class BootstrapIdentityDto:
                 "status": self.user.status.value,
                 "lastLoginAt": self.user.last_login_at.isoformat(),
             },
+            "auth": {
+                "email": self.user.email,
+                "emailVerified": self.user.email_verified,
+                "methods": [],
+            },
+            "onboarding": {
+                "status": self.user.onboarding_status.value,
+                "completedAt": (
+                    self.user.onboarding_completed_at.isoformat()
+                    if self.user.onboarding_completed_at
+                    else None
+                ),
+                "deferredAt": (
+                    self.user.onboarding_deferred_at.isoformat()
+                    if self.user.onboarding_deferred_at
+                    else None
+                ),
+            },
+            "methods": [],
             "bootstrap": {
                 "firstLogin": self.first_login,
             },
+            "firstLogin": self.first_login,
         }

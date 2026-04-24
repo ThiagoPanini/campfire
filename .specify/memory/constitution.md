@@ -1,38 +1,34 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (none) → 1.0.0
-Change type: Initial ratification (MAJOR — foundational document established)
+Version change: 2.0.0 → 3.0.0
+Change type: MAJOR — backward-incompatible relaxation of mandatory testing governance
+to align with early-stage MVP workflow and AI-assisted development velocity.
 
-Modified principles:
-  - N/A (initial adoption)
+Modified sections:
+  - Backend Governance > Testing discipline
+      (mandatory MUST unit + integration + test-first → MVP-proportional guidance;
+       security/identity/data-integrity paths retain mandatory targeted tests)
+  - Spec-Driven Development Discipline
+      (removed "Test-first for critical paths" MUST rule;
+       replaced with "Proportional testing" + softened integration test guidance)
+  - AI-Assisted Development Governance > No discipline bypass
+      (softened: testing now governed by proportional policy; security paths remain non-negotiable)
 
 Added sections:
-  - Core Principles (11 principles, product + technical)
-  - Domain Foundations & Ubiquitous Language
-  - Engineering Governance (Frontend, Backend, Infrastructure, Documentation)
-  - AI-Assisted Development Governance
-  - Non-Functional Baselines
-  - Spec-Driven Development Discipline
-  - Governance
+  - N/A
 
 Removed sections:
-  - N/A (initial adoption)
+  - N/A (rules softened, not removed)
 
 Templates requiring updates:
-  - ✅ .specify/templates/constitution-template.md (source template, unchanged)
-  - ⚠ .specify/templates/plan-template.md (Constitution Check section still a placeholder;
-      should be filled during /speckit.plan runs referencing the principles below —
-      no structural change required now)
-  - ⚠ .specify/templates/spec-template.md (structurally compatible; /speckit.specify runs
-      must honor the product principles in Section "Core Principles" — no change required now)
-  - ⚠ .specify/templates/tasks-template.md (compatible; observability, security, and docs
-      tasks are expected per this constitution — no change required now)
-  - ⚠ .specify/templates/checklist-template.md (compatible — no change required now)
+  - ✅ .specify/templates/tasks-template.md (already aligned: tests marked OPTIONAL by default)
+  - ✅ .specify/templates/spec-template.md (compatible; no structural changes required)
+  - ✅ .specify/templates/plan-template.md (compatible; Constitution Check gate will reflect new policy)
+  - ⚠ .specify/templates/checklist-template.md (verify test-related checklist items are framed
+      as optional/proportional rather than mandatory)
 
-Follow-up TODOs:
-  - PARTIAL(ADR-REGISTER): `docs/adr/` now exists with an index and ADR-0001/0002.
-      A dedicated ADR for the constitution ratification still requires validation.
+Follow-up TODOs (carried forward from v2.0.0):
   - TODO(DOMAIN-GLOSSARY): Publish the ubiquitous language defined here as a living
       glossary under the documentation surface (Mintlify).
   - TODO(SECURITY-BASELINE): On first infrastructure commit, produce a baseline threat
@@ -199,10 +195,10 @@ feel is a product requirement, not a nicety.
   set (color, spacing, typography, motion) and component library MUST emerge by the
   first user-facing release; ad-hoc styling is acceptable only during very early
   exploration and MUST be paid down before the first release milestone.
-- **Rule**: Accessibility MUST be a baseline quality property, not a later enhancement.
-  Targets: WCAG 2.1 AA minimum for all primary flows, full keyboard operability, visible
-  focus states, screen-reader-labeled controls, color-contrast compliance, and respect
-  for `prefers-reduced-motion`.
+- **Rule**: Accessibility SHOULD be considered from the beginning of user-facing work,
+  with obvious blockers treated as bugs: unusable keyboard flows, missing labels on
+  primary controls, unreadable contrast, or motion that cannot be reduced. Full WCAG 2.1
+  AA validation MUST be formalized before the first public release milestone.
 - **Rule**: Every interactive flow MUST provide fast, observable feedback (optimistic
   updates, loading states, error states) within budgets set by the relevant spec.
 - **Rule**: Frontend choices MUST favor responsiveness (mobile-first for session-time
@@ -236,9 +232,8 @@ throwaway experiment.
   first deployment and used consistently.
 - **Rule**: Encryption in transit (TLS) and at rest MUST be the default for every data
   store, queue, and bucket. Exceptions require an ADR.
-- **Rule**: Cost awareness MUST be part of infrastructure planning. Each new piece of
-  infrastructure SHOULD include a brief cost expectation and a way to observe actual
-  spend.
+- **Rule**: Cost awareness is encouraged during early MVP development and MUST be
+  formalized before the first production deployment.
 - **Rationale**: A solo builder cannot absorb operational chaos. AWS-native managed
   services plus Terraform discipline buy back time, traceability, and safety.
 
@@ -324,15 +319,20 @@ schema.
 - Contracts at the system edge (HTTP APIs, asynchronous messages, persisted schemas)
   MUST be defined first and versioned. Breaking contract changes MUST be deliberate,
   documented, and migration-aware.
-- Testing discipline:
-  - Domain logic MUST be covered by fast, infrastructure-free unit tests.
-  - Critical user journeys (at minimum: creating a Group, starting a Jam Session,
-    recording a Song Capability, receiving and explaining a Song Suggestion) MUST be
-    covered by integration tests that exercise real adapters against real or
-    high-fidelity fakes.
-  - Tests MUST be written at least alongside, and preferably ahead of, the
-    implementation they cover. "Tests later" is not an acceptable plan-level strategy
-    for the critical paths above.
+- Testing discipline (MVP-proportional):
+  - Testing effort MUST be proportional to the maturity and risk of the feature.
+    Security-sensitive paths, identity flows, and data-integrity invariants MUST have
+    targeted tests. All other paths MAY rely on smoke tests, manual validation, or
+    lightweight automated checks during MVP iteration.
+  - Domain logic SHOULD be covered by fast, infrastructure-free unit tests when the
+    logic is non-trivial. Simple pass-through or scaffolding code MAY be validated
+    manually or via smoke test.
+  - Integration tests are encouraged for critical paths but MUST NOT be a blanket
+    requirement that blocks MVP feature delivery. They SHOULD be added incrementally
+    as features stabilize and prove their value.
+  - Test-first development is encouraged but not mandatory. Writing tests alongside or
+    after implementation is acceptable during MVP iteration. Security and data-integrity
+    paths MUST have tests in place before reaching production.
 
 ### Infrastructure Governance
 
@@ -378,9 +378,11 @@ or maintainability.
   Code, GitHub Copilot, Codex, and successors) without coupling its rules to one
   vendor. If a rule currently depends on a specific tool, that dependency MUST be
   explicit and revisitable.
-- **No discipline bypass**: AI assistance MUST NOT be used to skip architecture review,
-  tests, documentation, or security review. Speed is earned by the leverage of the
-  system, not by removing its guardrails.
+- **No discipline bypass**: AI assistance MUST NOT be used to skip architecture
+  review, documentation, or security review. Testing requirements are governed by the
+  proportional testing policy in Engineering Governance; AI assistance MUST NOT skip
+  tests on security-sensitive or data-integrity paths. Speed is earned by the leverage
+  of the system, not by removing essential guardrails.
 - **Prompt and skill hygiene**: Prompts and skills that materially shape generated code
   MUST be stored in the repository, reviewed, and versioned like any other code. Secrets
   MUST NEVER be embedded in prompts or skills.
@@ -400,8 +402,10 @@ and plans that introduce the relevant scope; the obligations themselves are fixe
 - **Privacy by default**: Private-to-group defaults (Principle V); explicit consent for
   any data use beyond the immediate product loop; minimal personal data collection;
   documented retention semantics for any personal, social, or behavioral data.
-- **Accessibility by default**: WCAG 2.1 AA as the minimum bar for all primary user
-  flows; accessibility regressions are bugs, not enhancements.
+- **Accessibility by maturity**: Early MVP work SHOULD avoid obvious accessibility
+  blockers in primary flows. WCAG 2.1 AA validation becomes a release gate before the
+  first public release milestone, and accessibility regressions after that point are bugs,
+  not enhancements.
 - **Reliability and recoverability**: Every production data store MUST have a tested
   backup/restore path; user-visible failures MUST degrade gracefully; destructive
   operations MUST be reversible or confirmed.
@@ -413,8 +417,8 @@ and plans that introduce the relevant scope; the obligations themselves are fixe
 - **Performance awareness**: Performance budgets MUST be declared for user-visible
   flows once a baseline exists, and MUST be revisited when the scope of a flow changes
   materially.
-- **Cost awareness**: Every infrastructure change MUST include a rough cost expectation
-  and a way to observe actual spend.
+- **Cost awareness**: Early MVP infrastructure changes SHOULD consider cost, and cost
+  expectations MUST be formalized before the first production deployment.
 - **Maintainability, simplicity, evolvability**: Prefer boring, composable, well-named
   building blocks over clever ones. Abstractions MUST pay for themselves; three similar
   lines are better than a premature generalization. Future optionality MUST be bought
@@ -449,11 +453,15 @@ Additional discipline:
   `NEEDS CLARIFICATION` (in a spec) or open a decision gate (ADR), not to invent.
 - **Contract-first thinking.** External-facing contracts (HTTP APIs, async messages,
   persisted schemas) MUST be designed before the code that satisfies them is written.
-- **Test-first for critical paths.** The critical user journeys named in Backend
-  Governance MUST have tests authored alongside or ahead of their implementation.
-- **Integration-first validation for critical flows.** Unit tests alone are not
-  sufficient proof for flows that cross boundaries (identity, persistence, session
-  lifecycle).
+- **Proportional testing.** Testing MUST be proportional to feature maturity and
+  risk. Security-sensitive, identity, and data-integrity paths MUST have targeted
+  tests. General feature work MAY rely on manual validation, smoke tests, or
+  lightweight automated checks during MVP iteration. Broad test coverage is not a
+  prerequisite for shipping a feature at this stage.
+- **Integration tests for high-risk flows.** Flows that cross security or data
+  boundaries (identity, persistence, session lifecycle) SHOULD have integration tests.
+  These are encouraged as features stabilize and MUST NOT be treated as a blanket
+  gate on all feature work.
 - **Auditable compliance.** Every plan MUST be auditable against this constitution at
   review time, and every review MUST either confirm compliance or record the exception
   per the Governance section below.
@@ -514,4 +522,4 @@ defaults apply unless an ADR overrides them for a specific decision:
 - Prefer strong defaults over endless optionality.
 - Prefer incremental evolution over grand upfront design.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-22 | **Last Amended**: 2026-04-22
+**Version**: 3.0.0 | **Ratified**: 2026-04-22 | **Last Amended**: 2026-04-24

@@ -73,3 +73,21 @@ variable "web_domain" {
   description = "Public web domain."
   type        = string
 }
+
+variable "google_provider_enabled" {
+  description = "Whether Google is enabled as a Cognito identity provider."
+  type        = bool
+  default     = false
+}
+
+variable "normalized_email_index_name" {
+  description = "DynamoDB GSI name for normalized email lookups."
+  type        = string
+  default     = "gsi1"
+}
+
+variable "provider_identity_index_name" {
+  description = "DynamoDB GSI name for provider identity lookups."
+  type        = string
+  default     = "gsi2"
+}

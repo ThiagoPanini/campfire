@@ -3,9 +3,11 @@ title: "Introduction"
 description: "Campfire is a music hub for groups of friends who meet for amateur jam sessions."
 ---
 
-Campfire is a pre-launch web application for small groups of friends who organize amateur jam sessions: who plays, what they want to play, and when they meet. The codebase is a monorepo with a Vite/React frontend, a Python backend that runs on AWS Lambda, and Terraform modules for AWS-native deployment.
+Campfire is a **private alpha** music hub for small groups of friends who organize amateur jam sessions. Members track their personal repertoire by instrument, capture what they want to practice, and share their set with the group before sessions start.
 
-The first implementation slice, `auth-bootstrap`, establishes a secure vertical slice: public entry, managed sign-in, a protected app shell, and a `/me` endpoint that bootstraps a local user record on first login. The active platform work adds a reproducible LocalStack-backed local environment and a Makefile command surface shared by developers and CI.
+The codebase is a monorepo with a React/Vite frontend, a Python Lambda backend, and Terraform modules for AWS-native infrastructure.
+
+**MVP scope (active):** The `003-refactor-auth-preferences` slice delivers the full self-service auth and onboarding path — Cognito email/password sign-up and sign-in, Google OAuth via redirect, email verification, single Campfire account per verified email, preferences onboarding, and the returning-user home flow. There is no mock-session acceptance path in the MVP; all auth flows go through Cognito.
 
 ## Where to start
 

@@ -18,6 +18,8 @@ class Settings:
     user_pool_id: str
     user_pool_client_id: str
     user_pool_domain: str
+    user_pool_issuer: str
+    google_provider_enabled: bool
 
 
 def load_settings() -> Settings:
@@ -34,4 +36,9 @@ def load_settings() -> Settings:
         user_pool_id=getenv("USER_POOL_ID", "us-east-1_example"),
         user_pool_client_id=getenv("USER_POOL_CLIENT_ID", "campfire-web"),
         user_pool_domain=getenv("USER_POOL_DOMAIN", "auth.example.com"),
+        user_pool_issuer=getenv(
+            "USER_POOL_ISSUER",
+            "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_example",
+        ),
+        google_provider_enabled=(getenv("GOOGLE_PROVIDER_ENABLED", "false").lower() == "true"),
     )

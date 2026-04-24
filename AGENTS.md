@@ -30,5 +30,5 @@ Campfire is a greenfield music hub for groups of friends who meet for amateur ja
 - This repository is still early-stage. If a referenced Spec-Kit plan file does not exist yet, proceed from the available spec, prompt, or repository instructions instead of searching repeatedly.
 
 <!-- SPECKIT START -->
-Active Spec-Kit plan: `specs/002-cicd-local-env/plan.md`
+Active Spec-Kit plan: `specs/003-refactor-auth-preferences/plan.md`
 <!-- SPECKIT END -->

@@ -1,227 +1,369 @@
-# Design System Inspired by Spotify
+# Campfire Design System
 
-## 1. Visual Theme & Atmosphere
+## 1. Product Vision
 
-Campfire should feel like a premium music workspace viewed after hours: immersive, dense, and quietly dramatic. The interface lives inside a near-black cocoon (`#0b0b0f`, `#111318`, `#181b22`) so playlists, avatars, status, and music context can carry the emotional weight. The design philosophy remains "content-first darkness" with the chrome receding behind the product, but the signature highlight shifts away from green to a vivid electric aqua that keeps the same energy and functional emphasis.
+Campfire is a private music hub for people who play in small, informal circles. The current front end focuses on a narrower first product promise: track the songs you know, understand what you are still learning, and share that repertoire with the people you play with.
 
-The product voice is compact, crisp, and confident. Typography should use a rounded contemporary grotesk for headings and controls, paired with a highly readable UI sans for body copy. Weight contrast does most of the hierarchy work: 700 for emphasis, 600 for section labels and utility copy, and 400 for body.
+The implemented design direction is **dark rehearsal-room brutalism**: blackened surfaces, oversized condensed display type, precise mono labels, sparse copy, and one warm orange accent. It should feel direct, musical, and slightly raw, like a rehearsal note taped to a speaker cabinet rather than a generic SaaS dashboard.
 
-Geometry stays unmistakably music-product: pill buttons, circular action controls, rounded search fields, and dense stacked surfaces. Elevated panels should feel like polished hardware floating in darkness, using strong shadows and subtle inner highlights rather than bright outlines.
+The current web experience includes:
 
-**Key Characteristics:**
-- Near-black immersive dark theme (`#0b0b0f`–`#181b22`) with subtle tonal layering
-- Electric Aqua (`#27d3ff`) as the singular functional accent for CTAs, active states, and focus
-- Compact, bold typography with strong weight contrast
-- Pill buttons (`500px`–`9999px`) and circular controls (`50%`) throughout
-- Uppercase utility labels with generous tracking for system voice
-- Heavy, soft shadows for dark-surface elevation
-- Artwork, avatars, and contextual status chips provide the secondary color moments
+- Public landing page at `/`.
+- Dedicated sign-in and sign-up pages at `/signin` and `/signup`.
+- Auth callback page at `/auth/callback`.
+- Protected onboarding preferences flow at `/onboarding`.
+- Protected app home at `/app`.
 
-## 2. Color Palette & Roles
+## 2. Visual Direction
 
-### Primary Brand
-- **Electric Aqua** (`#27d3ff`): Primary accent for play-equivalent actions, active navigation, CTA emphasis, focus, and key data highlights
-- **Electric Aqua Pressed** (`#13bde8`): Hover and pressed accent variant
-- **Deep Night** (`#0b0b0f`): Root page background
-- **Night Surface** (`#111318`): Base shell and sidebar background
-- **Slate Surface** (`#181b22`): Cards, panels, and raised containers
-- **Raised Surface** (`#20242d`): Hovered or emphasized interactive surfaces
+Campfire should use a restrained, high-contrast dark interface. The UI gets its personality from bold typography, clear rhythm, warm accent color, and concise music-specific language rather than decorative illustrations or busy atmospheric effects.
 
-### Text
-- **Pure White** (`#ffffff`): Primary text
-- **Soft White** (`#eef2f7`): Highlighted secondary text
-- **Silver Mist** (`#a7b0be`): Secondary text and inactive navigation
-- **Dim Slate** (`#7c8698`): Tertiary metadata and dividers
+Key characteristics:
 
-### Semantic
-- **Negative Red** (`#f3727f`): Error and destructive states
-- **Warning Orange** (`#ffa42b`): Warnings and stale-state messaging
-- **Announcement Blue** (`#6aa8ff`): Informational states distinct from the accent
-- **Success Mint** (`#63e6be`): Success confirmation without replacing the accent system
+- Near-black graphite background with minimal borders.
+- Burnt orange as the single dominant action and brand accent.
+- Large uppercase display headlines using a condensed typeface.
+- Mono uppercase labels for navigation, section kickers, badges, and actions.
+- Sparse layouts with strong vertical spacing on public pages.
+- Compact controls and preference chips inside authenticated flows.
+- Simple fire mark with subtle flame/ember animation.
+- Alpha-stage honesty in copy and badges.
 
-### Surface & Border
-- **Card Border** (`rgba(255,255,255,0.08)`): Subtle panel edges
-- **Strong Border** (`rgba(255,255,255,0.14)`): Input and selected-state boundary treatment
-- **Hairline** (`rgba(255,255,255,0.05)`): Internal separators
-- **Accent Tint** (`rgba(39,211,255,0.18)`): Accent washes for chips and selected rows
-- **Accent Glow** (`rgba(39,211,255,0.32)`): Focus rings and active-glow effects
+## 3. Current Token Reference
 
-### Shadows
-- **Heavy Elevation** (`rgba(0,0,0,0.52) 0 18px 42px`): Dialogs and dominant floating panels
-- **Panel Elevation** (`rgba(0,0,0,0.34) 0 10px 24px`): Cards and sticky headers
-- **Inset Highlight** (`inset 0 1px 0 rgba(255,255,255,0.06)`): Hardware-like surface finish
+The canonical front-end tokens live in `apps/web/src/design/tokens.ts`.
 
-## 3. Typography Rules
+| Token | Value | Role |
+| --- | --- | --- |
+| `ACCENT` | `#E8813A` | Primary action, selected chips, active labels, highlighted headline text |
+| `ACCENT_DARK` | `#6B2E00` | Dark warm feature tile and deep brand contrast |
+| `BG` | `#131313` | Page background and fixed nav background |
+| `SURFACE` | `#181818` | Cards, neutral feature tile, protected profile panel |
+| `BORDER` | `#1e1e1e` | Navigation divider and quiet structural border |
+| Display font | `"Anton", Impact, sans-serif` | Brand mark and large uppercase headlines |
+| Body font | `"Space Grotesk", Helvetica, Arial, sans-serif` | Body copy, form fields, chips, app content |
+| Mono font | `"Space Mono", monospace` | Labels, buttons, badges, navigation |
 
-### Font Families
-- **Display / UI Strong**: `"Lexend", "Avenir Next", "Segoe UI", sans-serif`
-- **Body / UI**: `"Manrope", "Helvetica Neue", sans-serif`
-- **Mono / Utility**: `"IBM Plex Mono", "SFMono-Regular", monospace`
+Supporting colors used by the implementation:
+
+- `#fff`: Primary text.
+- `#ccc`: Secondary action text.
+- `#bbb`: Feature-card body text.
+- `#949494`, `#888`, `#777`, `#666`, `#555`, `#444`, `#333`: Muted text steps.
+- `#1a1a1a`, `#1e1e1e`, `#222`, `#232323`, `#242424`, `#2a2a2a`, `#2d2d2d`, `#2e2e2e`: Surface and border steps.
+- `#FF6B6B`: Error messaging.
+- Google brand colors appear only inside the Google authentication mark.
+
+Do not reintroduce the earlier electric-aqua identity. Avoid expanding into a full brown/orange monochrome palette; the current look works because the accent is sparse.
+
+## 4. Typography
+
+### Font Roles
+
+- **Display / Brand**: `Anton`. Use for the Campfire wordmark and major page headlines.
+- **Body / UI**: `Space Grotesk`. Use for paragraphs, form input text, chips, card copy, and protected content.
+- **Mono / Utility**: `Space Mono`. Use for buttons, nav links, badges, kickers, labels, and metadata.
 
 ### Hierarchy
 
 | Role | Font | Size | Weight | Line Height | Letter Spacing | Notes |
-|------|------|------|--------|-------------|----------------|-------|
-| Hero Title | Lexend | 48px-72px | 700 | 0.95 | -0.05em | Landing and marquee sections |
-| Page Title | Lexend | 28px-40px | 700 | 1.0 | -0.03em | Major authenticated headings |
-| Rail Heading | Lexend | 18px-22px | 700 | 1.15 | normal | Row and panel titles |
-| Body Strong | Manrope | 16px | 700 | 1.4 | normal | Key inline emphasis |
-| Body | Manrope | 16px | 400 | 1.5 | normal | Standard body copy |
-| Utility Label | Manrope | 12px-13px | 700 | 1.2 | 0.18em | Uppercase section and chip labels |
-| Button | Lexend | 13px-14px | 700 | 1.0 | 0.14em | Uppercase or title-case depending on context |
-| Nav Item | Manrope | 14px | 600 | 1.2 | normal | Sidebar and top utility nav |
-| Caption | Manrope | 13px | 500 | 1.35 | normal | Supporting metadata |
-| Micro | IBM Plex Mono | 11px-12px | 500 | 1.4 | 0.12em | IDs, timestamps, low-level metadata |
+| --- | --- | --- | --- | --- | --- | --- |
+| Landing hero | Anton | `clamp(52px, 11.5vw, 118px)` | 400 | 0.93 | `0.025em` | Uppercase, multi-line, high impact |
+| Auth title | Anton | `clamp(34px, 7vw, 52px)` | 400 | 0.93 | `0.03em` | `WELCOME BACK`, `JOIN CAMPFIRE` |
+| Onboarding title | Anton | `clamp(36px, 7vw, 56px)` | 400 | 0.93 | `0.03em` | Compact protected flow heading |
+| App home title | Anton | `clamp(42px, 8vw, 72px)` | 400 | 0.95 | `0.025em` | Personalized welcome |
+| Body copy | Space Grotesk | 15px-17px | 300-400 | 1.6-1.7 | `0.01em` when needed | Muted, concise explanations |
+| Button | Space Mono | 11px-13px | 700 | 1 | `0.14em` | Uppercase action labels |
+| Label / kicker | Space Mono | 9px-11px | 700 | normal | `0.16em` | Uppercase section labels |
+| Badge | Space Mono | 9px | 700 | 1 | `0.18em` | `ALPHA` pill |
 
-### Principles
-- **Compact hierarchy**: This is an application, not editorial reading. Keep the range tight and the scan speed high.
-- **Weight-first emphasis**: Prefer weight and contrast before introducing extra sizes.
-- **Utility uppercase**: Use uppercase tracked labels for system framing, chips, and overlines.
-- **Clean rhythm**: Tight headings, breathable body copy, and consistent card density.
+Rules:
 
-## 4. Component Stylings
+- Keep headlines uppercase and short.
+- Let `Anton` stay lightweight at `400`; avoid artificially bold display text.
+- Use positive tracking only. Do not use negative letter spacing.
+- Keep body copy muted and understated so the accent and headlines carry the visual emphasis.
+- Use direct product language: `TRACK THE SONGS YOU KNOW TO PLAY`, `ENTER CAMPFIRE`, `START TRACKING`, `UPDATE PREFERENCES`.
 
-### Buttons
+## 5. Layout System
 
-**Primary Pill**
-- Background: `#27d3ff`
-- Text: `#041018`
-- Padding: `0 20px`
-- Radius: `9999px`
-- Use: Primary actions, main conversion points, playback-equivalent controls
+### Global Frame
 
-**Secondary Pill**
-- Background: `#20242d`
-- Text: `#ffffff`
-- Border: `1px solid rgba(255,255,255,0.08)`
-- Use: Secondary shell actions, utility controls
+- All pages use a fixed top nav, 58px tall.
+- Root background is `#131313`.
+- Page content uses `min-height: 100dvh`.
+- Content lanes are centered and constrained rather than full-width by default.
+- Public landing content uses a maximum width of 1300px.
+- Auth forms use a maximum width of 400px.
+- App home uses a maximum width of 760px.
+- Onboarding uses a maximum width of 640px.
 
-**Ghost Pill**
-- Background: `transparent`
-- Text: `#a7b0be`
-- Border: `1px solid rgba(255,255,255,0.12)`
-- Use: Passive or low-emphasis actions
+### Spacing
 
-**Circular Action**
-- Background: `#27d3ff`
-- Text: `#041018`
-- Radius: `50%`
-- Use: Play-equivalent or "jump in" actions
+Use clamp-based responsive spacing for large page regions:
 
-### Cards & Containers
-- Background: `#181b22` or `#20242d`
-- Radius: `8px`-`24px` depending on size
-- Border: subtle translucent edge, never bright gray
-- Hover: lift through surface brightening and shadow increase
-- Finish: slight inset highlight to avoid flatness
+- Landing top padding: `clamp(110px, 18vw, 168px)`.
+- Auth top padding: `clamp(80px, 14vw, 130px)`.
+- App home top padding: `clamp(110px, 16vw, 160px)`.
+- Onboarding top padding: `clamp(80px, 14vw, 120px)`.
+- Horizontal page padding: `clamp(20px/24px, 5vw/6vw, 40px/80px)` depending on page density.
 
-### Inputs
-- Background: `#12151b`
-- Text: `#ffffff`
-- Radius: `9999px`
-- Padding: generous horizontal inset for icons
-- Focus: aqua ring + border shift, never default browser blue if custom-styled
+Use tighter spacing in controls:
 
-### Navigation
-- Left rail on desktop, bottom utility bar on mobile
-- Active state uses aqua icon wash and brighter text
-- Inactive state stays silver mist
-- Dense but legible spacing; more product dashboard than marketing site
+- Feature tiles: `clamp(24px, 3vw, 36px)`.
+- Profile panel: `clamp(20px, 3vw, 32px)`.
+- Chips: 8px row/column gap.
+- Form stack: 14px gap.
 
-## 5. Layout Principles
+## 6. Shared Components
 
-### Spacing System
-- Base unit: `8px`
-- Preferred scale: `4, 8, 12, 16, 20, 24, 32, 40`
+Shared primitives live in `apps/web/src/design/primitives.tsx`.
 
-### Grid & Container
-- Desktop: sidebar rail + main content column + optional secondary insight rail
-- Main content organized as stacked "rails" of related cards or panels
-- Sticky top utility bar inside the authenticated shell
-- Mobile: condensed header, scrollable content, bottom navigation
+### Nav
 
-### Whitespace Philosophy
-- **Dense by design**: Use the dark background to separate content rather than large empty gaps.
-- **Breathing room at hierarchy breaks**: Titles and marquee areas should still feel premium, not cramped.
-- **Panel logic**: Every surface should read as part of a larger playback/workflow environment.
+The nav is fixed and minimal:
 
-### Border Radius Scale
-- 8px: Chips and compact badges
-- 12px: Inputs and utility cards
-- 18px: Standard content cards
-- 24px: Hero panels and large modules
-- 9999px: Pills and search fields
-- 50%: Circular icon buttons and avatars
+- Left side: animated fire icon, `CAMPFIRE` wordmark, `ALPHA` badge.
+- Right side: one mono text action such as `SIGN IN`, `BACK`, or `SIGN OUT`.
+- Background: `#131313`.
+- Border bottom: `1px solid #1e1e1e`.
+- Height: 58px.
 
-## 6. Depth & Elevation
+### Fire Icon
 
-| Level | Treatment | Use |
-|-------|-----------|-----|
-| Base | `#0b0b0f` | Application background |
-| Surface 1 | `#111318` | Shell and navigation rail |
-| Surface 2 | `#181b22` + panel elevation | Cards and modules |
-| Surface 3 | `#20242d` + heavy elevation | Sticky bars, promoted content, overlays |
-| Focus | Aqua glow + strong border | Active controls and keyboard focus |
+The mark is an inline SVG flame:
 
-**Shadow Philosophy**: The UI should feel like dark lacquered hardware. Elevation comes from broad, soft shadows and faint internal highlights, not from obvious outlines.
+- Outer flame uses `ACCENT`.
+- Inner flame uses `#FFD166`.
+- Ember uses `#FFF5B0`.
+- Animation classes: `cf-flame-outer`, `cf-flame-inner`, `cf-ember`.
+- It should remain decorative with `aria-hidden="true"` when paired with the text wordmark.
 
-## 7. Do's and Don'ts
+### Alpha Badge
+
+- Text: `ALPHA`.
+- Font: `Space Mono`, 9px, 700.
+- Background: `ACCENT`.
+- Text: black.
+- Radius: 20px.
+
+### Mono Label
+
+Mono labels are the system's main information scent. Use them for section titles, step labels, metadata labels, feature kickers, and low-level status.
+
+### Accent Button
+
+- Background: `ACCENT`.
+- Text: black.
+- Hover: translucent white background, white text, and subtle light border.
+- Font: `Space Mono`, uppercase, 700.
+- Radius: 40px.
+- Minimum height: 48px.
+- Large size: 13px text, `15px 40px` padding.
+- Medium size: 11px text, `11px 28px` padding.
+
+### Ghost Button
+
+- Transparent background.
+- Muted text, white on hover.
+- Border moves from `#2d2d2d` to `#555`.
+- Used for lower-commitment choices such as `SKIP FOR NOW`.
+
+### Form Input
+
+- Label: mono uppercase, 9px, `#666`.
+- Input background: `#1a1a1a`.
+- Border: `#2e2e2e`, changing to `ACCENT` on focus.
+- Radius: 6px.
+- Text: white, 15px `Space Grotesk`.
+- Padding: `12px 14px`.
+
+### Google Button
+
+- Full-width secondary auth action.
+- Background: `#1e1e1e`, hover `#242424`.
+- Border: `#2e2e2e`.
+- Radius: 8px.
+- Uses the official four-color Google `G` mark.
+- Label is uppercase mono, for example `CONTINUE WITH GOOGLE`.
+
+## 7. Public Landing Page
+
+The current landing page is not a full marketing site. It is a direct, typographic entry point.
+
+Required structure:
+
+- Fixed nav with sign-in action.
+- Early-access kicker: `EARLY ACCESS · CURRENTLY IN ALPHA`.
+- Huge uppercase hero headline:
+  `TRACK THE SONGS / YOU KNOW TO PLAY / AND SHARE / WITH OTHERS.`
+- Accent color on the final phrase.
+- Short supporting paragraph about building a repertoire by instrument, tracking what is being learned, and sharing with the group.
+- Primary CTA: `ENTER CAMPFIRE`, routing to sign-up.
+- Three feature tiles below the fold:
+  `YOUR REPERTOIRE`, `WHAT TO PRACTICE`, `SHARE WITH YOUR CIRCLE`.
+- Footer copy that acknowledges alpha status.
+
+Feature tiles use a single bordered grid with no gutters between cells:
+
+- Tile 1: `ACCENT` background, black text/icon.
+- Tile 2: `SURFACE` background, orange icon, muted copy.
+- Tile 3: `ACCENT_DARK` background, warm light text/icon.
+
+The landing page should stay sparse. Do not add a decorative product dashboard, generic hero illustration, or long marketing feature grid unless the product scope changes.
+
+## 8. Authentication Pages
+
+Authentication is implemented as dedicated pages, not as an embedded landing panel.
+
+Routes:
+
+- `/signin`: title `WELCOME BACK`, primary action `SIGN IN`.
+- `/signup`: title `JOIN CAMPFIRE`, primary action `CREATE ACCOUNT`.
+- `/auth/callback`: secure handoff state after managed identity redirect.
+
+Auth page order:
+
+1. Brand cluster with fire icon, `CAMPFIRE`, and `ALPHA`.
+2. Large display title.
+3. Google button.
+4. Quiet `OR` divider.
+5. Email field.
+6. Password field.
+7. Full-width accent submit button.
+8. Mode swap link.
+9. Error message when needed.
+
+The current auth implementation routes successful sign-in/sign-up through the mocked or managed session flow. Copy and visual states should not promise a public open community; the tone should remain private, alpha, and small-group oriented.
+
+## 9. Auth Callback
+
+The callback page should feel like a calm transfer back into Campfire:
+
+- Kicker: `AUTH CALLBACK`.
+- Title: `HANDING THE KEY BACK / TO CAMPFIRE.`
+- Supporting copy explains secure redirect, session restoration, and routing into the authenticated shell.
+- Use the same centered content lane and fade-up animation as other simple pages.
+
+Avoid exposing provider implementation details in the primary visual story.
+
+## 10. Onboarding Preferences
+
+The onboarding page collects music context after first authentication.
+
+Required content:
+
+- Step kicker: `STEP 2 OF 2`.
+- Title: `ONE LAST THING`.
+- Supporting text: `Help Campfire understand how you play. You can always update this later.`
+- Instrument multi-select chips.
+- Genre multi-select chips.
+- Play-context single-select cards.
+- Goal multi-select chips.
+- Experience-level single-select cards.
+- Primary action: `START TRACKING`, loading state `SAVING…`.
+- Secondary action: `SKIP FOR NOW`.
+
+Control rules:
+
+- Chips use pill radius 40px.
+- Selected chips use `ACCENT` background, black text, and orange border.
+- Unselected chips use `#1e1e1e`, `#888`, and `#2e2e2e`.
+- Option cards use 10px radius, `#1a1a1a` base, and an orange border/tint when selected.
+- The page may use musician/context emoji inside option cards, but keep them functional and sparse.
+
+## 11. Protected App Home
+
+The current protected app home is a bootstrap home, not the final full app shell.
+
+Required content:
+
+- Kicker: `CAMPFIRE · HOME`.
+- Personalized display headline: `WELCOME BACK, {DISPLAY_NAME}.`
+- Supporting copy explaining that repertoire, learning, and group-play content will live here.
+- Loading label: `RESOLVING YOUR SESSION…`.
+- Error copy for failed profile loading.
+- Member panel showing first-login/returning state, name, and email.
+- Primary action: `UPDATE PREFERENCES`, routing to onboarding.
+
+The member panel should remain compact:
+
+- Background: `#181818`.
+- Border: `1px solid #222`.
+- Radius: 20px.
+- Two-column metadata on desktop; collapse naturally on narrow screens if layout changes.
+
+Future authenticated shells can add sidebar navigation and denser session boards, but this guide should treat the current `/app` as the implemented baseline.
+
+## 12. Motion
+
+The shared animation layer is small and intentional:
+
+- `cfFadeUp`: page content enters with 16px upward movement and opacity fade.
+- `cfFlicker`: outer flame motion.
+- `cfFlicker2`: inner flame motion.
+- `cfEmberPulse`: ember opacity pulse.
+
+Use motion for:
+
+- Initial page entrance.
+- Fire mark liveliness.
+- Button and control hover transitions.
+- Form focus transitions.
+
+Do not add large parallax, continuous background particles, or motion that competes with forms. Add `prefers-reduced-motion` handling before introducing any new decorative or continuous animation.
+
+## 13. Responsive Behavior
+
+The implementation relies on fluid CSS rather than many named breakpoints:
+
+- Use `clamp()` for hero type, page padding, and large content regions.
+- Landing feature tiles use `repeat(auto-fit, minmax(240px, 1fr))`.
+- Onboarding option cards use `repeat(auto-fill, minmax(200px, 1fr))` or `minmax(160px, 1fr)` depending on content.
+- Flex rows should wrap before truncating controls.
+- Long email values must use `word-break: break-all`.
+- Buttons keep `white-space: nowrap`; containers must provide enough wrapping space.
+
+When adding new UI, preserve the fixed top nav offset and test at mobile widths where uppercase labels can become wide.
+
+## 14. Accessibility Rules
+
+- Keep all form fields labeled.
+- Preserve visible focus states, especially the orange input border.
+- Keep button text readable against `ACCENT`; black text is the current standard.
+- Do not rely on color alone for error states; include specific error text.
+- Inline SVG icons that duplicate adjacent text should be `aria-hidden`.
+- Authentication pages must be keyboard navigable from nav action through form submission.
+- Keep contrast high on muted copy. Avoid going below the existing `#555` usage for essential text.
+
+## 15. Do's and Don'ts
 
 ### Do
-- Keep primary surfaces near-black and layered through subtle value shifts
-- Use Electric Aqua only where the old green would have carried meaning: CTA, active, focus, selection, high-priority status
-- Preserve pill and circle geometry for the music-product feel
-- Keep typography compact, bold, and highly scannable
-- Use polished transitions, sticky utility chrome, and responsive rails to reinforce product quality
-- Let cover art, avatars, and content cards bring in supporting color without competing with the accent
+
+- Use the current tokens from `apps/web/src/design/tokens.ts`.
+- Keep `Anton`, `Space Grotesk`, and `Space Mono` as the visual foundation.
+- Use orange sparingly and decisively.
+- Keep copy short, uppercase, and music-specific where it acts as UI chrome.
+- Treat alpha status as part of the product voice.
+- Keep public pages bold and sparse; keep protected flows compact and task-oriented.
+- Reuse primitives before creating one-off controls.
 
 ### Don't
-- Don’t use the aqua accent decoratively across large backgrounds
-- Don’t introduce additional bright brand colors for no reason
-- Don’t flatten the layout into a generic dashboard grid
-- Don’t switch to airy marketing-site spacing inside authenticated surfaces
-- Don’t use light or mid-tone primary backgrounds
-- Don’t rely on thin gray outlines for separation on dark surfaces
 
-## 8. Responsive Behavior
+- Do not describe the current UI as an image-led bonfire scene unless that implementation returns.
+- Do not use the older `Fraunces` / `Sora` / `Manrope` typography direction.
+- Do not add a detached SaaS hero, generic dashboard mockup, or stock-looking feature section.
+- Do not reintroduce Electric Aqua or broad multicolor gradients.
+- Do not imply that sign-up is broadly public if the auth/product policy remains invite or alpha oriented.
+- Do not bury the primary action under explanatory content.
 
-### Breakpoints
-| Name | Width | Key Changes |
-|------|-------|-------------|
-| Mobile Small | `<425px` | Bottom nav only, condensed cards |
-| Mobile | `425px-767px` | Single-column rails, stacked panels |
-| Tablet | `768px-1023px` | Narrow sidebar, 2-column support grids |
-| Desktop | `1024px-1439px` | Full sidebar, stacked feature rails |
-| Large Desktop | `>=1440px` | Wider content lanes and persistent side insight panel |
+## 16. Prompt Guide For Future Front-End Work
 
-### Collapsing Strategy
-- Sidebar: full rail -> icon rail -> bottom nav
-- Utility actions: group and wrap before truncating
-- Data cards: 3-up -> 2-up -> 1-up
-- Search: persistent at desktop, condensed into a top action chip on mobile
+Use these prompts as constraints for agents and designers:
 
-## 9. Agent Prompt Guide
+- "Extend the implemented Campfire UI using `Anton`, `Space Grotesk`, `Space Mono`, `#131313`, and `#E8813A`; keep the layout sparse, uppercase, and rehearsal-room brutalist."
+- "Create a protected repertoire screen that feels like the current `/app` home: fixed top nav, mono section kickers, compact dark panels, orange selected states, and no generic SaaS cards."
+- "Add an onboarding step using the existing chip and option-card patterns; selected states use orange fill or orange border/tint, and the page remains centered at about 640px wide."
+- "Design a loading or callback state with one mono kicker, one Anton headline, one short muted paragraph, and the shared fade-up animation."
 
-### Quick Color Reference
-- Background: `#0b0b0f`
-- Shell: `#111318`
-- Card: `#181b22`
-- Raised: `#20242d`
-- Text: `#ffffff`
-- Secondary text: `#a7b0be`
-- Accent: `#27d3ff`
-- Accent pressed: `#13bde8`
-- Error: `#f3727f`
-
-### Example Component Prompts
-- "Create a dark music-app card with `#181b22` background, 18px radius, faint translucent border, and a subtle inset highlight."
-- "Design a primary pill CTA using Electric Aqua (`#27d3ff`), deep ink text, full-pill radius, and a soft aqua glow on focus."
-- "Build a sticky utility bar with dense controls, silver secondary labels, and a near-black glass background."
-- "Create an authenticated sidebar with compact navigation, active aqua treatment, and muted inactive states."
-
-### Iteration Guide
-1. Start from near-black surfaces and preserve the immersive dark theme
-2. Use Electric Aqua wherever the old green carried action or active meaning
-3. Keep the app compact, tactile, and product-like
-4. Build rails, sticky chrome, and clear hierarchy before adding flourish
-5. Use motion and glow sparingly, but make them feel intentional and premium
+When in doubt, match the implemented front end first, then evolve deliberately through shared tokens and primitives.
