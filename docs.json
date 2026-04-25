@@ -1,0 +1,23 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Campfire",
+  "colors": {
+    "primary": "#E8813A",
+    "light": "#F3A25F",
+    "dark": "#6B2E00"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "groups": [
+          {
+            "group": "Start",
+            "pages": ["docs/overview", "docs/frontend/campfire-mvp-prototype"]
+          }
+        ]
+      }
+    ]
+  }
+}
