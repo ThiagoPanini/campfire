@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+coverage/
+*.log
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+.env*
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
