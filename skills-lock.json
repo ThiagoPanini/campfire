@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-dev-setup": {
+      "source": "thiagopanini/aidriven-resources",
+      "sourceType": "github",
+      "computedHash": "f86b7977252f9c77f05d31107154952544b4ff91362f00ffbf26c0d210a49254"
+    },
+    "caveman": {
+      "source": "juliusbrussee/caveman",
+      "sourceType": "github",
+      "computedHash": "a818cdc41dcfaa50dd891c5cb5e5705968338de02e7e37949ca56e8c30ad4176"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "git-commit": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "2607fc60629b82b257136dd2a7a373f0a4466c0b49df7746d845d59313c99b21"
+    },
+    "mintlify": {
+      "source": "mintlify.com",
+      "sourceType": "well-known",
+      "computedHash": "c356cce82c421e8d1e7eff1774a43de9313cf110dc224f4b5e3b353b58a227cf"
+    }
+  }
+}

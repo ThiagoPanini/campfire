@@ -1,0 +1,21 @@
+# {{PROJECT_NAME}} Copilot Instructions
+
+{{PROJECT_ONE_LINE}}
+
+- Follow `AGENTS.md` for shared project rules.
+- Prefer narrow context: use {{SYMBOL_TOOL_OR_SERENA}} or focused search before reading large file sets.
+- Respect Spec-Kit artifacts when they exist.
+- Keep generated code aligned with existing local examples.
+{{RTK_LINE}}
+- Do not introduce broad tooling, architecture, or framework changes unless the task requires them.
+
+{{RTK_USAGE_BLOCK}}
+
+---
+Placeholders:
+  {{PROJECT_NAME}}              — repo / product name
+  {{PROJECT_ONE_LINE}}          — one-sentence description
+  {{SYMBOL_TOOL_OR_SERENA}}     — "Serena MCP" or "symbol search"
+  {{RTK_LINE}}                  — if RTK is in use: "- For terminal work, prefer `rtk <command>` when a shell command is needed."
+                                  otherwise omit
+  {{RTK_USAGE_BLOCK}}           — optional RTK how-to block; omit if not using RTK

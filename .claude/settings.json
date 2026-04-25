@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uvx --from git+https://github.com/oraios/serena serena-hooks activate"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__serena__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uvx --from git+https://github.com/oraios/serena serena-hooks auto-approve"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uvx --from git+https://github.com/oraios/serena serena-hooks cleanup"
+          }
+        ]
+      }
+    ]
+  }
+}
