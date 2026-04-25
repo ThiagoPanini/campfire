@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "serena": {
+      "command": "/home/paninit/.local/bin/serena",
+      "args": [
+        "start-mcp-server",
+        "--project",
+        "/home/paninit/workspaces/campfire",
+        "--context",
+        "ide-assistant"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/paninit/workspaces/campfire"
+      ]
+    },
+    "aws-docs": {
+      "command": "uvx",
+      "args": [
+        "awslabs.aws-documentation-mcp-server@latest"
+      ]
+    },
+    "mintlify": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mint-mcp"
+      ],
+      "_note": "Mintlify MCP typically expects a site-specific config generated via `npx mint-mcp add <siteId>`. Replace this entry once the docs site exists."
+    }
+  }
+}
