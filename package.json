@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "docs:dev": "mintlify dev"
+    "dev": "vite --config apps/web/vite.config.ts",
+    "build": "tsc -b apps/web/tsconfig.json && vite build --config apps/web/vite.config.ts",
+    "preview": "vite preview --config apps/web/vite.config.ts",
+    "typecheck": "tsc -b apps/web/tsconfig.json",
+    "docs:dev": "cd docs && mint dev"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.1",
@@ -16,10 +17,18 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "lucide-react": "^0.561.0",
-    "mintlify": "^4.2.161"
+    "mintlify": "4.2.531"
   },
   "devDependencies": {
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3"
+  },
+  "overrides": {
+    "@mintlify/previewing": {
+      "react": "19.2.5"
+    },
+    "@mintlify/cli": {
+      "react": "19.2.5"
+    }
   }
 }

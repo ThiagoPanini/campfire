@@ -1,21 +1,29 @@
 <!--
 Sync Impact Report
-- Version change: 0.0.0 (unfilled template) → 1.0.0
-- Modified principles: N/A (initial ratification; prior file was unfilled template)
-- Added sections:
-  * Core Principles (5 principles)
-  * Technical Direction & Constraints
-  * Development Workflow
-  * Governance
+- Version change: 1.0.0 → 1.0.1
+- Modified principles:
+  * I. Narrow MVP Scope — wording fix only: restored the missing second user
+    job ("capture songs the user is still learning") and corrected the broken
+    numbering "(1)…(3)…" that omitted (2). Semantics unchanged; the opening
+    paragraph already asserted all three jobs.
+- Added sections: N/A
 - Removed sections: N/A
 - Templates requiring updates:
-  * ✅ .specify/templates/plan-template.md — reviewed, Constitution Check gate remains generic ("[Gates determined based on constitution file]") and is compatible with lean principles; no edit required
-  * ✅ .specify/templates/spec-template.md — reviewed, no principle-level coupling; no edit required
-  * ✅ .specify/templates/tasks-template.md — reviewed, already treats tests as OPTIONAL which matches the lean stance; no edit required
-  * ⚠ .specify/templates/commands/*.md — directory not present in this repo; skipped
-  * ⚠ README.md / docs/quickstart.md — not present or not yet aligned; defer until docs are stood up under Mintlify
+  * ✅ .specify/templates/plan-template.md — re-reviewed, Constitution Check
+    gate is generic; still compatible.
+  * ✅ .specify/templates/spec-template.md — re-reviewed, no principle-level
+    coupling; no edit required.
+  * ✅ .specify/templates/tasks-template.md — re-reviewed, lean stance still
+    matches; no edit required.
+  * ⚠ .specify/templates/commands/*.md — directory not present in this repo;
+    skipped.
+  * ⚠ README.md / docs/quickstart.md — out-of-scope manual repo reorganization
+    moved docs to `docs/` and the web app to `apps/web/`; Constitution stays
+    high-level (no path coupling), so no edit required for this amendment.
 - Follow-up TODOs:
-  * TODO(DOCS_BOOTSTRAP): Stand up Mintlify docs skeleton when frontend work begins; link this constitution from it.
+  * TODO(DOCS_BOOTSTRAP): Stand up Mintlify docs skeleton when frontend work
+    begins; link this constitution from it. (Carried over; partially in
+    progress under `docs/`.)
 -->
 
 # Campfire Constitution
@@ -29,10 +37,11 @@ project lean so a solo builder working with heavy AI assistance can ship.
 
 ### I. Narrow MVP Scope
 
-The MVP MUST only serve three user jobs: (1) record songs a user knows
-(in which proficiency level), (3) share that repertoire with a small
-circle. Any feature outside those jobs is out of scope until explicitly
-re-scoped through an amendment. YAGNI is the default answer.
+The MVP MUST only serve three user jobs: (1) record songs a user already
+knows, (2) capture songs the user is still learning, and (3) share that
+repertoire with a small circle. Any feature outside those jobs is out of
+scope until explicitly re-scoped through an amendment. YAGNI is the default
+answer.
 
 **Rationale**: Scope creep is the primary failure mode for solo-built MVPs.
 A hard perimeter lets AI-assisted work stay coherent and shippable.
@@ -140,4 +149,4 @@ current from day one is cheap; catching up after the fact is not.
   whenever a feature feels like it is fighting the rules; that is the
   trigger to either comply or amend.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-24 | **Last Amended**: 2026-04-24
+**Version**: 1.0.1 | **Ratified**: 2026-04-24 | **Last Amended**: 2026-04-25
