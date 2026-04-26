@@ -104,7 +104,10 @@ itself is not containerized in this slice.**
 Verify:
 
 ```bash
-curl http://localhost:8000/health
+curl http://localhost:8000/healthz   # liveness — does not touch the DB
+# {"status":"ok"}
+
+curl http://localhost:8000/readyz    # readiness — runs `SELECT 1`
 # {"status":"ok"}
 ```
 

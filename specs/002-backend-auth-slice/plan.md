@@ -108,7 +108,8 @@ apps/
     │   ├── env.py                       # async-aware
     │   ├── script.py.mako
     │   └── versions/
-    │       ├── 0001_identity_initial.py # users, credentials, preferences, sessions, refresh_tokens, login_attempts
+    │       ├── 0000_baseline.py         # empty baseline; verifies async Alembic wiring against Compose Postgres
+    │       ├── 0001_identity_initial.py # users, credentials, preferences, sessions, refresh_tokens
     │       └── 0002_seed_ada.py         # idempotent seed migration (FR-020/FR-021)
     ├── src/
     │   └── campfire_api/
@@ -137,10 +138,10 @@ apps/
     │       │       └── adapters/
     │       │           ├── http/
     │       │           │   ├── routers/
-    │       │           │   │   ├── auth.py             # POST /auth/register, /auth/login, /auth/refresh, /auth/sign-out
+    │       │           │   │   ├── auth.py             # POST /auth/register, /auth/login, /auth/refresh, /auth/logout
     │       │           │   │   ├── me.py               # GET /me, PATCH /me/preferences
     │       │           │   │   ├── google_stub.py      # POST /auth/google-stub
-    │       │           │   │   └── health.py           # GET /health
+    │       │           │   │   └── health.py           # GET /healthz (liveness), GET /readyz (DB ping)
     │       │           │   ├── schemas.py              # Pydantic v2 models — request/response DTOs only
     │       │           │   ├── deps.py                 # FastAPI dependencies: settings, db_session, current_user, csrf_guard
     │       │           │   ├── csrf.py                 # double-submit / Authorization-pinning guard for /auth/refresh (FR-008a)

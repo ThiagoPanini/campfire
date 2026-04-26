@@ -248,9 +248,9 @@ attempt the refresh exchange with the refresh token (expect 401).
 - A request from any allowed development origin (the Vite dev server)
   including credentials and `Authorization` headers MUST succeed without
   being blocked by CORS preflight.
-- The health endpoint does not require authentication and does not return
-  any user data, configuration, or version information beyond what is
-  needed for liveness/readiness signals.
+- The health endpoints (`/healthz`, `/readyz`) do not require authentication
+  and do not return any user data, configuration, or version information
+  beyond what is needed for liveness/readiness signals.
 - The 11th login or registration attempt within a rolling 5-minute window
   from the same (IP, email) pair returns 429 with a `Retry-After` header
   and is not counted as a credential-validation event.
@@ -610,3 +610,10 @@ inferred into the implementation:
   `specs/001-frontend-mvp-prototype/design-reference/project/uploads/constitution.md`
   governs architectural choices (modular monolith, DDD, hexagonal,
   privacy by default).
+
+## Change Log
+
+- 2026-04-26: SC-002 implemented as an intentional behavior change from the
+  mock prototype. Browser refresh after sign-in now attempts refresh-token
+  rotation and keeps the user signed in when the server-side session family is
+  still valid.
