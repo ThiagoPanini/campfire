@@ -3,7 +3,7 @@
 **Status**: Accepted
 **Date**: 2026-04-26
 **Deciders**: Maintainer (Thiago Panini)
-**Slice**: `004-backend-auth-slice`
+**Slice**: `002-backend-auth-slice`
 
 ## Context
 

@@ -1,6 +1,6 @@
 # Feature Specification: Campfire Backend Auth Slice
 
-**Feature Branch**: `004-backend-auth-slice`
+**Feature Branch**: `002-backend-auth-slice`
 **Created**: 2026-04-26
 **Status**: Draft
 **Input**: User description: "Specify a backend slice for Campfire that replaces the in-memory mock auth and preferences in apps/web/ with a real FastAPI service. Strictly limit scope to what the existing frontend already uses; do NOT specify songs, groups, jam sessions, ratings, notes, recommendations, or real Google OAuth."

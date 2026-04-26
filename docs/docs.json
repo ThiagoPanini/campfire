@@ -89,6 +89,15 @@
               "ai-development/skills",
               "ai-development/mcp-servers"
             ]
+          },
+          {
+            "group": "BACKEND",
+            "pages": [
+              "backend/overview",
+              "backend/auth-flow",
+              "backend/contracts",
+              "backend/local-dev"
+            ]
           }
         ]
       },
@@ -106,7 +115,8 @@
           {
             "group": "ACTIVE SPECS",
             "pages": [
-              "sdd/specs/001-frontend-mvp-prototype"
+              "sdd/specs/001-frontend-mvp-prototype",
+              "sdd/specs/002-backend-auth-slice"
             ]
           }
         ]

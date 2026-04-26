@@ -1,6 +1,6 @@
 # Data Model — Identity Slice
 
-**Feature**: `004-backend-auth-slice`
+**Feature**: `002-backend-auth-slice`
 **Bounded context**: `identity` (only context implemented in v1)
 **Engine**: PostgreSQL 16, accessed via SQLAlchemy 2.x async + asyncpg.
 

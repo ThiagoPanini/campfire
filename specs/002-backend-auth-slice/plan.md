@@ -1,7 +1,7 @@
 # Implementation Plan: Campfire Backend Auth Slice (Identity)
 
-**Branch**: `004-backend-auth-slice` | **Date**: 2026-04-26 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `specs/004-backend-auth-slice/spec.md`
+**Branch**: `002-backend-auth-slice` | **Date**: 2026-04-26 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `specs/002-backend-auth-slice/spec.md`
 
 ## Summary
 
@@ -62,7 +62,7 @@ Constitution: `.specify/memory/constitution.md` v1.0.1.
 | **II. Incremental Delivery** | ✅ Pass with deviation, justified | Constitution stipulates *frontend → backend → LocalStack → Terraform → CI/CD*. Frontend slice (`001-frontend-mvp-prototype`) shipped; this is the backend slice; LocalStack and Terraform remain ahead. **Deviation**: LocalStack is *deferred past* the backend slice (see ADR-005 and Complexity Tracking) — there is no AWS-service dependency in v1 that LocalStack would emulate, so introducing it now would be ceremony without payoff. The slice still produces something runnable on its own (`docker compose up postgres` + `uvicorn`). |
 | **III. Boring, Proven Stack** | ✅ Pass | Python + `uv` + FastAPI + relational DB exactly per the constitution. Postgres 16. Hexagonal layering. No new languages or providers introduced. |
 | **IV. Proportional Rigor** | ✅ Pass | Tests are scoped to: (a) integration tests for the auth flow (real DB, justified by SC-001/SC-002 — these paths are depended on by the frontend), (b) unit tests for use cases (cheap, deterministic). No metrics/tracing/load tests in v1 — Principle IV requires a real trigger first. |
-| **V. Docs-as-Code, Continuously** | ✅ Pass | Slice ships `docs/backend/` pages (auth flow with sequence diagrams), updates `docs/docs.json` navigation in the same change set, and treats the FastAPI-generated OpenAPI snapshot at `specs/004-backend-auth-slice/contracts/openapi.json` as the contract source of truth. |
+| **V. Docs-as-Code, Continuously** | ✅ Pass | Slice ships `docs/backend/` pages (auth flow with sequence diagrams), updates `docs/docs.json` navigation in the same change set, and treats the FastAPI-generated OpenAPI snapshot at `specs/002-backend-auth-slice/contracts/openapi.json` as the contract source of truth. |
 
 **Privacy by default (constitution V from the source-of-truth constitution at `specs/001-frontend-mvp-prototype/design-reference/project/uploads/constitution.md`)**: only `GET /me` and `PATCH /me/preferences` expose user data, both scoped to the authenticated caller (FR-025/FR-026). No listing, lookup, or admin endpoint.
 
@@ -73,7 +73,7 @@ Constitution: `.specify/memory/constitution.md` v1.0.1.
 ### Documentation (this feature)
 
 ```text
-specs/004-backend-auth-slice/
+specs/002-backend-auth-slice/
 ├── plan.md              # This file
 ├── spec.md              # Feature spec (already exists)
 ├── research.md          # Phase 0 output — tech choice rationale

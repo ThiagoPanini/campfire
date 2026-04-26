@@ -1,6 +1,6 @@
 # Phase 0 Research — Identity Slice
 
-**Feature**: `004-backend-auth-slice`
+**Feature**: `002-backend-auth-slice`
 **Date**: 2026-04-26
 **Scope**: Justify each technology choice for the Campfire identity slice.
 Each entry follows: **Decision → Rationale → Alternatives considered → Why
