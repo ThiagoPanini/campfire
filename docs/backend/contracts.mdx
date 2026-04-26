@@ -1,0 +1,27 @@
+---
+title: Backend Contracts
+---
+
+The OpenAPI snapshot is committed at
+`specs/002-backend-auth-slice/contracts/openapi.json` and is regenerated with
+`make openapi-snapshot` from `apps/api`.
+
+## Error shape
+
+Errors use a compact JSON body:
+
+```json
+{ "message": "invalid credentials" }
+```
+
+Authentication failures return 401 with a generic message. Duplicate
+registration returns 409. Unknown catalog ids return 422. Rate-limited login
+and register attempts return 429 plus `Retry-After`. Disabled Google stub
+returns 503.
+
+## Environment
+
+`DATABASE_URL`, `ACCESS_TOKEN_TTL_SECONDS`, `REFRESH_TOKEN_TTL_SECONDS`,
+`CORS_ORIGINS`, `GOOGLE_STUB_ENABLED`, `RATE_LIMIT_PER_WINDOW`,
+`RATE_LIMIT_WINDOW_SECONDS`, `LOG_LEVEL`, `ENV`, `REFRESH_COOKIE_NAME`, and
+`REFRESH_COOKIE_DOMAIN` are documented in `apps/api/.env.example`.
