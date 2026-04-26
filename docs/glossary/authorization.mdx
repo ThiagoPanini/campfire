@@ -1,0 +1,16 @@
+---
+title: "Authorization"
+description: "How Campfire decides what an authenticated user can access."
+---
+
+<p className="cf-kicker">GLOSSARY · IDENTITY</p>
+
+Authorization checks whether a request may perform an action. Campfire's v1
+identity backend scopes user data to the authenticated caller.
+
+Why it matters here: `GET /me` and `PATCH /me/preferences` never accept a target
+user id from the client.
+
+Where it appears: [API endpoints](/backend/api-endpoints), Spec 002 authorization tests.
+
+Related terms: [Authentication](/glossary/authentication), [Endpoint](/glossary/endpoint).

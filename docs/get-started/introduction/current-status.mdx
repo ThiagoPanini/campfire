@@ -1,0 +1,35 @@
+---
+title: "Current status"
+description: "What is implemented, partial, planned, or deferred in Campfire."
+icon: "list-checks"
+sidebarTitle: "Current status"
+keywords: ["status", "roadmap", "implementation", "backend", "frontend"]
+---
+
+<p className="cf-kicker">PROJECT STATUS</p>
+
+This page is the canonical implementation-status summary. Other docs link here
+instead of repeating the full matrix.
+
+| Area | State | Evidence |
+| --- | --- | --- |
+| Frontend MVP | <span className="cf-badge cf-badge--live">LIVE</span> | React + TypeScript app under `apps/web/`; covered by [Spec 001](/sdd/specs/001-frontend-mvp-prototype). |
+| Identity backend | <span className="cf-badge cf-badge--partial">PARTIAL</span> | FastAPI service under `apps/api/`, OpenAPI snapshot, migrations, and tests exist. Manual verification tasks remain open in Spec 002. |
+| Local PostgreSQL | <span className="cf-badge cf-badge--live">LIVE</span> | `docker-compose.yml` runs PostgreSQL 16 for the backend slice. |
+| Infrastructure | <span className="cf-badge cf-badge--planned">PLANNED</span> | AWS/Terraform work is deferred by ADR-0003 and ADR-0005. |
+| CI/CD | <span className="cf-badge cf-badge--planned">PLANNED</span> | No `.github/workflows/` implementation is documented for the project yet. |
+| Product features beyond identity | <span className="cf-badge cf-badge--planned">PLANNED</span> | Repertoire, groups, jam sessions, ratings, notes, recommendations, and real Google OAuth are out of scope for Spec 002. |
+
+## Spec 002 verification status
+
+The identity backend implementation is present, but the spec still records
+manual gates that need human confirmation:
+
+- migration round-trip verification against Compose Postgres
+- frontend journey smoke tests against the real backend
+- full manual acceptance replay from Spec 001 against the real backend
+- integration tests in both Testcontainers and Compose fallback modes
+
+See [002 — Backend auth slice](/sdd/specs/002-backend-auth-slice) for the
+traceability view.
+

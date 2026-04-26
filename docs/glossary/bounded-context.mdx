@@ -1,0 +1,16 @@
+---
+title: "Bounded context"
+description: "A backend module with its own domain language and rules."
+---
+
+<p className="cf-kicker">GLOSSARY · ARCHITECTURE</p>
+
+A bounded context contains a cohesive business area. Campfire uses one folder
+per backend context under `apps/api/src/campfire_api/contexts/`.
+
+Why it matters here: `identity` is the only implemented context today. Future
+contexts should be siblings, not rewrites.
+
+Where it appears: [Backend architecture playbook](/backend/architecture), [ADR-0006](/sdd/adrs/0006-backend-hexagonal-ddd-pattern).
+
+Related terms: [Hexagonal architecture](/glossary/hexagonal-architecture), [Repository pattern](/glossary/repository-pattern).

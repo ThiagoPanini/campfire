@@ -1,0 +1,16 @@
+---
+title: "Hexagonal architecture"
+description: "The ports-and-adapters architecture used by the backend."
+---
+
+<p className="cf-kicker">GLOSSARY · ARCHITECTURE</p>
+
+Hexagonal architecture keeps business rules independent from frameworks and
+infrastructure by using ports and adapters.
+
+Why it matters here: Campfire keeps identity domain and application code free of
+FastAPI, SQLAlchemy, Argon2, and cloud SDK imports.
+
+Where it appears: [Backend architecture playbook](/backend/architecture), [ADR-0006](/sdd/adrs/0006-backend-hexagonal-ddd-pattern).
+
+Related terms: [Bounded context](/glossary/bounded-context), [Repository pattern](/glossary/repository-pattern).

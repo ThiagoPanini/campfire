@@ -1,0 +1,15 @@
+---
+title: "ADR-0001 — PostgreSQL as engine"
+description: "Accepted decision to use PostgreSQL 16 as the Campfire persistence engine."
+icon: "database"
+sidebarTitle: "0001 · PostgreSQL"
+---
+
+<p className="cf-kicker">ADR · ACCEPTED</p>
+
+Use PostgreSQL 16 as the only persistence engine for Campfire. Local
+development runs `postgres:16-alpine`; future production infrastructure must
+remain Postgres-compatible.
+
+Related: [Data and persistence](/backend/data-persistence), [Database](/glossary/database).
+

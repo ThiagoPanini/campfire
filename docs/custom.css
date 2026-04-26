@@ -87,6 +87,12 @@ kbd,
   border: 1px solid var(--cf-accent);
 }
 
+.cf-badge--partial {
+  background: transparent;
+  color: #f2b36d;
+  border: 1px solid #8a5525;
+}
+
 /* ---- Token row used in design pages ------------------------ */
 /* Usage:  <span class="cf-swatch" style="--swatch:#E8813A"></span>*/
 

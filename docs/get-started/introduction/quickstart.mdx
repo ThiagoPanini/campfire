@@ -1,16 +1,17 @@
 ---
 title: "Quickstart"
-description: "Run the frontend prototype and the docs site locally."
+description: "Run the Campfire frontend, identity backend, and docs site locally."
 icon: "rocket"
-keywords: ["quickstart", "install", "vite", "mintlify"]
+keywords: ["quickstart", "install", "vite", "fastapi", "mintlify"]
 ---
 
 <p className="cf-kicker">START HERE</p>
 
 ## Prerequisites
 
-- Node.js 24 LTS
-- npm (bundled with Node)
+- Node.js 24 LTS and npm
+- Docker with Compose v2
+- `uv` for the Python backend
 
 ## Install
 
@@ -18,18 +19,29 @@ keywords: ["quickstart", "install", "vite", "mintlify"]
 npm install
 ```
 
-## Run the app
+## Run the backend
+
+```bash
+docker compose up -d postgres
+cd apps/api
+uv sync
+cp .env.example .env
+make migrate
+make seed
+make run
+```
+
+The API runs at `http://localhost:8000`.
+
+## Run the frontend
+
+In a second terminal:
 
 ```bash
 npm run dev
 ```
 
 Open the Vite URL printed in the terminal. You should land on `/`.
-
-<Tip>
-  Seeded mock account for the **returning user** flow:
-  `ada@campfire.test` / `campfire123`.
-</Tip>
 
 ## Run the docs
 
@@ -46,14 +58,17 @@ Mintlify serves on `localhost:3000` against `docs/docs.json`.
     `/` renders the hero and `ENTER CAMPFIRE` CTA.
   </Step>
   <Step title="Sign-up journey">
-    Submit any well-formed email and an 8+ char password → onboarding → home.
+    Submit any well-formed email and an 8+ char password, complete onboarding,
+    and land on home.
   </Step>
   <Step title="Sign-in journey">
-    Use the seeded credentials → home (skips onboarding).
+    Use `ada@campfire.test` / `campfire123` to reach home with seeded preferences.
   </Step>
-  <Step title="Protected routes">
-    `/home` and `/onboarding` redirect to `/` without a mock session.
+  <Step title="Reload and sign out">
+    Reload keeps the user signed in when the refresh cookie exists. Sign out
+    revokes the server-side session.
   </Step>
 </Steps>
 
-See the full manual checklist in [`specs/001-frontend-mvp-prototype/quickstart.md`](https://github.com/ThiagoPanini/campfire/blob/main/specs/001-frontend-mvp-prototype/quickstart.md).
+Backend-specific commands live in [Local development](/development/local-development)
+and [Identity backend overview](/backend/overview).

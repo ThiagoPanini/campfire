@@ -1,0 +1,25 @@
+---
+title: "Spec lifecycle"
+description: "Lifecycle states for Campfire specs from draft through implementation and verification."
+icon: "repeat"
+sidebarTitle: "Spec lifecycle"
+---
+
+<p className="cf-kicker">METHODOLOGY · LIFECYCLE</p>
+
+Campfire treats a spec as living project memory. A slice can have code merged
+while still carrying verification work.
+
+| Phase | Output | Exit signal |
+| --- | --- | --- |
+| Specify | `spec.md` | Goals, non-goals, stories, and requirements are clear. |
+| Plan | `plan.md`, `research.md`, `data-model.md`, contracts, quickstart | Technical choices are decision-complete. |
+| Tasks | `tasks.md` | Work is dependency-ordered and independently testable. |
+| Implement | Code, docs, migrations, tests | The slice exists in the repo. |
+| Verify | Test results, manual gates, status updates | Open gates are closed or explicitly deferred. |
+
+## Documentation rule
+
+Docs land in the same change set as implementation. When a slice changes runtime
+behavior, update both the spec landing page and the relevant Docs reference page.
+

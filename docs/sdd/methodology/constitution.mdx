@@ -11,9 +11,9 @@ The canonical document lives at
 This page summarizes it. When the two disagree, the canonical file wins.
 
 <Info>
-  Current version: <span className="cf-label">VERSION</span> 1.0.1 &nbsp;
+  Current version: <span className="cf-label">VERSION</span> 1.1.0 &nbsp;
   <span className="cf-label">RATIFIED</span> 2026-04-24 &nbsp;
-  <span className="cf-label">LAST AMENDED</span> 2026-04-25
+  <span className="cf-label">LAST AMENDED</span> 2026-04-26
 </Info>
 
 ## Principles
@@ -59,6 +59,43 @@ This page summarizes it. When the two disagree, the canonical file wins.
 - Relational DB by default. No NoSQL, queues, or caches without a feature
   that demonstrably requires them.
 - Solo + AI default. The maintainer reviews every change.
+
+## Backend architecture invariants
+
+Added in **v1.1.0** after slice `002-backend-auth-slice`. Mechanism is
+documented in [ADR-0006](https://github.com/ThiagoPanini/campfire/blob/main/specs/002-backend-auth-slice/adr/0006-backend-hexagonal-ddd-pattern.md)
+and the [backend architecture playbook](/backend/architecture).
+
+<Steps>
+  <Step title="Slice by bounded context">
+    Backend code lives under `apps/api/src/campfire_api/contexts/<context>/`
+    with its own `domain/`, `application/`, and `adapters/`.
+  </Step>
+  <Step title="Layer purity is a test, not a review note">
+    An automated test fails the build if `domain/` or `application/` imports
+    a framework, ORM, password library, JWT library, or cloud SDK.
+  </Step>
+  <Step title="Cross-context references go by identifier">
+    A context never imports another context's entities, rows, or
+    repositories. Identifier value objects (e.g. `UserId`) cross the line.
+  </Step>
+  <Step title="Errors become HTTP only at the edge">
+    Use cases raise domain exceptions; a single registered FastAPI handler
+    maps them to status codes. No `HTTPException` inside use cases.
+  </Step>
+  <Step title="Transactions have an explicit owner">
+    The session / Unit of Work is opened and committed by the adapter that
+    invokes the use case, never by the use case itself.
+  </Step>
+  <Step title="Validation lives where it protects">
+    Pydantic guards the transport contract; value objects guard the domain.
+    No rule is enforced in more than two places.
+  </Step>
+  <Step title="Settings and time are ports">
+    `SettingsProvider` and `Clock` Protocols replace `os.getenv` and
+    `datetime.utcnow()` in `domain/` and `application/`.
+  </Step>
+</Steps>
 
 ## Amending
 

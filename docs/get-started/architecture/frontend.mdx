@@ -6,8 +6,9 @@ icon: "monitor"
 
 <p className="cf-kicker">STAGE 1 · LIVE</p>
 
-The frontend is the only stage currently implemented. It runs against mocked
-state and renders five screens that follow the visual system in `DESIGN.md`.
+The frontend renders the Campfire MVP screens and preserves the visual system in
+`DESIGN.md`. It began as a mock-backed prototype in Spec 001; Spec 002 replaced
+the auth and preferences boundary with real backend calls.
 
 ## Stack
 
@@ -18,7 +19,7 @@ state and renders five screens that follow the visual system in `DESIGN.md`.
 | Build / dev server | Vite 8 |
 | Routing | In-app routing over a small session store |
 | Styling | Plain CSS files (`tokens.css`, `global.css`, `motion.css`) |
-| State | In-memory React state; `sessionStorage` for language and accent |
+| State | In-memory access token and user state; `sessionStorage` for language and accent |
 | Testing | Manual acceptance — see [Quickstart](/get-started/introduction/quickstart) |
 
 ## Source layout
@@ -38,8 +39,8 @@ apps/web/
     ├── theme/           # Tokens and accent presets
     ├── styles/          # global.css, tokens.css, motion.css
     ├── i18n/            # EN / PT-BR copy table
-    ├── api/             # API surface (mocked for this slice)
-    ├── mocks/           # Seeded mock account, fixtures
+    ├── api/             # Backend client boundary
+    ├── mocks/           # Legacy fixtures and seeded credential values
     └── assets/
 ```
 
@@ -50,14 +51,18 @@ apps/web/
 | `/` | Landing | Public |
 | `/signin` | Sign In | Public |
 | `/signup` | Sign Up | Public |
-| `/onboarding` | Onboarding | Mock session required, else redirect to `/` |
-| `/home` | Home | Mock session required, else redirect to `/` |
+| `/onboarding` | Onboarding | Session required, else redirect to `/` |
+| `/home` | Home | Session required, else redirect to `/` |
 
 ## Session model
 
-- User, auth, and preferences live in memory and **reset on refresh**.
+- The access token lives in memory.
+- The refresh token is delivered by the backend as an HttpOnly cookie.
+- Browser refresh attempts `/auth/refresh` and keeps the user signed in when
+  the refresh cookie is valid.
 - Language and accent persist for the tab via `sessionStorage`.
-- No real OAuth. The Google button simulates a successful handoff.
+- Real OAuth is not implemented. The Google button uses the backend's
+  development-only stub endpoint.
 
 ## Visual system
 

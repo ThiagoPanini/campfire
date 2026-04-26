@@ -1,15 +1,16 @@
 ---
 title: "Backend"
-description: "Python service planned for stage 2 of the build sequence."
+description: "Python service. Hexagonal + DDD applied pragmatically, sliced by bounded context."
 icon: "server"
 ---
 
-<p className="cf-kicker">STAGE 2 · PLANNED</p>
+<p className="cf-kicker">STAGE 2 · IN PROGRESS</p>
 
-<span className="cf-badge cf-badge--planned">PLANNED</span> The backend is not
-yet built. This page captures the choices already locked in by the
-[constitution](/sdd/methodology/constitution) so future work has a place to
-land.
+<span className="cf-badge cf-badge--partial">PARTIAL</span> Campfire now has a
+FastAPI identity backend. This page explains the architectural shape only. Use
+[Identity backend overview](/backend/overview) for implementation behavior and
+[Current status](/get-started/introduction/current-status) for verification
+status.
 
 ## Locked choices
 
@@ -17,15 +18,45 @@ land.
 | --- | --- |
 | Language | Python, managed with `uv` |
 | Framework | FastAPI |
-| Database | Relational (no NoSQL unless a feature demonstrably requires it) |
-| Architecture | Clean Architecture + Hexagonal + DDD, applied pragmatically |
-| Domain rule | The domain layer must not import frameworks, ORMs, or AWS SDKs |
+| Database | PostgreSQL 16, SQLAlchemy async + asyncpg ([ADR-0001](https://github.com/ThiagoPanini/campfire/blob/main/specs/002-backend-auth-slice/adr/0001-postgresql-as-engine.md), [ADR-0002](https://github.com/ThiagoPanini/campfire/blob/main/specs/002-backend-auth-slice/adr/0002-sqlalchemy-async-asyncpg.md)) |
+| Architecture | Hexagonal + Clean + DDD, sliced by bounded context ([ADR-0006](https://github.com/ThiagoPanini/campfire/blob/main/specs/002-backend-auth-slice/adr/0006-backend-hexagonal-ddd-pattern.md)) |
+| Slicing unit | One bounded context per `apps/api/src/campfire_api/contexts/<context>/` |
+| Domain rule | `domain/` and `application/` import no framework, ORM, or cloud SDK — enforced by an automated AST test |
+| Identifiers | UUID v7, application-generated ([ADR-0004](https://github.com/ThiagoPanini/campfire/blob/main/specs/002-backend-auth-slice/adr/0004-uuid-v7-timestamptz-no-pg-extensions.md)) |
+| Time | UTC `timestamptz`, accessed through a `Clock` Protocol |
+
+## Boundaries
+
+The backend is a modular monolith. Each business area is a bounded context under
+`apps/api/src/campfire_api/contexts/`. The only implemented context today is
+`identity`.
+
+Within a context:
+
+- `domain/` owns entities, value objects, events, and ports.
+- `application/` owns use cases and application errors.
+- `adapters/` owns FastAPI, SQLAlchemy, Argon2, token generation, rate limiting,
+  and clocks.
+
+The architecture rule is dependency direction: business rules do not import
+frameworks, ORMs, cloud SDKs, or HTTP concerns.
 
 ## What lands here next
 
-- Service layout under `apps/api/` (or equivalent).
-- The first contract the frontend will swap from mocks to real calls.
-- Local run instructions and seed data.
-- Migration story for the relational schema.
+- **`repertoire/` context** — songs a user knows how to play. First
+  test of the cross-context rules. Will trigger the move of shared
+  persistence helpers into `contexts/_shared/` and a likely `UnitOfWork`
+  ADR.
+- **Real Google OAuth** — replaces the stub adapter currently behind a
+  feature flag.
+- **LocalStack + Terraform** — see [ADR-0003](https://github.com/ThiagoPanini/campfire/blob/main/specs/002-backend-auth-slice/adr/0003-aws-target-service-deferred.md)
+  and [ADR-0005](https://github.com/ThiagoPanini/campfire/blob/main/specs/002-backend-auth-slice/adr/0005-localstack-deferred.md).
 
-{/* TODO: Replace this section with concrete service docs once stage 2 starts. */}
+## Further reading
+
+- [Backend architecture playbook](/backend/architecture) — the recipe
+  for adding a new context.
+- [Identity backend overview](/backend/overview) — what the first slice
+  ships.
+- [Auth flow](/backend/auth-flow) — sequence of register/login/refresh.
+- [Local development](/development/local-development) — how to run the API locally.

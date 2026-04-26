@@ -1,0 +1,32 @@
+---
+title: "How to read specs"
+description: "How to move through Campfire specs, plans, tasks, ADRs, and generated artifacts."
+icon: "book-open-check"
+sidebarTitle: "How to read specs"
+---
+
+<p className="cf-kicker">SPECS · READING GUIDE</p>
+
+Use specs to understand intent and acceptance criteria. Use Docs pages to learn
+how the implemented system behaves now.
+
+<Steps>
+  <Step title="Start with the spec page">
+    Read the MDX landing page for status, scope, and links.
+  </Step>
+  <Step title="Open the source spec">
+    Use `specs/<slice>/spec.md` for user stories, requirements, and success criteria.
+  </Step>
+  <Step title="Check the plan and tasks">
+    `plan.md` explains implementation choices. `tasks.md` shows what is done and
+    what verification remains open.
+  </Step>
+  <Step title="Follow artifacts">
+    Contracts, data models, quickstarts, ADRs, and checklists live under the same
+    spec directory.
+  </Step>
+  <Step title="Confirm runtime behavior">
+    Use implementation reference pages for the current operational surface.
+  </Step>
+</Steps>
+

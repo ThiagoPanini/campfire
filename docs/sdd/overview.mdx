@@ -1,0 +1,26 @@
+---
+title: "Specs index"
+description: "Index of Campfire specs, status, implementation state, and related artifacts."
+icon: "list-tree"
+sidebarTitle: "Specs index"
+---
+
+<p className="cf-kicker">SPECS · INDEX</p>
+
+Specs are the source of truth for why a slice exists and how it is verified.
+Implementation details belong in Docs reference pages and are linked from here.
+
+| Spec | Status | Implementation | Related docs |
+| --- | --- | --- | --- |
+| [001 — Frontend MVP prototype](/sdd/specs/001-frontend-mvp-prototype) | Active historical slice | <span className="cf-badge cf-badge--live">LIVE</span> | [Frontend architecture](/get-started/architecture/frontend) |
+| [002 — Backend auth slice](/sdd/specs/002-backend-auth-slice) | Draft | <span className="cf-badge cf-badge--partial">PARTIAL</span> | [Identity backend](/backend/overview), [Auth flow](/backend/auth-flow) |
+
+## Status vocabulary
+
+| Label | Meaning |
+| --- | --- |
+| `DRAFT` | The spec file still records draft status or open decisions. |
+| `LIVE` | The slice is implemented and usable for its documented purpose. |
+| `PARTIAL` | Implementation exists, but verification gates or documented scope remain open. |
+| `PLANNED` | The area is intentionally deferred until a future spec. |
+

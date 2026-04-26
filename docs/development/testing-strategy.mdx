@@ -1,0 +1,49 @@
+---
+title: "Testing strategy"
+description: "How Campfire verifies frontend behavior, backend behavior, contracts, and documentation."
+icon: "test-tube"
+sidebarTitle: "Testing strategy"
+keywords: ["testing", "pytest", "contract", "mintlify", "frontend"]
+---
+
+<p className="cf-kicker">DEVELOPMENT · TESTING</p>
+
+Campfire uses proportional testing. Each slice adds the tests needed to protect
+its current risk without creating ceremony ahead of the product.
+
+## Frontend
+
+The frontend MVP was accepted with manual journeys because Spec 001 was a visual
+prototype. Re-run the user journeys when frontend behavior changes:
+
+- sign up, complete onboarding, land on home
+- sign in with the seeded account
+- use the Google stub path
+- update preferences from home
+- sign out
+
+## Backend
+
+The identity backend has three automated layers:
+
+| Layer | Command | Purpose |
+| --- | --- | --- |
+| Unit | `cd apps/api && make test-unit` | Domain and application behavior using fakes. |
+| Integration | `cd apps/api && make test-integration` | FastAPI endpoints against real PostgreSQL. |
+| Contract | `cd apps/api && make openapi-snapshot` plus contract tests | Keep the committed OpenAPI snapshot aligned with the app. |
+
+Integration tests prefer Testcontainers. The Compose fallback is documented in
+the Spec 002 quickstart for environments that cannot run Testcontainers.
+
+## Documentation
+
+Run these from `docs/`:
+
+```bash
+../node_modules/.bin/mint broken-links
+../node_modules/.bin/mint validate
+```
+
+Documentation changes should keep navigation reachable, root-relative links
+valid, and implementation status consistent with [Current status](/get-started/introduction/current-status).
+

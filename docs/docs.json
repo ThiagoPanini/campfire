@@ -50,6 +50,9 @@
       "weight": 300
     }
   },
+  "icons": {
+    "library": "lucide"
+  },
   "navigation": {
     "tabs": [
       {
@@ -60,7 +63,10 @@
             "group": "INTRODUCTION",
             "pages": [
               "get-started/introduction/overview",
-              "get-started/introduction/quickstart"
+              "get-started/introduction/current-status",
+              "get-started/introduction/quickstart",
+              "get-started/introduction/recent-implementations",
+              "get-started/introduction/roadmap"
             ]
           },
           {
@@ -74,11 +80,24 @@
             ]
           },
           {
-            "group": "CONTRIBUTING",
+            "group": "DEVELOPMENT",
             "pages": [
+              "development/local-development",
+              "development/testing-strategy",
               "contributors/overview",
               "contributors/workflow",
               "contributors/code-style"
+            ]
+          },
+          {
+            "group": "IMPLEMENTATION REFERENCE",
+            "pages": [
+              "backend/overview",
+              "backend/architecture",
+              "backend/auth-flow",
+              "backend/contracts",
+              "backend/data-persistence",
+              "backend/api-endpoints"
             ]
           },
           {
@@ -89,15 +108,6 @@
               "ai-development/skills",
               "ai-development/mcp-servers"
             ]
-          },
-          {
-            "group": "BACKEND",
-            "pages": [
-              "backend/overview",
-              "backend/auth-flow",
-              "backend/contracts",
-              "backend/local-dev"
-            ]
           }
         ]
       },
@@ -106,17 +116,145 @@
         "icon": "file-text",
         "groups": [
           {
-            "group": "METHODOLOGY",
+            "group": "OVERVIEW",
             "pages": [
-              "sdd/methodology/constitution",
-              "sdd/methodology/spec-kit"
+              "sdd/overview",
+              "sdd/how-to-read-specs"
             ]
           },
           {
-            "group": "ACTIVE SPECS",
+            "group": "METHODOLOGY",
+            "pages": [
+              "sdd/methodology/constitution",
+              "sdd/methodology/spec-kit",
+              "sdd/methodology/spec-lifecycle"
+            ]
+          },
+          {
+            "group": "SPECS",
             "pages": [
               "sdd/specs/001-frontend-mvp-prototype",
               "sdd/specs/002-backend-auth-slice"
+            ]
+          },
+          {
+            "group": "ADRS",
+            "pages": [
+              "sdd/adrs/index",
+              "sdd/adrs/0001-postgresql-as-engine",
+              "sdd/adrs/0002-sqlalchemy-async-asyncpg",
+              "sdd/adrs/0003-aws-target-service-deferred",
+              "sdd/adrs/0004-uuid-v7-timestamptz-no-pg-extensions",
+              "sdd/adrs/0005-localstack-deferred",
+              "sdd/adrs/0006-backend-hexagonal-ddd-pattern"
+            ]
+          },
+          {
+            "group": "ARTIFACTS",
+            "pages": [
+              "sdd/artifacts/index"
+            ]
+          },
+          {
+            "group": "TRACEABILITY",
+            "pages": [
+              "sdd/traceability"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Glossary",
+        "icon": "book-open-text",
+        "groups": [
+          {
+            "group": "OVERVIEW",
+            "pages": [
+              "glossary/overview"
+            ]
+          },
+          {
+            "group": "A",
+            "pages": [
+              "glossary/adr",
+              "glossary/api",
+              "glossary/authentication",
+              "glossary/authorization"
+            ]
+          },
+          {
+            "group": "B",
+            "pages": [
+              "glossary/backend",
+              "glossary/bounded-context"
+            ]
+          },
+          {
+            "group": "C",
+            "pages": [
+              "glossary/contract"
+            ]
+          },
+          {
+            "group": "D",
+            "pages": [
+              "glossary/database"
+            ]
+          },
+          {
+            "group": "E",
+            "pages": [
+              "glossary/endpoint"
+            ]
+          },
+          {
+            "group": "F",
+            "pages": [
+              "glossary/fastapi"
+            ]
+          },
+          {
+            "group": "H",
+            "pages": [
+              "glossary/hexagonal-architecture"
+            ]
+          },
+          {
+            "group": "J",
+            "pages": [
+              "glossary/jwt"
+            ]
+          },
+          {
+            "group": "M",
+            "pages": [
+              "glossary/middleware",
+              "glossary/migration"
+            ]
+          },
+          {
+            "group": "O",
+            "pages": [
+              "glossary/openapi"
+            ]
+          },
+          {
+            "group": "R",
+            "pages": [
+              "glossary/repository-pattern"
+            ]
+          },
+          {
+            "group": "S",
+            "pages": [
+              "glossary/sdd",
+              "glossary/spec-kit"
+            ]
+          },
+          {
+            "group": "T",
+            "pages": [
+              "glossary/testing"
             ]
           }
         ]

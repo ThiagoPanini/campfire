@@ -1,0 +1,61 @@
+---
+title: "Data and persistence"
+description: "Identity backend tables, persistence rules, migrations, and database constraints."
+icon: "database"
+sidebarTitle: "Data and persistence"
+---
+
+<p className="cf-kicker">IDENTITY · DATA</p>
+
+The identity backend stores its state in PostgreSQL 16. SQLAlchemy 2.x async
+models live in persistence adapters; domain entities stay framework-free.
+
+The authoritative data model is `specs/002-backend-auth-slice/data-model.md`.
+
+## Tables
+
+| Table | Purpose |
+| --- | --- |
+| `users` | Persistent identity, normalized email, display name, first-login state. |
+| `credentials` | Argon2 password hash for password-based users. |
+| `preferences` | User-owned onboarding selections. |
+| `sessions` | Access-token session records and session-family state. |
+| `refresh_tokens` | Hashed refresh-token fingerprints and rotation state. |
+| `alembic_version` | Alembic migration bookkeeping. |
+
+Spec 002 also describes `login_attempts` as future shared-rate-limit storage.
+The implemented v1 limiter is in-memory.
+
+## Persistence rules
+
+- UUIDs are generated application-side; migrations do not require Postgres UUID
+  extensions.
+- Email normalization happens in application code.
+- Password hashing happens in application code through Argon2.
+- Only token fingerprints are stored.
+- Timestamps are UTC `timestamptz`.
+- Sessions and refresh tokens are revoked instead of soft-deleting users.
+
+## Migrations
+
+Migrations live under `apps/api/alembic/versions/`.
+
+| Migration | Purpose |
+| --- | --- |
+| `0000_baseline.py` | Empty baseline for Alembic wiring. |
+| `0001_identity_initial.py` | Identity schema. |
+| `0002_seed_ada.py` | Idempotent seeded account and preferences. |
+
+Run migrations with:
+
+```bash
+cd apps/api
+make migrate
+```
+
+## Related pages
+
+- [Identity backend overview](/backend/overview)
+- [Database](/glossary/database)
+- [Migration](/glossary/migration)
+- [ADR index](/sdd/adrs/index)

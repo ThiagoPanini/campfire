@@ -24,10 +24,12 @@ It is built around three jobs and nothing else.
 
 ## Status
 
-<span className="cf-badge">ALPHA</span> &nbsp; <span className="cf-label">SLICE</span> Frontend MVP prototype.
+<span className="cf-badge">ALPHA</span> &nbsp; <span className="cf-label">CURRENT</span> Frontend MVP plus identity backend slice.
 
-Only the frontend slice is implemented. Backend, infrastructure, and CI/CD are
-sequenced but not yet built — see the [Architecture overview](/get-started/architecture/overview).
+The frontend MVP is implemented. The first backend slice, `identity`, is also
+implemented in code but still has manual verification gates open. Infrastructure
+and CI/CD remain planned. See [Current status](/get-started/introduction/current-status)
+for the canonical status matrix.
 
 <hr className="cf-rule" />
 
@@ -40,6 +42,9 @@ sequenced but not yet built — see the [Architecture overview](/get-started/arc
   <Card title="Specs" icon="file-text" href="/sdd/methodology/constitution">
     The constitution, the spec-driven workflow, and the specs themselves.
   </Card>
+  <Card title="Glossary" icon="book-open-text" href="/glossary/overview">
+    Project-specific terms used across docs, specs, and source code.
+  </Card>
 </CardGroup>
 
 ## Source of truth
@@ -48,5 +53,6 @@ sequenced but not yet built — see the [Architecture overview](/get-started/arc
 | --- | --- |
 | Product perimeter | [Constitution](/sdd/methodology/constitution) |
 | Visual system | `DESIGN.md` at the repo root |
-| Active spec | [001 — Frontend MVP](/sdd/specs/001-frontend-mvp-prototype) |
-| Code | `apps/web/` |
+| Implementation status | [Current status](/get-started/introduction/current-status) |
+| Active specs | [Specs index](/sdd/overview) |
+| Code | `apps/web/` and `apps/api/` |

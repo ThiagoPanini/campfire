@@ -14,17 +14,20 @@ see [Narrow MVP Scope & Incremental Delivery](/sdd/methodology/constitution).
 | # | Stage | Status |
 | --- | --- | --- |
 | 1 | Frontend (mocked data) | <span className="cf-badge cf-badge--live">LIVE</span> |
-| 2 | Backend (Python, FastAPI, relational DB) | <span className="cf-badge cf-badge--planned">PLANNED</span> |
+| 2 | Backend identity slice | <span className="cf-badge cf-badge--partial">PARTIAL</span> |
 | 3 | LocalStack-based local validation | <span className="cf-badge cf-badge--planned">PLANNED</span> |
 | 4 | AWS infrastructure via Terraform | <span className="cf-badge cf-badge--planned">PLANNED</span> |
 | 5 | GitHub Actions deployment pipeline | <span className="cf-badge cf-badge--planned">PLANNED</span> |
+
+For the complete status matrix, use [Current status](/get-started/introduction/current-status).
 
 ## Repository layout
 
 ```text
 campfire/
 ├── apps/
-│   └── web/             # React + TypeScript + Vite frontend
+│   ├── web/             # React + TypeScript + Vite frontend
+│   └── api/             # FastAPI identity backend
 ├── docs/                # Mintlify documentation site
 ├── specs/               # Spec-Kit features (spec, plan, tasks)
 ├── .specify/            # Constitution and Spec-Kit templates
@@ -40,7 +43,7 @@ campfire/
     Stack, routes, and structure of the implemented slice.
   </Card>
   <Card title="Backend" icon="server" href="/get-started/architecture/backend">
-    Python service that will consume the frontend's mocked contracts.
+    System-level backend style and boundaries.
   </Card>
   <Card title="Infrastructure" icon="cloud" href="/get-started/architecture/infrastructure">
     AWS-native, Terraform-defined, LocalStack-validated.

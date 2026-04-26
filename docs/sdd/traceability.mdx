@@ -1,0 +1,21 @@
+---
+title: "Spec to implementation"
+description: "Traceability map from specs to docs, source code, contracts, and ADRs."
+icon: "git-compare-arrows"
+sidebarTitle: "Spec to implementation"
+---
+
+<p className="cf-kicker">SPECS · TRACEABILITY</p>
+
+Use this page to answer where a behavior came from and where it is implemented.
+
+| Spec | Source areas | Docs | Artifacts |
+| --- | --- | --- | --- |
+| 001 — Frontend MVP | `apps/web/` | [Frontend architecture](/get-started/architecture/frontend) | UI contract, data model, quickstart |
+| 002 — Backend auth slice | `apps/api/`, auth fetch boundary in `apps/web/` | [Identity backend](/backend/overview), [Auth flow](/backend/auth-flow), [API endpoints](/backend/api-endpoints) | OpenAPI snapshot, data model, ADRs, quickstart |
+
+## Maintenance rule
+
+When code changes behavior, update the closest implementation reference page
+and the related spec landing page. Avoid repeating endpoint or table details in
+spec pages; link to the canonical reference instead.

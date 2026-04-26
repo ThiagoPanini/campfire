@@ -1,0 +1,15 @@
+---
+title: "ADR-0003 — AWS target deferred"
+description: "Accepted decision to target AWS while deferring the exact managed database service."
+icon: "cloud"
+sidebarTitle: "0003 · AWS target"
+---
+
+<p className="cf-kicker">ADR · ACCEPTED</p>
+
+AWS is the production target, but the exact managed service is deferred to a
+later infrastructure slice. The backend keeps an Aurora-ready Postgres posture
+without baking a managed-service choice into application code.
+
+Related: [Infrastructure](/get-started/architecture/infrastructure), [Roadmap](/get-started/introduction/roadmap).
+

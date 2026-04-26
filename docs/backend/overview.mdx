@@ -1,6 +1,12 @@
 ---
-title: Identity Backend Overview
+title: "Identity backend overview"
+description: "What the Campfire identity backend implements and what remains deferred."
+icon: "id-card"
+sidebarTitle: "Identity backend"
+tag: "PARTIAL"
 ---
+
+<p className="cf-kicker">IMPLEMENTATION REFERENCE</p>
 
 Campfire's first backend slice implements only the identity context: users,
 credentials, sessions, refresh tokens, and preferences. Songs, groups, jam
@@ -11,6 +17,27 @@ The API is a FastAPI modular monolith under `apps/api`. The domain and
 application layers are framework-free; FastAPI, SQLAlchemy, Argon2, and token
 generation live in adapters. Local development runs the API natively and uses
 Compose only for PostgreSQL 16.
+
+For project-wide maturity, use [Current status](/get-started/introduction/current-status).
+
+## Implemented surface
+
+| Area | Implementation |
+| --- | --- |
+| Auth | Register, login, refresh, logout, and a development-only Google stub. |
+| Current user | `GET /me` returns the authenticated user's profile and preferences. |
+| Preferences | `PATCH /me/preferences` fully replaces the caller's saved selections. |
+| Persistence | PostgreSQL 16 through SQLAlchemy 2.x async and asyncpg. |
+| Contracts | FastAPI-generated OpenAPI snapshot committed with Spec 002. |
+| Tests | Unit, integration, and OpenAPI snapshot tests under `apps/api/tests/`. |
+
+## Deferred surface
+
+- Real Google OAuth
+- Password reset or password change
+- Admin user lookup, user listing, or account deletion endpoints
+- Repertoire, groups, jam sessions, ratings, notes, and recommendations
+- Production infrastructure and CI/CD
 
 ## Aurora-readiness checklist
 
@@ -23,3 +50,11 @@ Compose only for PostgreSQL 16.
   can rotate credentials without changing call sites.
 - Migrations contain no `CREATE EXTENSION` statements unless a future slice
   explicitly proves Aurora support.
+
+## Related pages
+
+- [Auth flow](/backend/auth-flow)
+- [Backend contracts](/backend/contracts)
+- [Data and persistence](/backend/data-persistence)
+- [API endpoints](/backend/api-endpoints)
+- [002 — Backend auth slice](/sdd/specs/002-backend-auth-slice)

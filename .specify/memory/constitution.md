@@ -1,29 +1,41 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.0.1
+- Version change: 1.0.1 → 1.1.0
 - Modified principles:
-  * I. Narrow MVP Scope — wording fix only: restored the missing second user
-    job ("capture songs the user is still learning") and corrected the broken
-    numbering "(1)…(3)…" that omitted (2). Semantics unchanged; the opening
-    paragraph already asserted all three jobs.
-- Added sections: N/A
+  * III. Boring, Proven Stack — wording unchanged; the architectural
+    invariants previously implied by "Clean Architecture + Hexagonal + DDD,
+    applied pragmatically" are now made explicit in a new subsection of
+    "Technical Direction & Constraints" (see below). No principle was
+    removed, inverted, or narrowed.
+- Added sections:
+  * Technical Direction & Constraints → "Backend Architecture Invariants"
+    subsection. It captures the durable rules that emerged from slice
+    002-backend-auth-slice and a comparative review against the reference
+    architecture: bounded-context slicing, layer purity enforced by an
+    automated test, cross-context references by identifier value objects,
+    and HTTP translation of application errors at the adapter boundary.
 - Removed sections: N/A
+- Companion artifacts (non-normative; produced alongside this amendment):
+  * ADR-0006 — "Backend Hexagonal + DDD Architecture Pattern"
+    (specs/002-backend-auth-slice/adr/0006-backend-hexagonal-ddd-pattern.md)
+  * Backend architecture playbook
+    (docs/backend/architecture.mdx)
+  * Comparative architecture review
+    (specs/002-backend-auth-slice/analysis/architecture-review.md)
 - Templates requiring updates:
-  * ✅ .specify/templates/plan-template.md — re-reviewed, Constitution Check
-    gate is generic; still compatible.
-  * ✅ .specify/templates/spec-template.md — re-reviewed, no principle-level
-    coupling; no edit required.
-  * ✅ .specify/templates/tasks-template.md — re-reviewed, lean stance still
-    matches; no edit required.
-  * ⚠ .specify/templates/commands/*.md — directory not present in this repo;
-    skipped.
-  * ⚠ README.md / docs/quickstart.md — out-of-scope manual repo reorganization
-    moved docs to `docs/` and the web app to `apps/web/`; Constitution stays
-    high-level (no path coupling), so no edit required for this amendment.
+  * ✅ .specify/templates/plan-template.md — Constitution Check gate is
+    generic; new invariants are testable through the existing AST guard
+    test. No template edit required.
+  * ✅ .specify/templates/spec-template.md — no principle-level coupling.
+  * ✅ .specify/templates/tasks-template.md — lean stance still matches.
+- Mirror requiring updates:
+  * ✅ docs/sdd/methodology/constitution.mdx — updated in the same change
+    set (version block + new "Backend Architecture Invariants" callout).
 - Follow-up TODOs:
-  * TODO(DOCS_BOOTSTRAP): Stand up Mintlify docs skeleton when frontend work
-    begins; link this constitution from it. (Carried over; partially in
-    progress under `docs/`.)
+  * Re-evaluate the invariants when a second backend bounded context lands
+    (e.g. repertoire). Trigger: any cross-context import beyond identifier
+    value objects, or any new transactional flow that cannot express its
+    boundary through the current `session_scope`.
 -->
 
 # Campfire Constitution
@@ -114,6 +126,55 @@ current from day one is cheap; catching up after the fact is not.
 - **Architecture discipline**: the domain layer MUST NOT import frameworks,
   ORMs, or AWS SDKs. Adapters live at the edges.
 
+### Backend Architecture Invariants
+
+These invariants codify the pattern adopted in slice
+`002-backend-auth-slice`. They apply to every backend feature unless
+amended. The mechanism by which each invariant is satisfied (e.g. choice
+of Python idiom) is documented in **ADR-0006** and the backend playbook
+at `docs/backend/architecture.mdx`. The constitution fixes the *what*;
+those companion documents fix the *how*.
+
+1. **Slicing is by bounded context.** Backend code lives under
+   `apps/api/src/campfire_api/contexts/<context>/`. A new context is
+   created when its business rules can be described without referencing
+   another context's rules. A context owns its own `domain/`,
+   `application/`, and `adapters/` folders.
+2. **Layer purity is enforced by test, not by review.** An automated
+   test MUST fail the build if `domain/` or `application/` imports any
+   web framework, ORM, password-hashing library, JWT library, or cloud
+   SDK. The current implementation lives at
+   `apps/api/tests/unit/test_architecture.py`; equivalent guards MUST
+   exist for any new context.
+3. **Cross-context references travel as identifier value objects.**
+   One context MUST NOT import another context's entities, ORM rows, or
+   repositories. It MAY import that context's identifier value objects
+   (e.g. `UserId`) or call public application services exposed at the
+   adapter boundary.
+4. **Application errors translate to HTTP only at the adapter
+   boundary.** Use cases raise domain exceptions (a single
+   `<Context>Error` hierarchy). A registered FastAPI exception handler
+   maps that hierarchy to status codes and bodies. Use cases MUST NOT
+   raise `HTTPException` or any framework-specific error type.
+5. **Persistence transactions have an explicit boundary.** Every
+   write-bearing application flow runs inside a single transactional
+   scope owned by an adapter. The session/UoW MUST NOT be closed or
+   committed by the use case itself; it is opened and closed by the
+   adapter that called the use case (HTTP request, scheduled job, CLI,
+   etc.). When a non-HTTP trigger is added, the boundary MUST be lifted
+   to an explicit `UnitOfWork` port rather than relying on the request
+   lifecycle.
+6. **Validation lives at the layer it actually protects.** Pydantic
+   schemas validate the *transport contract* at the HTTP boundary;
+   value objects and entities validate the *domain invariants*. The
+   same rule MUST NOT be enforced in three places — when in doubt,
+   the domain wins and the HTTP layer is a fast-fail UX hint.
+7. **Settings and time are ports, not modules.** Application code
+   reads configuration through a `SettingsProvider` Protocol and the
+   current time through a `Clock` Protocol. Direct `os.getenv`,
+   `datetime.utcnow()`, or hard-coded URLs are forbidden in `domain/`
+   and `application/`.
+
 ## Development Workflow
 
 - **Solo + AI default**: the maintainer is the sole reviewer. AI-generated
@@ -149,4 +210,4 @@ current from day one is cheap; catching up after the fact is not.
   whenever a feature feels like it is fighting the rules; that is the
   trigger to either comply or amend.
 
-**Version**: 1.0.1 | **Ratified**: 2026-04-24 | **Last Amended**: 2026-04-25
+**Version**: 1.1.0 | **Ratified**: 2026-04-24 | **Last Amended**: 2026-04-26

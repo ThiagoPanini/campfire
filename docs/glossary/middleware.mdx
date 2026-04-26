@@ -1,0 +1,16 @@
+---
+title: "Middleware"
+description: "Request/response behavior wrapped around backend routes."
+---
+
+<p className="cf-kicker">GLOSSARY · BACKEND</p>
+
+Middleware runs around HTTP requests. Campfire uses middleware for request IDs
+and CORS behavior in the FastAPI app.
+
+Why it matters here: request IDs support logs, and CORS allows the frontend to
+call the backend with credentials during local development.
+
+Where it appears: `apps/api/src/campfire_api/main.py` and `shared/request_id.py`.
+
+Related terms: [FastAPI](/glossary/fastapi), [API](/glossary/api).

@@ -28,11 +28,14 @@ icon: "code"
   app-wide rules.
 - Reuse primitives in `apps/web/src/shared/` before adding one-off controls.
 
-## Python <span className="cf-badge cf-badge--planned">PLANNED</span>
+## Python
 
 - Managed with `uv`.
 - FastAPI for HTTP, Pydantic for I/O models.
-- The domain layer must not import frameworks, ORMs, or AWS SDKs.
+- The domain and application layers must not import frameworks, ORMs, or AWS SDKs.
+- Use Ruff for linting and formatting in `apps/api`.
+- Keep SQLAlchemy inside persistence adapters and FastAPI inside HTTP adapters
+  or app assembly.
 
 ## Commits and naming
 

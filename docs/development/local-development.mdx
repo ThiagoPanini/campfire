@@ -1,0 +1,71 @@
+---
+title: "Local development"
+description: "Run the frontend, backend, database, and docs site from a local checkout."
+icon: "terminal"
+sidebarTitle: "Local development"
+keywords: ["local development", "backend", "frontend", "postgres", "docs"]
+---
+
+<p className="cf-kicker">DEVELOPMENT · LOCAL</p>
+
+Use this page when you are working on code. Use [Quickstart](/get-started/introduction/quickstart)
+when you only need the shortest end-to-end run path.
+
+## Frontend
+
+From the repository root:
+
+```bash
+npm install
+npm run dev
+```
+
+The Vite app starts on the URL printed by the terminal, usually
+`http://localhost:5173`.
+
+## Backend
+
+The API runs natively. Compose only provides PostgreSQL.
+
+```bash
+docker compose up -d postgres
+cd apps/api
+uv sync
+cp .env.example .env
+make migrate
+make seed
+make run
+```
+
+The API runs at `http://localhost:8000`.
+
+| Check | Endpoint |
+| --- | --- |
+| Liveness | `GET /healthz` |
+| Database readiness | `GET /readyz` |
+
+Useful backend targets:
+
+| Target | Purpose |
+| --- | --- |
+| `make run` | Start FastAPI with reload |
+| `make test-unit` | Run domain and use-case tests |
+| `make test-integration` | Run real-Postgres integration tests |
+| `make migrate` | Apply Alembic migrations |
+| `make seed` | Re-apply the idempotent Ada seed |
+| `make openapi-snapshot` | Regenerate the committed OpenAPI snapshot |
+| `make check-aurora-extensions` | Fail on unsupported migration extensions |
+
+## Docs
+
+```bash
+npm run docs:dev
+```
+
+Mintlify serves from `docs/docs.json`.
+
+## Seeded account
+
+Use `ada@campfire.test` / `campfire123` for the returning-user path. The seed is
+defined by the backend migration `0002_seed_ada.py`.
+
