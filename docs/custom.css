@@ -1,0 +1,124 @@
+/* ============================================================
+   Campfire docs — rehearsal-room brutalism
+   See DESIGN.md for the visual system that inspires this file.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --cf-accent: #e8813a;
+  --cf-accent-dark: #6b2e00;
+  --cf-bg: #131313;
+  --cf-surface: #181818;
+  --cf-border: #1e1e1e;
+  --cf-text-muted: #888;
+  --cf-mono: 'Space Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ---- Typography rhythm ------------------------------------- */
+
+h1 {
+  letter-spacing: 0.01em !important;
+  line-height: 0.98 !important;
+}
+
+h2 {
+  letter-spacing: 0.02em !important;
+  line-height: 1.05 !important;
+  margin-top: 2.4rem !important;
+}
+
+h3 {
+  letter-spacing: 0.02em !important;
+}
+
+code,
+pre,
+kbd,
+.font-mono {
+  font-family: var(--cf-mono) !important;
+}
+
+/* ---- Mono kicker — primary information scent --------------- */
+/* Usage:  <p class="cf-kicker">CAMPFIRE · OVERVIEW</p>           */
+
+.cf-kicker {
+  display: inline-block;
+  font-family: var(--cf-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cf-accent);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--cf-accent);
+  margin: 0 0 1.25rem 0 !important;
+}
+
+/* ---- Status badges ----------------------------------------- */
+/* Usage:  <span class="cf-badge">ALPHA</span>                    */
+/*         <span class="cf-badge cf-badge--planned">PLANNED</span>*/
+/*         <span class="cf-badge cf-badge--live">LIVE</span>      */
+
+.cf-badge {
+  display: inline-block;
+  font-family: var(--cf-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: var(--cf-accent);
+  color: #000;
+  vertical-align: middle;
+  line-height: 1.2;
+}
+
+.cf-badge--planned {
+  background: transparent;
+  color: var(--cf-text-muted);
+  border: 1px solid #2e2e2e;
+}
+
+.cf-badge--live {
+  background: transparent;
+  color: var(--cf-accent);
+  border: 1px solid var(--cf-accent);
+}
+
+/* ---- Token row used in design pages ------------------------ */
+/* Usage:  <span class="cf-swatch" style="--swatch:#E8813A"></span>*/
+
+.cf-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--swatch, var(--cf-accent));
+  border: 1px solid #2e2e2e;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* ---- Sparse hairline rule ---------------------------------- */
+/* Usage:  <hr class="cf-rule" />                                 */
+
+.cf-rule {
+  border: 0;
+  border-top: 1px solid var(--cf-border);
+  margin: 2.5rem 0;
+}
+
+/* ---- Quiet inline label ------------------------------------ */
+/* Usage:  <span class="cf-label">VERSION</span> 0.1.0            */
+
+.cf-label {
+  font-family: var(--cf-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cf-text-muted);
+  margin-right: 6px;
+}

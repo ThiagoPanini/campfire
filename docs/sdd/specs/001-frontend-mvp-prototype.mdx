@@ -1,0 +1,84 @@
+---
+title: "001 — Frontend MVP prototype"
+description: "Frontend-only Campfire prototype covering Landing, Sign In, Sign Up, Onboarding, and Home."
+icon: "monitor"
+sidebarTitle: "001 · Frontend MVP"
+---
+
+<p className="cf-kicker">ACTIVE SPEC</p>
+
+<span className="cf-badge cf-badge--live">IN PROGRESS</span>
+&nbsp; <span className="cf-label">BRANCH</span> `001-frontend-mvp-prototype`
+&nbsp; <span className="cf-label">CREATED</span> 2026-04-24
+
+## Goal
+
+Turn the Claude Design `campfire-v3` export into a clickable, responsive
+prototype with mocked auth, onboarding, and home — five screens, no backend.
+
+## In scope
+
+- Landing, Sign In, Sign Up, Onboarding, Home.
+- Bilingual copy (EN / PT-BR).
+- Five accent presets: `EMBER`, `FLAME`, `GOLD`, `COPPER` (default), `BRASS`.
+- Mock session, mock seeded account, mock validation.
+- Mintlify docs alongside the app.
+
+## Out of scope
+
+- Real OAuth, real persistence, real backend.
+- Tweaks Panel from the Claude export.
+- Repertoire / jam / group features (deferred to a later spec).
+
+## Reference layout
+
+```text
+specs/001-frontend-mvp-prototype/
+├── spec.md
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── tasks.md
+├── contracts/
+│   └── ui-contract.md
+├── checklists/
+└── design-reference/
+    ├── README.md
+    ├── chats/chat1.md
+    └── project/
+        ├── Campfire Landing.html
+        ├── Campfire.html
+        └── src/*.jsx
+```
+
+## Authoritative inputs
+
+| Source | Role |
+| --- | --- |
+| `design-reference/project/Campfire Landing.html` | Final visual direction for Landing, Sign In, Sign Up, Onboarding. |
+| `design-reference/project/src/*` | Modular `campfire-v3` patterns for Home and shared shells. |
+| `design-reference/chats/chat1.md` | Design intent across iterations; final iteration wins. |
+| `DESIGN.md` (repo root) | Synchronized companion; fallback only for Home details not in the export. |
+
+## Routes
+
+| Route | Screen | Guard |
+| --- | --- | --- |
+| `/` | Landing | Public |
+| `/signin` | Sign In | Public |
+| `/signup` | Sign Up | Public |
+| `/onboarding` | Onboarding | Mock session required |
+| `/home` | Home | Mock session required |
+
+## Verifying the slice
+
+See [Quickstart](/get-started/introduction/quickstart) for the manual
+acceptance checklist. The full version lives at
+[`specs/001-frontend-mvp-prototype/quickstart.md`](https://github.com/ThiagoPanini/campfire/blob/main/specs/001-frontend-mvp-prototype/quickstart.md).
+
+<Note>
+  Automated tests are deferred for this slice by Constitution Principle IV.
+  They will be added when behavior stabilizes, a regression appears, or a
+  later slice depends on this behavior.
+</Note>

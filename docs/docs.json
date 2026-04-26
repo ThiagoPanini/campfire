@@ -1,0 +1,116 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Campfire",
+  "description": "Private music hub for small circles — track what you know, see what you are learning, share with the room.",
+  "colors": {
+    "primary": "#E8813A",
+    "light": "#FFFFFF",
+    "dark": "#131313"
+  },
+  "appearance": {
+    "default": "dark",
+    "strict": false
+  },
+  "background": {
+    "color": {
+      "dark": "#131313",
+      "light": "#F5F5F5"
+    }
+  },
+  "styling": {
+    "eyebrows": "section"
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view"
+    ]
+  },
+  "navbar": {
+    "title": "campfire",
+    "primary": {
+      "href": "https://github.com/ThiagoPanini/campfire",
+      "type": "github"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/ThiagoPanini/campfire",
+      "website": "https://thiagopanini.dev/"
+    }
+  },
+  "fonts": {
+    "heading": {
+      "family": "Anton",
+      "weight": 400
+    },
+    "body": {
+      "family": "Space Grotesk",
+      "weight": 300
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Docs",
+        "icon": "flame",
+        "groups": [
+          {
+            "group": "INTRODUCTION",
+            "pages": [
+              "get-started/introduction/overview",
+              "get-started/introduction/quickstart"
+            ]
+          },
+          {
+            "group": "ARCHITECTURE",
+            "pages": [
+              "get-started/architecture/overview",
+              "get-started/architecture/frontend",
+              "get-started/architecture/backend",
+              "get-started/architecture/infrastructure",
+              "get-started/architecture/ci-cd"
+            ]
+          },
+          {
+            "group": "CONTRIBUTING",
+            "pages": [
+              "contributors/overview",
+              "contributors/workflow",
+              "contributors/code-style"
+            ]
+          },
+          {
+            "group": "AI DEVELOPMENT",
+            "pages": [
+              "ai-development/overview",
+              "ai-development/claude-code",
+              "ai-development/skills",
+              "ai-development/mcp-servers"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Specs",
+        "icon": "file-text",
+        "groups": [
+          {
+            "group": "METHODOLOGY",
+            "pages": [
+              "sdd/methodology/constitution",
+              "sdd/methodology/spec-kit"
+            ]
+          },
+          {
+            "group": "ACTIVE SPECS",
+            "pages": [
+              "sdd/specs/001-frontend-mvp-prototype"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

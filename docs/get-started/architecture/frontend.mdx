@@ -1,0 +1,67 @@
+---
+title: "Frontend"
+description: "React + TypeScript + Vite app under apps/web."
+icon: "monitor"
+---
+
+<p className="cf-kicker">STAGE 1 · LIVE</p>
+
+The frontend is the only stage currently implemented. It runs against mocked
+state and renders five screens that follow the visual system in `DESIGN.md`.
+
+## Stack
+
+| Concern | Choice |
+| --- | --- |
+| Language | TypeScript 5.x |
+| Framework | React 19.2 |
+| Build / dev server | Vite 8 |
+| Routing | In-app routing over a small session store |
+| Styling | Plain CSS files (`tokens.css`, `global.css`, `motion.css`) |
+| State | In-memory React state; `sessionStorage` for language and accent |
+| Testing | Manual acceptance — see [Quickstart](/get-started/introduction/quickstart) |
+
+## Source layout
+
+```text
+apps/web/
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+├── public/
+└── src/
+    ├── main.tsx
+    ├── app/             # App shell, routes, session store
+    ├── pages/           # Landing, SignIn, SignUp, Onboarding, Home
+    ├── features/        # Feature-scoped components and logic
+    ├── shared/          # Shared UI primitives (buttons, forms, etc.)
+    ├── theme/           # Tokens and accent presets
+    ├── styles/          # global.css, tokens.css, motion.css
+    ├── i18n/            # EN / PT-BR copy table
+    ├── api/             # API surface (mocked for this slice)
+    ├── mocks/           # Seeded mock account, fixtures
+    └── assets/
+```
+
+## Route map
+
+| Route | Screen | Guard |
+| --- | --- | --- |
+| `/` | Landing | Public |
+| `/signin` | Sign In | Public |
+| `/signup` | Sign Up | Public |
+| `/onboarding` | Onboarding | Mock session required, else redirect to `/` |
+| `/home` | Home | Mock session required, else redirect to `/` |
+
+## Session model
+
+- User, auth, and preferences live in memory and **reset on refresh**.
+- Language and accent persist for the tab via `sessionStorage`.
+- No real OAuth. The Google button simulates a successful handoff.
+
+## Visual system
+
+The look is defined by [`DESIGN.md`](https://github.com/ThiagoPanini/campfire/blob/main/DESIGN.md):
+near-black surfaces, oversized condensed display type, mono uppercase labels,
+and one warm orange accent. New screens must reuse the existing tokens and
+primitives before introducing new ones.

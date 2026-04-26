@@ -1,0 +1,51 @@
+---
+title: "Architecture"
+description: "How Campfire is structured today and where it is going next."
+icon: "layout-grid"
+sidebarTitle: "Overview"
+---
+
+<p className="cf-kicker">SYSTEM SHAPE</p>
+
+Campfire ships in thin slices, in this order. Earlier stages must be usable
+(even with mocked data) before later ones begin. This is a constitution rule —
+see [Narrow MVP Scope & Incremental Delivery](/sdd/methodology/constitution).
+
+| # | Stage | Status |
+| --- | --- | --- |
+| 1 | Frontend (mocked data) | <span className="cf-badge cf-badge--live">LIVE</span> |
+| 2 | Backend (Python, FastAPI, relational DB) | <span className="cf-badge cf-badge--planned">PLANNED</span> |
+| 3 | LocalStack-based local validation | <span className="cf-badge cf-badge--planned">PLANNED</span> |
+| 4 | AWS infrastructure via Terraform | <span className="cf-badge cf-badge--planned">PLANNED</span> |
+| 5 | GitHub Actions deployment pipeline | <span className="cf-badge cf-badge--planned">PLANNED</span> |
+
+## Repository layout
+
+```text
+campfire/
+├── apps/
+│   └── web/             # React + TypeScript + Vite frontend
+├── docs/                # Mintlify documentation site
+├── specs/               # Spec-Kit features (spec, plan, tasks)
+├── .specify/            # Constitution and Spec-Kit templates
+├── .claude/             # Claude Code config, skills, agents
+├── DESIGN.md            # Authoritative visual system
+└── AGENTS.md            # Pointer for AI agents
+```
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Frontend" icon="monitor" href="/get-started/architecture/frontend">
+    Stack, routes, and structure of the implemented slice.
+  </Card>
+  <Card title="Backend" icon="server" href="/get-started/architecture/backend">
+    Python service that will consume the frontend's mocked contracts.
+  </Card>
+  <Card title="Infrastructure" icon="cloud" href="/get-started/architecture/infrastructure">
+    AWS-native, Terraform-defined, LocalStack-validated.
+  </Card>
+  <Card title="CI/CD" icon="git-branch" href="/get-started/architecture/ci-cd">
+    GitHub Actions pipelines from check to deploy.
+  </Card>
+</CardGroup>

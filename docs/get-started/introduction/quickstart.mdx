@@ -1,0 +1,59 @@
+---
+title: "Quickstart"
+description: "Run the frontend prototype and the docs site locally."
+icon: "rocket"
+keywords: ["quickstart", "install", "vite", "mintlify"]
+---
+
+<p className="cf-kicker">START HERE</p>
+
+## Prerequisites
+
+- Node.js 24 LTS
+- npm (bundled with Node)
+
+## Install
+
+```bash
+npm install
+```
+
+## Run the app
+
+```bash
+npm run dev
+```
+
+Open the Vite URL printed in the terminal. You should land on `/`.
+
+<Tip>
+  Seeded mock account for the **returning user** flow:
+  `ada@campfire.test` / `campfire123`.
+</Tip>
+
+## Run the docs
+
+```bash
+npm run docs:dev
+```
+
+Mintlify serves on `localhost:3000` against `docs/docs.json`.
+
+## Verify the slice
+
+<Steps>
+  <Step title="Landing">
+    `/` renders the hero and `ENTER CAMPFIRE` CTA.
+  </Step>
+  <Step title="Sign-up journey">
+    Submit any well-formed email and an 8+ char password → onboarding → home.
+  </Step>
+  <Step title="Sign-in journey">
+    Use the seeded credentials → home (skips onboarding).
+  </Step>
+  <Step title="Protected routes">
+    `/home` and `/onboarding` redirect to `/` without a mock session.
+  </Step>
+</Steps>
+
+See the full manual checklist in [`specs/001-frontend-mvp-prototype/quickstart.md`](https://github.com/ThiagoPanini/campfire/blob/main/specs/001-frontend-mvp-prototype/quickstart.md).

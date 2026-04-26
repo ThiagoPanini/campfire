@@ -1,0 +1,31 @@
+---
+title: "Backend"
+description: "Python service planned for stage 2 of the build sequence."
+icon: "server"
+---
+
+<p className="cf-kicker">STAGE 2 · PLANNED</p>
+
+<span className="cf-badge cf-badge--planned">PLANNED</span> The backend is not
+yet built. This page captures the choices already locked in by the
+[constitution](/sdd/methodology/constitution) so future work has a place to
+land.
+
+## Locked choices
+
+| Concern | Choice |
+| --- | --- |
+| Language | Python, managed with `uv` |
+| Framework | FastAPI |
+| Database | Relational (no NoSQL unless a feature demonstrably requires it) |
+| Architecture | Clean Architecture + Hexagonal + DDD, applied pragmatically |
+| Domain rule | The domain layer must not import frameworks, ORMs, or AWS SDKs |
+
+## What lands here next
+
+- Service layout under `apps/api/` (or equivalent).
+- The first contract the frontend will swap from mocks to real calls.
+- Local run instructions and seed data.
+- Migration story for the relational schema.
+
+{/* TODO: Replace this section with concrete service docs once stage 2 starts. */}

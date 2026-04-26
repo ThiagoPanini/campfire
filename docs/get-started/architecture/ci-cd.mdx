@@ -1,0 +1,28 @@
+---
+title: "CI / CD"
+description: "GitHub Actions pipelines for check, build, and deploy."
+icon: "git-branch"
+sidebarTitle: "CI/CD"
+---
+
+<p className="cf-kicker">STAGE 5 · PLANNED</p>
+
+<span className="cf-badge cf-badge--planned">PLANNED</span> CI/CD is the last
+stage. It depends on the backend and infrastructure slices being usable first.
+
+## Locked choices
+
+| Concern | Choice |
+| --- | --- |
+| Provider | GitHub Actions |
+| Trigger | Push to feature branches and to `main` |
+| Definition of done | Slice runs locally, docs are updated in the same change set, applicable LocalStack and CI paths are green |
+
+## What lands here next
+
+- Workflow files under `.github/workflows/`.
+- Required checks before merge.
+- Deployment promotion from local → AWS.
+- Rollback story.
+
+{/* TODO: Replace this section with concrete pipeline docs once stage 5 starts. */}

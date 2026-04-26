@@ -1,0 +1,42 @@
+---
+title: "Code style"
+description: "Formatting and conventions across the repo."
+icon: "code"
+---
+
+<p className="cf-kicker">CONVENTIONS</p>
+
+## Formatting
+
+- Prettier handles JS, TS, JSON, MD, MDX, and CSS. Files listed in
+  `.prettierignore` are skipped.
+- Editors should use the workspace settings under `.vscode/`.
+- Do not hand-format what Prettier owns.
+
+## TypeScript
+
+- Strict mode. `tsc -b apps/web/tsconfig.json` must pass.
+- Prefer named exports. Default exports only for top-level page components
+  when the framework expects them.
+- Use plain CSS files plus design tokens; do not introduce a CSS-in-JS or
+  utility framework without an amendment to the [constitution](/sdd/methodology/constitution).
+
+## React
+
+- Function components only.
+- Co-locate component CSS or use shared stylesheets in `src/styles/` for
+  app-wide rules.
+- Reuse primitives in `apps/web/src/shared/` before adding one-off controls.
+
+## Python <span className="cf-badge cf-badge--planned">PLANNED</span>
+
+- Managed with `uv`.
+- FastAPI for HTTP, Pydantic for I/O models.
+- The domain layer must not import frameworks, ORMs, or AWS SDKs.
+
+## Commits and naming
+
+- Branch names: kebab-case, prefix with the spec id when available.
+- Commit messages: conventional-style is encouraged, not enforced.
+- File names follow the convention of their directory; do not introduce a new
+  one without a reason.
