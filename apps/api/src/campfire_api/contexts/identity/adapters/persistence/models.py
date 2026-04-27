@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, UniqueConstraint, text
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import BYTEA, JSONB
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -31,8 +31,12 @@ class UserRow(Base):
     email: Mapped[str] = mapped_column(nullable=False)
     display_name: Mapped[str] = mapped_column(nullable=False)
     first_login: Mapped[bool] = mapped_column(nullable=False, default=True)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
 
 
 class CredentialsRow(Base):
@@ -42,8 +46,12 @@ class CredentialsRow(Base):
         PG_UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
     )
     password_hash: Mapped[str] = mapped_column(nullable=False)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
 
 
 class PreferencesRow(Base):
@@ -74,7 +82,9 @@ class PreferencesRow(Base):
         JSONB, nullable=False, default=list, server_default=text("'[]'::jsonb")
     )
     experience: Mapped[str | None] = mapped_column(nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
 
 
 class SessionRow(Base):
@@ -98,10 +108,16 @@ class SessionRow(Base):
     )
     family_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), nullable=False)
     access_token_fingerprint: Mapped[bytes] = mapped_column(BYTEA, nullable=False)
-    access_token_expires_at: Mapped[datetime] = mapped_column(nullable=False)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
-    last_seen_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
-    revoked_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    access_token_expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    last_seen_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     revoked_reason: Mapped[str | None] = mapped_column(nullable=True)
 
 
@@ -131,8 +147,10 @@ class RefreshTokenRow(Base):
         PG_UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     token_fingerprint: Mapped[bytes] = mapped_column(BYTEA, nullable=False)
-    issued_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
-    expires_at: Mapped[datetime] = mapped_column(nullable=False)
-    consumed_at: Mapped[datetime | None] = mapped_column(nullable=True)
-    revoked_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    issued_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     revoked_reason: Mapped[str | None] = mapped_column(nullable=True)

@@ -1,6 +1,18 @@
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field
+
+from campfire_api.contexts.identity.domain.value_objects import Email
+
+
+def validate_email(value: str) -> str:
+    try:
+        return Email(value).value
+    except ValueError as exc:
+        raise ValueError("invalid email") from exc
+
+
+CampfireEmail = Annotated[str, AfterValidator(validate_email)]
 
 
 class ErrorResponse(BaseModel):
@@ -18,12 +30,12 @@ class PreferencesPayload(BaseModel):
 
 
 class RegisterRequest(BaseModel):
-    email: EmailStr
+    email: CampfireEmail
     password: str = Field(min_length=8)
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: CampfireEmail
     password: str
 
 
@@ -35,7 +47,7 @@ class TokenResponse(BaseModel):
 
 class MeResponse(BaseModel):
     displayName: str
-    email: EmailStr
+    email: CampfireEmail
     firstLogin: bool
     preferences: PreferencesPayload
 

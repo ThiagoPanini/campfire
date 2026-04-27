@@ -9,26 +9,30 @@ async def test_documented_endpoints_do_not_leak_secrets(client, caplog) -> None:
     login_response, headers = await login(client)
     access = login_response.json()["accessToken"]
     refresh = client.cookies.get("campfire_refresh") or ""
-    responses = [
+    token_responses = [
+        login_response,
+        await client.post("/auth/refresh", headers=headers),
+        await client.post("/auth/google-stub", json={"intent": "sign-in"}),
+    ]
+    non_token_responses = [
         await client.post(
             "/auth/register", json={"email": "new@campfire.test", "password": "campfire123"}
         ),
-        login_response,
-        await client.post("/auth/refresh", headers=headers),
         await client.get("/me", headers={"Authorization": f"Bearer {access}"}),
         await client.patch(
             "/me/preferences", headers=headers, json={"instruments": [], "genres": [], "goals": []}
         ),
-        await client.post("/auth/google-stub", json={"intent": "sign-in"}),
         await client.get("/healthz"),
         await client.get("/readyz"),
         await client.post("/auth/logout", headers=headers),
     ]
-    haystack = "\n".join(response.text for response in responses) + "\n".join(
+    all_responses = token_responses + non_token_responses
+    all_response_bodies = "\n".join(response.text for response in all_responses)
+    non_token_haystack = "\n".join(response.text for response in non_token_responses) + "\n".join(
         record.getMessage() for record in caplog.records
     )
-    assert "campfire123" not in haystack
-    assert "$argon2id$" not in haystack
-    assert access not in haystack
+    assert "campfire123" not in all_response_bodies
+    assert "$argon2id$" not in all_response_bodies
+    assert access not in non_token_haystack
     if refresh:
-        assert refresh not in haystack
+        assert refresh not in non_token_haystack

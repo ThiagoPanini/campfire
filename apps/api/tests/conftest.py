@@ -8,7 +8,9 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 from testcontainers.postgres import PostgresContainer
 
+from campfire_api.contexts.identity.adapters.persistence.engine import dispose_engine
 from campfire_api.main import create_app
+from campfire_api.settings import get_settings_provider
 
 COMPOSE_TEST_DATABASE_URL = "postgresql+asyncpg://campfire:campfire@localhost:5432/campfire_test"
 ADA_ID = "018f0000-0000-7000-8000-000000000001"
@@ -95,8 +97,12 @@ async def reset_db(database_url: str) -> AsyncIterator[None]:
 async def client(
     monkeypatch: pytest.MonkeyPatch, migrated_test_database, reset_db, database_url: str
 ) -> AsyncIterator[AsyncClient]:
+    await dispose_engine()
     monkeypatch.setenv("DATABASE_URL", database_url)
     monkeypatch.setenv("CORS_ORIGINS", "http://localhost:5173")
+    get_settings_provider.cache_clear()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
         yield ac
+    await dispose_engine()
+    get_settings_provider.cache_clear()

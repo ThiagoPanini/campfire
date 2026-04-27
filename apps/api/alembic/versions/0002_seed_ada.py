@@ -6,16 +6,18 @@ Create Date: 2026-04-26
 """
 
 from collections.abc import Sequence
+from uuid import UUID
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 revision: str = "0002_seed_ada"
 down_revision: str | None = "0001_identity_initial"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
-ADA_ID = "018f0000-0000-7000-8000-000000000001"
+ADA_ID = UUID("018f0000-0000-7000-8000-000000000001")
 ADA_HASH = "$argon2id$v=19$m=19456,t=2,p=1$WO8c3zdKufpGYC/woOXNPg$+MEKvl/kFcr1xURYss4uqLegvP9LWwfeUP0KZw0XMaM"
 
 
@@ -27,7 +29,9 @@ def upgrade() -> None:
             VALUES (:id, 'ada@campfire.test', 'Ada', false)
             ON CONFLICT (email) DO NOTHING
             """
-        ).bindparams(id=ADA_ID)
+        ).bindparams(
+            sa.bindparam("id", value=ADA_ID, type_=postgresql.UUID(as_uuid=True))
+        )
     )
     op.execute(
         sa.text(
@@ -36,7 +40,10 @@ def upgrade() -> None:
             VALUES (:id, :password_hash)
             ON CONFLICT (user_id) DO NOTHING
             """
-        ).bindparams(id=ADA_ID, password_hash=ADA_HASH)
+        ).bindparams(
+            sa.bindparam("id", value=ADA_ID, type_=postgresql.UUID(as_uuid=True)),
+            sa.bindparam("password_hash", value=ADA_HASH),
+        )
     )
     op.execute(
         sa.text(
@@ -52,7 +59,9 @@ def upgrade() -> None:
             )
             ON CONFLICT (user_id) DO NOTHING
             """
-        ).bindparams(id=ADA_ID)
+        ).bindparams(
+            sa.bindparam("id", value=ADA_ID, type_=postgresql.UUID(as_uuid=True))
+        )
     )
 
 
