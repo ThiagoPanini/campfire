@@ -1,4 +1,4 @@
-export type RouteId = "landing" | "signin" | "signup" | "onboarding" | "home";
+export type RouteId = "landing" | "signin" | "signup" | "onboarding" | "home" | "repertoire";
 
 export const ROUTES: Record<RouteId, string> = {
   landing: "/",
@@ -6,9 +6,10 @@ export const ROUTES: Record<RouteId, string> = {
   signup: "/signup",
   onboarding: "/onboarding",
   home: "/home",
+  repertoire: "/repertoire",
 };
 
-export const PROTECTED_ROUTES = new Set<RouteId>(["onboarding", "home"]);
+export const PROTECTED_ROUTES = new Set<RouteId>(["onboarding", "home", "repertoire"]);
 
 export function pathToRoute(pathname: string): RouteId {
   const clean = pathname.replace(/\/+$/, "") || "/";

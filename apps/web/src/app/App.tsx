@@ -5,6 +5,7 @@ import { Nav } from "@shared/components/Nav";
 import { HomePage } from "@pages/HomePage";
 import { LandingPage } from "@pages/LandingPage";
 import { OnboardingPage } from "@pages/OnboardingPage";
+import { RepertoirePage } from "@pages/RepertoirePage";
 import { SignInPage } from "@pages/SignInPage";
 import { SignUpPage } from "@pages/SignUpPage";
 import { RequireAuth } from "./router/guards";
@@ -33,9 +34,10 @@ export function App() {
   }, [session.accentPreset]);
 
   const t = translate(session.language);
+  const isProtected = route === "home" || route === "repertoire" || route === "onboarding";
   const navAction = route === "landing"
     ? <button className="nav-button" onClick={() => navigate("signin")}>{t.nav.signin}</button>
-    : route === "home"
+    : isProtected
       ? <button className="nav-button" onClick={() => { session.signOut(); navigate("landing"); }}>{t.nav.signout}</button>
       : <button className="nav-button" onClick={() => navigate(route === "signin" ? "landing" : "signup")}>{t.nav.back}</button>;
 
@@ -94,8 +96,11 @@ export function App() {
             preferences={session.preferences}
             authMode={session.authMode}
             onUpdatePreferences={() => navigate("onboarding")}
+            onRepertoire={() => navigate("repertoire")}
           />
         ) : null;
+      case "repertoire":
+        return <RepertoirePage language={session.language} />;
       default:
         return (
           <LandingPage
