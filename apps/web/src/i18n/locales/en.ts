@@ -31,6 +31,7 @@ export const en = {
     email: "Enter a valid email address.",
     password: "Password must be at least 8 characters.",
     credentials: "Use ada@campfire.test / campfire123 for this prototype.",
+    account: "Could not create the account. Try again.",
   },
   onboarding: {
     title: "ONE LAST THING",

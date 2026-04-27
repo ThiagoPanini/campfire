@@ -9,9 +9,7 @@ import {
   authenticate,
   continueWithGoogle,
   createAccount,
-  displayNameFromEmail,
   refreshSession,
-  seededCredentials,
   signOutRequest,
   updatePreferences,
 } from "./api/auth.api";
@@ -58,84 +56,55 @@ export function useSessionStore() {
     setAccentState(next);
   }
 
-  function signUp(email: string, password: string) {
-    const user: MockUser = {
-      displayName: displayNameFromEmail(email),
-      email: email.trim(),
-      password,
-      firstLogin: true,
-      preferences: clonePreferences(emptyPreferences),
-    };
+  async function signUp(email: string, password: string) {
+    const user = await createAccount(email, password).catch(() => null);
+    if (!user) return false;
     setCurrentUser(user);
     setPreferences(clonePreferences(user.preferences));
     setAuthMode("firstLogin");
-    createAccount(email, password).then((created) => {
-      setCurrentUser(created);
-      setPreferences(clonePreferences(created.preferences));
-    });
-    return user;
-  }
-
-  function signUpWithGoogle() {
-    const user = signUp("google.member@campfire.test", "managed-google");
-    continueWithGoogle("sign-up").then((created) => {
-      if (!created) return;
-      setCurrentUser(created);
-      setPreferences(clonePreferences(created.preferences));
-    });
-    return user;
-  }
-
-  function signIn(email: string, password: string) {
-    const optimistic: MockUser = {
-      displayName: displayNameFromEmail(email),
-      email: email.trim(),
-      password,
-      firstLogin: false,
-      preferences: clonePreferences(emptyPreferences),
-    };
-    setCurrentUser(optimistic);
-    setPreferences(clonePreferences(optimistic.preferences));
-    setAuthMode("returning");
-    authenticate(email, password).then((user) => {
-      if (!user) {
-        signOut();
-        return;
-      }
-      setCurrentUser(user);
-      setPreferences(clonePreferences(user.preferences));
-      setAuthMode("returning");
-    });
     return true;
   }
 
-  function signInWithGoogle() {
-    setCurrentUser({
-      displayName: "Ada",
-      email: seededCredentials.email,
-      password: "",
-      firstLogin: false,
-      preferences: clonePreferences(emptyPreferences),
-    });
-    setPreferences(clonePreferences(emptyPreferences));
-    setAuthMode("returning");
-    continueWithGoogle("sign-in").then((user) => {
-      if (!user) return;
-      setCurrentUser(user);
-      setPreferences(clonePreferences(user.preferences));
-      setAuthMode("returning");
-    });
+  async function signUpWithGoogle() {
+    const user = await continueWithGoogle("sign-up");
+    if (!user) return false;
+    setCurrentUser(user);
+    setPreferences(clonePreferences(user.preferences));
+    setAuthMode("firstLogin");
+    return true;
   }
 
-  function savePreferences(next: Preferences) {
+  async function signIn(email: string, password: string) {
+    const user = await authenticate(email, password);
+    if (!user) return false;
+    setCurrentUser(user);
+    setPreferences(clonePreferences(user.preferences));
+    setAuthMode("returning");
+    return true;
+  }
+
+  async function signInWithGoogle() {
+    const user = await continueWithGoogle("sign-in");
+    if (!user) return false;
+    setCurrentUser(user);
+    setPreferences(clonePreferences(user.preferences));
+    setAuthMode("returning");
+    return true;
+  }
+
+  async function savePreferences(next: Preferences) {
     const cloned = clonePreferences(next);
     setPreferences(cloned);
     setCurrentUser((user) => (user ? { ...user, preferences: cloned } : user));
-    updatePreferences(cloned).then((user) => {
+    try {
+      const user = await updatePreferences(cloned);
       setCurrentUser(user);
       setPreferences(clonePreferences(user.preferences));
       setAuthMode("returning");
-    });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   function signOut() {

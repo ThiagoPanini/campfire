@@ -31,6 +31,7 @@ export const pt = {
     email: "Digite um e-mail valido.",
     password: "A senha precisa ter pelo menos 8 caracteres.",
     credentials: "Use ada@campfire.test / campfire123 neste prototipo.",
+    account: "Nao foi possivel criar a conta. Tente novamente.",
   },
   onboarding: {
     title: "ULTIMA ETAPA",

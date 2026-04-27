@@ -45,12 +45,16 @@ export function App() {
         return (
           <SignInPage
             language={session.language}
-            onSubmit={(email, password) => {
-              const ok = session.signIn(email, password);
+            onSubmit={async (email, password) => {
+              const ok = await session.signIn(email, password);
               if (ok) navigate("home");
               return ok;
             }}
-            onGoogle={() => { session.signInWithGoogle(); navigate("home"); }}
+            onGoogle={async () => {
+              const ok = await session.signInWithGoogle();
+              if (ok) navigate("home");
+              return ok;
+            }}
             onSwap={() => navigate("signup")}
           />
         );
@@ -58,8 +62,16 @@ export function App() {
         return (
           <SignUpPage
             language={session.language}
-            onSubmit={(email, password) => { session.signUp(email, password); navigate("onboarding"); }}
-            onGoogle={() => { session.signUpWithGoogle(); navigate("onboarding"); }}
+            onSubmit={async (email, password) => {
+              const ok = await session.signUp(email, password);
+              if (ok) navigate("onboarding");
+              return ok;
+            }}
+            onGoogle={async () => {
+              const ok = await session.signUpWithGoogle();
+              if (ok) navigate("onboarding");
+              return ok;
+            }}
             onSwap={() => navigate("signin")}
           />
         );
@@ -68,7 +80,9 @@ export function App() {
           <OnboardingPage
             language={session.language}
             preferences={session.preferences}
-            onSave={(preferences) => { session.savePreferences(preferences); navigate("home"); }}
+            onSave={async (preferences) => {
+              if (await session.savePreferences(preferences)) navigate("home");
+            }}
             onSkip={() => navigate("home")}
           />
         );
