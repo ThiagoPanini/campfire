@@ -35,6 +35,10 @@ The identity backend has three automated layers:
 Integration tests prefer Testcontainers. The Compose fallback is documented in
 the Spec 002 quickstart for environments that cannot run Testcontainers.
 
+For manual inspection while testing local flows, use
+[Local SQL validation](/development/local-sql-validation). Those queries help
+you inspect persisted state, but they do not replace automated tests.
+
 ## Documentation
 
 Run these from `docs/`:
@@ -46,4 +50,3 @@ Run these from `docs/`:
 
 Documentation changes should keep navigation reachable, root-relative links
 valid, and implementation status consistent with [Current status](/get-started/introduction/current-status).
-

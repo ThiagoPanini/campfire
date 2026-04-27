@@ -16,3 +16,7 @@ Health checks:
 curl http://localhost:8000/healthz
 curl http://localhost:8000/readyz
 ```
+
+Local database validation queries for SQLTools live in
+[`queries/sqltools/`](queries/sqltools/README.md). They are grouped by
+bounded context, with shared database checks in `queries/sqltools/shared/`.

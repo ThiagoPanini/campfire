@@ -1,4 +1,4 @@
-.PHONY: run test test-unit test-integration migrate downgrade seed lint format openapi-snapshot db-reset check-aurora-extensions
+.PHONY: run test test-unit test-integration test-integration-compose migrate downgrade seed lint format openapi-snapshot db-reset check-aurora-extensions
 
 run:
 	uv run uvicorn campfire_api.main:app --reload --port 8000
@@ -11,6 +11,9 @@ test-unit:
 
 test-integration:
 	uv run pytest -m integration tests/integration
+
+test-integration-compose:
+	TEST_BACKEND=compose uv run pytest -m integration tests/integration
 
 migrate:
 	uv run alembic upgrade head

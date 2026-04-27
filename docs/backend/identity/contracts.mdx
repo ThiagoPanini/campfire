@@ -1,0 +1,57 @@
+---
+title: "Backend contracts"
+description: "OpenAPI snapshot, response shapes, errors, and environment contract for the identity backend."
+icon: "file-json"
+sidebarTitle: "Backend contracts"
+---
+
+<p className="cf-kicker">IDENTITY · CONTRACTS</p>
+
+The OpenAPI snapshot is committed at
+`specs/002-backend-auth-slice/contracts/openapi.json` and is regenerated with
+`make openapi-snapshot` from `apps/api`.
+
+The snapshot is the source of truth for request and response shapes. This page
+summarizes the contract so readers can navigate the implementation without
+opening the raw JSON first.
+
+## Token response
+
+Login, refresh, and the Google stub return:
+
+```json
+{
+  "accessToken": "opaque-token",
+  "tokenType": "Bearer",
+  "expiresIn": 900
+}
+```
+
+The access token is opaque. Clients must not parse claims from it.
+
+## Error shape
+
+Errors use a compact JSON body:
+
+```json
+{ "message": "invalid credentials" }
+```
+
+Authentication failures return `401` with a generic message. Duplicate
+registration returns `409`. Unknown catalog ids return `422`. Rate-limited login
+and register attempts return `429` plus `Retry-After`. Disabled Google stub
+returns `503`.
+
+## Environment
+
+`DATABASE_URL`, `ACCESS_TOKEN_TTL_SECONDS`, `REFRESH_TOKEN_TTL_SECONDS`,
+`CORS_ORIGINS`, `GOOGLE_STUB_ENABLED`, `RATE_LIMIT_PER_WINDOW`,
+`RATE_LIMIT_WINDOW_SECONDS`, `LOG_LEVEL`, `ENV`, `REFRESH_COOKIE_NAME`, and
+`REFRESH_COOKIE_DOMAIN` are documented in `apps/api/.env.example`.
+
+## Related pages
+
+- [API endpoints](/backend/identity/api-endpoints)
+- [Auth flow](/backend/identity/auth-flow)
+- [Contract](/glossary/contract)
+- [OpenAPI](/glossary/openapi)

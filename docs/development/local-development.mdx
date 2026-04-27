@@ -44,6 +44,9 @@ The API runs at `http://localhost:8000`.
 | Liveness | `GET /healthz` |
 | Database readiness | `GET /readyz` |
 
+For local database inspection after migrations, seed, login, refresh, or
+logout, use the query packs in [Local SQL validation](/development/local-sql-validation).
+
 Useful backend targets:
 
 | Target | Purpose |
@@ -68,4 +71,3 @@ Mintlify serves from `docs/docs.json`.
 
 Use `ada@campfire.test` / `campfire123` for the returning-user path. The seed is
 defined by the backend migration `0002_seed_ada.py`.
-

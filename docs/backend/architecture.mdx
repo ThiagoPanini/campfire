@@ -371,6 +371,24 @@ the constitution or this playbook.
 - An auto-discovery mechanism for routers, error handlers, or
   contexts. The composition root is explicit on purpose.
 
+## Implementation reference docs convention
+
+Each bounded context has a matching documentation group under
+`docs/backend/<context>/`. The identity context is the current worked example:
+
+| Page | Path |
+|---|---|
+| Context landing page | `docs/backend/identity/overview.mdx` |
+| Auth sequences | `docs/backend/identity/auth-flow.mdx` |
+| OpenAPI and error contract | `docs/backend/identity/contracts.mdx` |
+| Tables and migrations | `docs/backend/identity/data-persistence.mdx` |
+| Endpoint list | `docs/backend/identity/api-endpoints.mdx` |
+
+When you add a new bounded context, create a sibling directory
+`docs/backend/<context>/` with at minimum an `overview.mdx` and register it as
+a nested group in `docs/docs.json` under **IMPLEMENTATION REFERENCE > Backend**,
+following the same shape as the Identity context group.
+
 ## Reference
 
 - [Constitution](/sdd/methodology/constitution) — invariants
@@ -381,3 +399,4 @@ the constitution or this playbook.
   `specs/002-backend-auth-slice/analysis/architecture-review.md`.
 - Worked example: `apps/api/src/campfire_api/contexts/identity/`.
 - Architecture test: `apps/api/tests/unit/test_architecture.py`.
+- Identity context docs: [Identity context](/backend/identity/overview).
