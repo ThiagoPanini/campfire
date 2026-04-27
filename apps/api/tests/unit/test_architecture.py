@@ -5,8 +5,8 @@ import pytest
 
 pytestmark = pytest.mark.unit
 
-ROOT = Path(__file__).resolve().parents[2] / "src" / "campfire_api" / "contexts" / "identity"
-BANNED = {"fastapi", "sqlalchemy", "argon2", "jose"}
+CONTEXTS_ROOT = Path(__file__).resolve().parents[2] / "src" / "campfire_api" / "contexts"
+BANNED = {"fastapi", "sqlalchemy", "argon2", "jose", "httpx"}
 
 
 def imported_roots(path: Path) -> set[str]:
@@ -22,9 +22,15 @@ def imported_roots(path: Path) -> set[str]:
 
 def test_domain_and_application_have_no_infrastructure_imports() -> None:
     offenders = []
-    for base in [ROOT / "domain", ROOT / "application"]:
-        for path in base.rglob("*.py"):
-            bad = imported_roots(path) & BANNED
-            if bad:
-                offenders.append(f"{path.relative_to(ROOT)} imports {sorted(bad)}")
+    for context_dir in CONTEXTS_ROOT.iterdir():
+        if not context_dir.is_dir():
+            continue
+        for layer in ["domain", "application"]:
+            layer_dir = context_dir / layer
+            if not layer_dir.exists():
+                continue
+            for path in layer_dir.rglob("*.py"):
+                bad = imported_roots(path) & BANNED
+                if bad:
+                    offenders.append(f"{path.relative_to(CONTEXTS_ROOT)} imports {sorted(bad)}")
     assert offenders == []
