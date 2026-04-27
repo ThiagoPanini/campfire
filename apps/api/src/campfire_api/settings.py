@@ -18,6 +18,11 @@ class SettingsProvider(Protocol):
     async def env(self) -> str: ...
     async def refresh_cookie_name(self) -> str: ...
     async def refresh_cookie_domain(self) -> str | None: ...
+    async def deezer_base_url(self) -> str: ...
+    async def search_cache_ttl_seconds(self) -> int: ...
+    async def search_cache_max_entries(self) -> int: ...
+    async def search_rate_limit_per_window(self) -> int: ...
+    async def search_rate_limit_window_seconds(self) -> int: ...
 
 
 class EnvSettings(BaseSettings):
@@ -48,6 +53,21 @@ class EnvSettings(BaseSettings):
     )
     refresh_cookie_domain_value: str | None = Field(
         default=None, validation_alias="REFRESH_COOKIE_DOMAIN"
+    )
+    deezer_base_url_value: str = Field(
+        default="https://api.deezer.com", validation_alias="DEEZER_BASE_URL"
+    )
+    search_cache_ttl_seconds_value: int = Field(
+        default=60, validation_alias="SEARCH_CACHE_TTL_SECONDS"
+    )
+    search_cache_max_entries_value: int = Field(
+        default=1024, validation_alias="SEARCH_CACHE_MAX_ENTRIES"
+    )
+    search_rate_limit_per_window_value: int = Field(
+        default=30, validation_alias="SEARCH_RATE_LIMIT_PER_WINDOW"
+    )
+    search_rate_limit_window_seconds_value: int = Field(
+        default=60, validation_alias="SEARCH_RATE_LIMIT_WINDOW_SECONDS"
     )
 
     @field_validator("refresh_cookie_domain_value", mode="before")
@@ -102,6 +122,21 @@ class EnvSettingsProvider:
 
     async def refresh_cookie_domain(self) -> str | None:
         return self._settings.refresh_cookie_domain_value
+
+    async def deezer_base_url(self) -> str:
+        return self._settings.deezer_base_url_value
+
+    async def search_cache_ttl_seconds(self) -> int:
+        return self._settings.search_cache_ttl_seconds_value
+
+    async def search_cache_max_entries(self) -> int:
+        return self._settings.search_cache_max_entries_value
+
+    async def search_rate_limit_per_window(self) -> int:
+        return self._settings.search_rate_limit_per_window_value
+
+    async def search_rate_limit_window_seconds(self) -> int:
+        return self._settings.search_rate_limit_window_seconds_value
 
 
 @lru_cache(maxsize=1)

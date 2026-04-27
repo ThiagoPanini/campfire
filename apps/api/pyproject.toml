@@ -58,11 +58,17 @@ ignore = ["B008"]
 "fastapi".msg = "FastAPI is restricted to HTTP adapters and app assembly."
 "argon2".msg = "Argon2 is restricted to security adapters."
 "jose".msg = "python-jose is not used in the domain/application layers."
+"httpx".msg = "httpx is restricted to the Deezer catalog adapter only."
 
 [tool.ruff.lint.per-file-ignores]
 "src/campfire_api/contexts/identity/adapters/http/**.py" = ["TID251"]
 "src/campfire_api/contexts/identity/adapters/persistence/**.py" = ["TID251"]
 "src/campfire_api/contexts/identity/adapters/security/**.py" = ["TID251"]
+"src/campfire_api/contexts/repertoire/adapters/http/**.py" = ["TID251"]
+"src/campfire_api/contexts/repertoire/adapters/persistence/**.py" = ["TID251"]
+"src/campfire_api/contexts/repertoire/adapters/catalog/deezer_song_catalog.py" = ["TID251"]
+"src/campfire_api/contexts/repertoire/adapters/caching/**.py" = ["TID251"]
+"src/campfire_api/contexts/repertoire/adapters/rate_limiting/**.py" = ["TID251"]
 "src/campfire_api/main.py" = ["TID251"]
 "alembic/**.py" = ["TID251"]
 "scripts/**.py" = ["TID251"]
