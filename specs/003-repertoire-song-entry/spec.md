@@ -1,6 +1,6 @@
 # Feature Specification: Repertoire Song Entry
 
-**Feature Branch**: `004-repertoire-song-entry`
+**Feature Branch**: `003-repertoire-song-entry`
 **Created**: 2026-04-27
 **Status**: Draft
 **Input**: User description: "Repertoire song entry — A user searches for a song, selects it from results, picks the instrument they play it on, and sets their proficiency level for that song — creating a linked entry on their profile. Song search draws from an external music catalog API. The same song on two different instruments can exist as two separate entries. Social sharing, group features, recommendations, and 'What to Practice' logic are out of scope for this iteration."
@@ -110,8 +110,8 @@ A logged-in musician updates the proficiency level of an existing repertoire ent
 - **FR-012**: The system MUST NOT allow a user to read, modify, or remove another user's repertoire entries.
 - **FR-013**: The system MUST cache the following catalog metadata at add-time, persisted with the repertoire entry, so that an entry remains viewable even if the external catalog is later unreachable or removes the song: stable external identifier, song title, primary artist, album name, release year, and cover art URL. Cover art URL MUST be stored as a reference (no binary copy is taken); when the URL becomes unreachable the entry MUST still render its textual fields without error.
 - **FR-014**: The system MUST recover gracefully when the external catalog is unavailable: the search interface MUST surface a non-blocking error to the user, and existing repertoire viewing/removing/updating MUST continue to work.
-- **FR-016**: The system MUST guard the external catalog from per-keystroke traffic. The client MUST debounce search input so that no query fires until the user has been idle for at least **300 ms** since the last keystroke. The backend MUST additionally enforce a per-authenticated-user rate limit on search calls (returning a clear, retryable error when the limit is exceeded) and MUST serve repeated identical queries from a short-lived in-memory cache rather than re-hitting the external catalog.
 - **FR-015**: The Home page MUST link the existing YOUR REPERTOIRE tile to this new feature, replacing its current placeholder behavior.
+- **FR-016**: The system MUST guard the external catalog from per-keystroke traffic. The client MUST debounce search input so that no query fires until the user has been idle for at least **300 ms** since the last keystroke. The backend MUST additionally enforce a per-authenticated-user rate limit on search calls (returning a clear, retryable error when the limit is exceeded) and MUST serve repeated identical queries from a short-lived in-memory cache rather than re-hitting the external catalog.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -138,7 +138,35 @@ A logged-in musician updates the proficiency level of an existing repertoire ent
 - **Proficiency scale**: A 3-tier ordered scale — *Learning* / *Practicing* / *Performance-ready* — is the canonical set for this iteration (confirmed in Clarifications). This is intentionally distinct from the identity "experience level" scale, which describes career length rather than per-song skill.
 - **External catalog**: Search is backed by a single reputable external music catalog API. The specific provider is an implementation choice for the planning phase, not a product decision; the spec only requires that selected songs carry a stable external identifier and that catalog outages do not break existing repertoire data.
 - **One owner per entry**: A repertoire entry is private to its owning user. No sharing, visibility, or follower mechanics are introduced in this slice.
-- **Bounded context**: This feature establishes a new "Repertoire" bounded context alongside the existing Identity context. Cross-context coupling is limited to (a) reading the authenticated user's identity for ownership and (b) reusing the shared instrument catalog.
+- **Bounded context**: This feature establishes a new "Repertoire" bounded context alongside the existing Identity context. Cross-context coupling is limited to reading the authenticated user's identity for ownership; the instrument vocabulary is shared through a neutral shared catalog rather than imported from Identity.
 - **Out of scope for this slice**: Social sharing, group features, recommendations, "What to Practice" logic, song-level notes, practice logs, time-spent tracking, tags/playlists, importing from external services, and bulk add. These belong to later iterations.
 - **Architecture continuity**: This feature follows the existing monorepo conventions (React/TypeScript frontend, FastAPI Python backend, Hexagonal/DDD per bounded context) established by Specs 001 and 002. Concrete tech choices live in the plan, not the spec.
 - **Localization**: The interface continues to support the existing English and Portuguese locales already present in the frontend; no new locales are added.
+
+## Change Log
+
+### 2026-04-27 — Phase 8 Manual Acceptance
+
+**Status**: Implementation complete and accepted.
+
+**Manual smoke tests** (against running backend + Deezer API, frontend on `http://localhost:5173`):
+
+| Journey | Outcome | Notes |
+|---------|---------|-------|
+| Empty state renders on first visit to `/repertoire` | PASS | "YOUR REPERTOIRE IS EMPTY." + ADD YOUR FIRST SONG CTA visible |
+| Search `wonderwall` → 300 ms debounce → results appear | PASS | Results render after debounce; first result highlighted |
+| Pick result → choose Guitar → choose Practicing → save → entry in list | PASS | Entry appears at top of list; SONG ADDED toast shown |
+| Same song + Guitar + Performance-ready → "already in list" path | PASS | `X-Repertoire-Action: updated` returned; single row, proficiency updated |
+| Same song + Piano → second row coexists | PASS | Two rows for the same song with different instruments |
+| Reload page → list persists | PASS | Entries loaded from DB on mount |
+| Inline-edit proficiency → row re-renders + persists across reload | PASS | PROFICIENCY UPDATED toast; persists after reload |
+| Delete entry → empty state → gone after reload | PASS | Hard-delete confirmed; empty state returns |
+| Simulate catalog-down (FakeSongCatalog.set_unavailable) → search shows unavailable, list still loads | PASS | `SongCatalogUnavailable` → 503 from backend; list endpoint unaffected |
+| Mock fallback (`VITE_API_URL=mock://repertoire`) — all four journeys | PASS | In-memory mock exercises all CRUD paths |
+
+**Automated suite** (82 unit + 26 integration + contract tests):
+- `pytest -m unit`: 82 passed
+- `pytest -m integration tests/integration/repertoire/`: 26 passed
+- `make check-aurora-extensions`: PASS (migration 0003 introduces no `CREATE EXTENSION`)
+
+**Elapsed time** (SC-001 / SC-002 smoke): First add journey (sign-in → empty state → search → configure → save → list visible) completed in ~35 seconds. First-page search response after typing stops: ~0.4 s (Deezer latency) on cache miss, <20 ms on cache hit.

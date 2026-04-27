@@ -1,6 +1,185 @@
 {
   "components": {
     "schemas": {
+      "EntryCreateRequest": {
+        "properties": {
+          "instrument": {
+            "title": "Instrument",
+            "type": "string"
+          },
+          "proficiency": {
+            "title": "Proficiency",
+            "type": "string"
+          },
+          "songAlbum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Songalbum"
+          },
+          "songArtist": {
+            "title": "Songartist",
+            "type": "string"
+          },
+          "songCoverArtUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Songcoverarturl"
+          },
+          "songExternalId": {
+            "title": "Songexternalid",
+            "type": "string"
+          },
+          "songReleaseYear": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Songreleaseyear"
+          },
+          "songTitle": {
+            "title": "Songtitle",
+            "type": "string"
+          }
+        },
+        "required": [
+          "songExternalId",
+          "songTitle",
+          "songArtist",
+          "instrument",
+          "proficiency"
+        ],
+        "title": "EntryCreateRequest",
+        "type": "object"
+      },
+      "EntryListResponse": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/EntryResponse"
+            },
+            "title": "Entries",
+            "type": "array"
+          }
+        },
+        "required": [
+          "entries"
+        ],
+        "title": "EntryListResponse",
+        "type": "object"
+      },
+      "EntryResponse": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "instrument": {
+            "title": "Instrument",
+            "type": "string"
+          },
+          "proficiency": {
+            "title": "Proficiency",
+            "type": "string"
+          },
+          "songAlbum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Songalbum"
+          },
+          "songArtist": {
+            "title": "Songartist",
+            "type": "string"
+          },
+          "songCoverArtUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Songcoverarturl"
+          },
+          "songExternalId": {
+            "title": "Songexternalid",
+            "type": "string"
+          },
+          "songReleaseYear": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Songreleaseyear"
+          },
+          "songTitle": {
+            "title": "Songtitle",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "songExternalId",
+          "songTitle",
+          "songArtist",
+          "instrument",
+          "proficiency",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "EntryResponse",
+        "type": "object"
+      },
+      "EntryUpdateRequest": {
+        "properties": {
+          "proficiency": {
+            "title": "Proficiency",
+            "type": "string"
+          }
+        },
+        "required": [
+          "proficiency"
+        ],
+        "title": "EntryUpdateRequest",
+        "type": "object"
+      },
       "GoogleStubRequest": {
         "properties": {
           "intent": {
@@ -34,7 +213,6 @@
       "LoginRequest": {
         "properties": {
           "email": {
-            "format": "email",
             "title": "Email",
             "type": "string"
           },
@@ -57,7 +235,6 @@
             "type": "string"
           },
           "email": {
-            "format": "email",
             "title": "Email",
             "type": "string"
           },
@@ -130,7 +307,6 @@
       "RegisterRequest": {
         "properties": {
           "email": {
-            "format": "email",
             "title": "Email",
             "type": "string"
           },
@@ -145,6 +321,88 @@
           "password"
         ],
         "title": "RegisterRequest",
+        "type": "object"
+      },
+      "SearchResponse": {
+        "properties": {
+          "hasMore": {
+            "title": "Hasmore",
+            "type": "boolean"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/SearchResultResponse"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "results",
+          "page",
+          "hasMore"
+        ],
+        "title": "SearchResponse",
+        "type": "object"
+      },
+      "SearchResultResponse": {
+        "properties": {
+          "album": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Album"
+          },
+          "artist": {
+            "title": "Artist",
+            "type": "string"
+          },
+          "coverArtUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverarturl"
+          },
+          "externalId": {
+            "title": "Externalid",
+            "type": "string"
+          },
+          "releaseYear": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Releaseyear"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "externalId",
+          "title",
+          "artist"
+        ],
+        "title": "SearchResultResponse",
         "type": "object"
       },
       "TokenResponse": {
@@ -528,6 +786,233 @@
         "summary": "Readyz",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/repertoire/entries": {
+      "get": {
+        "operationId": "list_entries_repertoire_entries_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Entries",
+        "tags": [
+          "repertoire"
+        ]
+      },
+      "post": {
+        "operationId": "add_or_update_entry_repertoire_entries_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntryCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Or Update Entry",
+        "tags": [
+          "repertoire"
+        ]
+      }
+    },
+    "/repertoire/entries/{entry_id}": {
+      "delete": {
+        "operationId": "remove_entry_repertoire_entries__entry_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "entry_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Entry Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Remove Entry",
+        "tags": [
+          "repertoire"
+        ]
+      },
+      "patch": {
+        "operationId": "update_proficiency_repertoire_entries__entry_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "entry_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Entry Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntryUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Update Proficiency",
+        "tags": [
+          "repertoire"
+        ]
+      }
+    },
+    "/repertoire/songs/search": {
+      "get": {
+        "operationId": "search_songs_repertoire_songs_search_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "maxLength": 256,
+              "minLength": 2,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Search Songs",
+        "tags": [
+          "repertoire"
         ]
       }
     }

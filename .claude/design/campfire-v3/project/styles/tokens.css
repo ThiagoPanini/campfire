@@ -1,0 +1,194 @@
+/* Campfire — Design Tokens
+   Rooted in DESIGN.md: bonfire music circle, near-black + ember warmth */
+
+:root {
+  /* Brand */
+  --ember: #ff7a1a;
+  --ember-hover: #ffb347;
+  --flame-gold: #ffb347;
+  --bonfire-red: #d9361e;
+  --brass: #d9a441;
+  --pine: #4d7c59;
+  --smoke-blue: #6f8ea3;
+  --ash-violet: #7d6a86;
+
+  /* Surfaces */
+  --coal: #080706;
+  --umber: #120c09;
+  --burnt: #1b130f;
+  --iron: #26201c;
+  --iron-hi: #2e2621;
+
+  /* Text */
+  --firelit: #fff7ed;
+  --mist: #ead8c7;
+  --ash: #b39b8c;
+  --soot: #7f6d63;
+
+  /* Semantic */
+  --error: #ff5a4e;
+  --warning: #ffbf3f;
+  --info: #7fb5d6;
+  --success: #65c987;
+
+  /* Borders & tints */
+  --border-card: rgba(255, 214, 179, 0.10);
+  --border-strong: rgba(255, 214, 179, 0.18);
+  --hairline: rgba(255, 214, 179, 0.06);
+  --ember-tint: rgba(255, 122, 26, 0.16);
+  --ember-glow: rgba(255, 122, 26, 0.34);
+  --red-glow: rgba(217, 54, 30, 0.28);
+
+  /* Shadows */
+  --sh-fire: 0 22px 56px rgba(0, 0, 0, 0.58);
+  --sh-panel: 0 12px 28px rgba(0, 0, 0, 0.38);
+  --sh-ember-halo: 0 0 0 1px rgba(255, 122, 26, 0.18), 0 0 34px rgba(217, 54, 30, 0.22);
+  --sh-inset: inset 0 1px 0 rgba(255, 238, 214, 0.07);
+
+  /* Radii */
+  --r-chip: 8px;
+  --r-input: 12px;
+  --r-card: 18px;
+  --r-panel: 24px;
+  --r-pill: 9999px;
+
+  /* Type */
+  --f-display: "Fraunces", "Recoleta", Georgia, serif;
+  --f-strong: "Sora", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body: "Manrope", "Helvetica Neue", sans-serif;
+  --f-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--coal);
+  color: var(--firelit);
+  font-family: var(--f-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button { font-family: inherit; }
+
+::selection { background: var(--ember-tint); color: var(--firelit); }
+
+/* Focus ring */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--sh-ember-halo);
+  border-radius: 8px;
+}
+
+/* Scrollbar (dark + warm) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 214, 179, 0.08);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 122, 26, 0.25); border: 2px solid transparent; background-clip: content-box; }
+
+/* Utility classes */
+.mono { font-family: var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; font-size: 11px; font-weight: 600; color: var(--ash); }
+.display { font-family: var(--f-display); font-weight: 700; line-height: 0.95; letter-spacing: -0.01em; }
+.strong { font-family: var(--f-strong); font-weight: 700; }
+
+/* Pills / buttons */
+.btn-primary {
+  background: var(--ember);
+  color: #170904;
+  border: 0;
+  border-radius: var(--r-pill);
+  padding: 14px 22px;
+  font-family: var(--f-strong);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 0 1px rgba(255, 122, 26, 0.3), 0 12px 30px rgba(217, 54, 30, 0.28);
+}
+.btn-primary:hover { background: var(--ember-hover); transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(255, 122, 26, 0.5), 0 16px 40px rgba(217, 54, 30, 0.35); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: var(--iron);
+  color: var(--firelit);
+  border: 1px solid var(--border-card);
+  border-radius: var(--r-pill);
+  padding: 14px 22px;
+  font-family: var(--f-strong);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.btn-secondary:hover { background: var(--iron-hi); border-color: var(--border-strong); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--mist);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-pill);
+  padding: 12px 18px;
+  font-family: var(--f-strong);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.btn-ghost:hover { color: var(--firelit); border-color: var(--ember); background: rgba(255, 122, 26, 0.06); }
+
+/* Input */
+.input {
+  width: 100%;
+  background: var(--umber);
+  color: var(--firelit);
+  border: 1px solid rgba(255, 214, 179, 0.14);
+  border-radius: var(--r-input);
+  padding: 14px 16px;
+  font-family: var(--f-body);
+  font-size: 15px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  outline: none;
+}
+.input::placeholder { color: var(--soot); }
+.input:focus {
+  border-color: rgba(255, 122, 26, 0.55);
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.14), 0 0 30px rgba(255, 122, 26, 0.10) inset;
+  background: #0c0706;
+}
+
+/* Card */
+.card {
+  background: var(--burnt);
+  border: 1px solid var(--border-card);
+  border-radius: var(--r-card);
+  box-shadow: var(--sh-panel), var(--sh-inset);
+}
+
+/* Text gradient for brand moments */
+.ember-text {
+  background: linear-gradient(180deg, #ffd8a8 0%, #ff9c45 45%, #ff5a1c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

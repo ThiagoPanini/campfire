@@ -110,6 +110,13 @@
                       "backend/identity/data-persistence",
                       "backend/identity/api-endpoints"
                     ]
+                  },
+                  {
+                    "group": "Repertoire context",
+                    "icon": "music",
+                    "pages": [
+                      "backend/repertoire"
+                    ]
                   }
                 ]
               }
