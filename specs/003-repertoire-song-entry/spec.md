@@ -5,6 +5,16 @@
 **Status**: Draft
 **Input**: User description: "Repertoire song entry — A user searches for a song, selects it from results, picks the instrument they play it on, and sets their proficiency level for that song — creating a linked entry on their profile. Song search draws from an external music catalog API. The same song on two different instruments can exist as two separate entries. Social sharing, group features, recommendations, and 'What to Practice' logic are out of scope for this iteration."
 
+## Clarifications
+
+### Session 2026-04-27
+
+- Q: Proficiency scale — which labels and tier count? → A: 3 tiers: Learning / Practicing / Performance-ready
+- Q: Removal semantics for FR-010 — hard delete vs soft delete? → A: Hard delete; re-adding creates a fresh entry
+- Q: Search result page size and pagination? → A: Paginated, 10 per page, with load-more control
+- Q: Which song metadata is cached at add-time? → A: Title, primary artist, external id, album, release year, cover art URL
+- Q: Search query rate-limiting / debouncing strategy? → A: 300 ms client debounce + server-side per-user rate limit + short backend cache
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Add a song to my repertoire (Priority: P1)
@@ -80,40 +90,42 @@ A logged-in musician updates the proficiency level of an existing repertoire ent
 - **User submits without choosing instrument or proficiency**: Submission is blocked with field-level validation messages.
 - **Unauthenticated request**: Any attempt to add, list, update, or remove repertoire entries without a valid session is rejected.
 - **Same external song id selected twice for the same instrument** (race condition / double-submit): Only one entry is created; the second submission is treated as an idempotent update or a no-op.
+- **User types or pastes very fast in the search field**: Queries are debounced client-side (300 ms idle) and rate-limited server-side per user, so the external catalog is not hammered; a brief in-flight query is allowed to complete or be superseded by the latest input without surfacing intermediate noise to the user.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: The system MUST allow only authenticated users to add, list, update, or remove repertoire entries; all repertoire data MUST be scoped to the owning user.
-- **FR-002**: The system MUST provide a song search interface that accepts a free-text query of at least 2 characters and returns matching songs from an external music catalog, displaying at minimum the song title and primary artist for each result.
+- **FR-002**: The system MUST provide a song search interface that accepts a free-text query of at least 2 characters and returns matching songs from an external music catalog, displaying at minimum the song title and primary artist for each result. Results MUST be paginated at **10 results per page**; the first page MUST be returned by default and the user MUST be able to fetch additional pages on demand via a "load more" (or equivalent next-page) control until the catalog reports no further matches.
 - **FR-003**: The system MUST return search results in a perceived-fast manner, with a visible loading indicator while results are pending and a clear empty-state message when no results match.
 - **FR-004**: The system MUST persist a stable external catalog identifier for every selected song so that the same logical song can be referenced consistently across users and across sessions.
 - **FR-005**: The system MUST require the user to choose an instrument from the existing shared 12-instrument catalog (the same catalog used by identity preferences) when creating a repertoire entry; free-text instruments MUST NOT be accepted.
-- **FR-006**: The system MUST require the user to choose a proficiency level from a fixed, ordered set of values when creating a repertoire entry; free-text proficiency MUST NOT be accepted.
+- **FR-006**: The system MUST require the user to choose a proficiency level from the fixed, ordered 3-tier set — *Learning*, *Practicing*, *Performance-ready* (in that order of increasing mastery) — when creating a repertoire entry; free-text proficiency MUST NOT be accepted.
 - **FR-007**: The system MUST treat a repertoire entry as uniquely identified by the combination of (owning user, song, instrument). The same song under two different instruments for the same user MUST coexist as two separate entries.
 - **FR-008**: The system MUST prevent creating a duplicate entry for the same (user, song, instrument) tuple. When a user attempts to add such a duplicate, the system MUST instead update the proficiency level of the existing entry (or surface the existing entry to the user for confirmation).
 - **FR-009**: The system MUST allow a user to view all of their own repertoire entries in a list, showing for each entry the song title, primary artist, instrument, and proficiency level.
-- **FR-010**: The system MUST allow a user to remove any of their own repertoire entries; removal MUST only delete the link to the song, not the song catalog reference itself.
+- **FR-010**: The system MUST allow a user to remove any of their own repertoire entries. Removal is a hard delete: the entry row is permanently removed from storage and cannot be recovered, but the underlying song catalog reference and any other users' entries for the same song MUST be unaffected. Re-adding the same (user, song, instrument) combination after removal MUST result in a new entry with fresh created-at and updated-at timestamps.
 - **FR-011**: The system MUST allow a user to update the proficiency level on any of their own repertoire entries.
 - **FR-012**: The system MUST NOT allow a user to read, modify, or remove another user's repertoire entries.
-- **FR-013**: The system MUST cache enough catalog metadata at add-time (at minimum: title, primary artist, external identifier) so that an entry remains viewable even if the external catalog is later unreachable or removes the song.
+- **FR-013**: The system MUST cache the following catalog metadata at add-time, persisted with the repertoire entry, so that an entry remains viewable even if the external catalog is later unreachable or removes the song: stable external identifier, song title, primary artist, album name, release year, and cover art URL. Cover art URL MUST be stored as a reference (no binary copy is taken); when the URL becomes unreachable the entry MUST still render its textual fields without error.
 - **FR-014**: The system MUST recover gracefully when the external catalog is unavailable: the search interface MUST surface a non-blocking error to the user, and existing repertoire viewing/removing/updating MUST continue to work.
+- **FR-016**: The system MUST guard the external catalog from per-keystroke traffic. The client MUST debounce search input so that no query fires until the user has been idle for at least **300 ms** since the last keystroke. The backend MUST additionally enforce a per-authenticated-user rate limit on search calls (returning a clear, retryable error when the limit is exceeded) and MUST serve repeated identical queries from a short-lived in-memory cache rather than re-hitting the external catalog.
 - **FR-015**: The Home page MUST link the existing YOUR REPERTOIRE tile to this new feature, replacing its current placeholder behavior.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Song** (catalog reference): Represents an identified piece of music as known to the external music catalog. Key attributes: stable external identifier, title, primary artist, optional disambiguating metadata captured at add-time (e.g., album, release year). A Song is *not* a free-text blob — it is always backed by a catalog entry. Songs are shared across users (the same song can be referenced by many users' repertoires).
+- **Song** (catalog reference): Represents an identified piece of music as known to the external music catalog. Key attributes captured at add-time and persisted with the repertoire entry: stable external identifier, title, primary artist, album name, release year, cover art URL. A Song is *not* a free-text blob — it is always backed by a catalog entry. Songs are shared across users (the same song can be referenced by many users' repertoires).
 - **Instrument**: A value from the shared 12-instrument catalog already used by identity preferences. Not user-defined.
-- **Proficiency Level**: A value from a fixed ordered set used to express how comfortably the user plays a particular song on a particular instrument. Distinct from the "experience level" already captured in identity preferences (which describes the player's overall career, not per-song skill).
-- **Repertoire Entry**: The link that ties one User to one Song with a chosen Instrument and a chosen Proficiency Level. Owned by exactly one user. Uniquely identified by (user, song, instrument). Carries created-at and updated-at timestamps. Two entries for the same (user, song) but different instruments are valid and distinct.
+- **Proficiency Level**: A value from the fixed ordered 3-tier set *Learning → Practicing → Performance-ready* used to express how comfortably the user plays a particular song on a particular instrument. Distinct from the "experience level" already captured in identity preferences (which describes the player's overall career, not per-song skill).
+- **Repertoire Entry**: The link that ties one User to one Song with a chosen Instrument and a chosen Proficiency Level. Owned by exactly one user. Uniquely identified by (user, song, instrument). Carries created-at and updated-at timestamps. Two entries for the same (user, song) but different instruments are valid and distinct. Removal is permanent (hard delete) — there is no soft-delete or recovery path in this slice.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
 - **SC-001**: A logged-in user can add their first song to their repertoire — from opening the feature to seeing the new entry in their list — in under 60 seconds, including search and selection.
-- **SC-002**: At least 90% of search queries that name a real, well-known song return a usable result in the first page within 2 seconds of the user finishing typing.
+- **SC-002**: At least 90% of search queries that name a real, well-known song return a usable result within the first page (10 results) within 2 seconds of the user finishing typing.
 - **SC-003**: When the external catalog is unavailable, 100% of users can still view, update, and remove their existing repertoire entries; only the search/add path degrades.
 - **SC-004**: No user is ever able to read, modify, or remove a repertoire entry that does not belong to them. (Verified by automated authorization tests covering all entry-mutating and entry-reading paths.)
 - **SC-005**: Zero duplicate (user, song, instrument) entries exist in the system at any time, verified by a uniqueness constraint and by automated tests covering the duplicate-add and concurrent-add paths.
@@ -123,7 +135,7 @@ A logged-in musician updates the proficiency level of an existing repertoire ent
 
 - **Authentication is reused**: This feature relies on the existing identity context (Spec 002) for sign-in, sessions, and user identity. No new auth flows are introduced.
 - **Instrument vocabulary is reused**: The shared 12-instrument catalog already used by identity preferences is the single source of truth for instrument values; this feature does not introduce a new instrument list or extend the existing one.
-- **Proficiency scale (default)**: A 3-tier ordered scale — *Learning* / *Practicing* / *Performance-ready* — is assumed for this iteration. This is intentionally distinct from the identity "experience level" scale, which describes career length rather than per-song skill. The exact labels and tier count can be revisited during `/speckit.clarify` before planning.
+- **Proficiency scale**: A 3-tier ordered scale — *Learning* / *Practicing* / *Performance-ready* — is the canonical set for this iteration (confirmed in Clarifications). This is intentionally distinct from the identity "experience level" scale, which describes career length rather than per-song skill.
 - **External catalog**: Search is backed by a single reputable external music catalog API. The specific provider is an implementation choice for the planning phase, not a product decision; the spec only requires that selected songs carry a stable external identifier and that catalog outages do not break existing repertoire data.
 - **One owner per entry**: A repertoire entry is private to its owning user. No sharing, visibility, or follower mechanics are introduced in this slice.
 - **Bounded context**: This feature establishes a new "Repertoire" bounded context alongside the existing Identity context. Cross-context coupling is limited to (a) reading the authenticated user's identity for ownership and (b) reusing the shared instrument catalog.
