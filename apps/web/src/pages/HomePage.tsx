@@ -9,9 +9,10 @@ type Props = {
   preferences: Preferences;
   authMode: AuthMode;
   onUpdatePreferences: () => void;
+  onRepertoire: () => void;
 };
 
-export function HomePage({ language, user, preferences, authMode, onUpdatePreferences }: Props) {
+export function HomePage({ language, user, preferences, authMode, onUpdatePreferences, onRepertoire }: Props) {
   const t = translate(language).home;
   const title = (authMode === "returning" ? t.returningTitle : t.firstTitle).replace("{name}", user.displayName);
   const panel = authMode === "returning" ? t.returningPanel : t.firstPanel;
@@ -29,7 +30,10 @@ export function HomePage({ language, user, preferences, authMode, onUpdatePrefer
             <div><dt className="mono">{t.email}</dt><dd>{user.email}</dd></div>
             <div><dt className="mono">{t.preferences}</dt><dd>{preferenceSummary(preferences)}</dd></div>
           </dl>
-          <AccentButton onClick={onUpdatePreferences}>{t.update}</AccentButton>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <AccentButton onClick={onRepertoire}>{t.repertoire}</AccentButton>
+            <AccentButton onClick={onUpdatePreferences}>{t.update}</AccentButton>
+          </div>
         </article>
       </section>
     </main>
