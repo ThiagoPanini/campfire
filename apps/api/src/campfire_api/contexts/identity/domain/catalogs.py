@@ -1,19 +1,4 @@
-INSTRUMENTS = frozenset(
-    {
-        "Guitar",
-        "Bass",
-        "Drums",
-        "Piano / Keys",
-        "Vocals",
-        "Violin",
-        "Cavaquinho",
-        "Ukulele",
-        "Cajon",
-        "Mandolin",
-        "Flute",
-        "Other",
-    }
-)
+from campfire_api.shared.catalogs import INSTRUMENTS as INSTRUMENTS
 
 GENRES = frozenset(
     {
