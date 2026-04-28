@@ -16,6 +16,48 @@ type MeResponse = {
   preferences: Preferences;
 };
 
+type PreferencesPayload = {
+  instruments: string[];
+  genres: string[];
+  context: string | null;
+  goals: string[];
+  experience: string | null;
+};
+
+const catalogAliases: Record<string, string> = {
+  Guitar: "Acoustic Guitar",
+  Cajon: "Cajón",
+};
+
+function catalogValue(value: unknown): string | null {
+  if (typeof value === "string") return catalogAliases[value] ?? value;
+  if (!value || typeof value !== "object") return null;
+
+  const record = value as Record<string, unknown>;
+  for (const key of ["label", "name", "value", "id"]) {
+    const candidate = record[key];
+    if (typeof candidate === "string") return catalogAliases[candidate] ?? candidate;
+  }
+  return null;
+}
+
+function catalogList(values: unknown): string[] {
+  if (!Array.isArray(values)) return [];
+  return values
+    .map(catalogValue)
+    .filter((value): value is string => value !== null);
+}
+
+function preferencesPayload(preferences: Preferences): PreferencesPayload {
+  return {
+    instruments: catalogList(preferences.instruments),
+    genres: catalogList(preferences.genres),
+    context: catalogValue(preferences.context),
+    goals: catalogList(preferences.goals),
+    experience: catalogValue(preferences.experience),
+  };
+}
+
 function toUser(response: MeResponse): MockUser {
   return {
     displayName: response.displayName,
@@ -58,13 +100,18 @@ export async function authenticate(email: string, password: string): Promise<Moc
 
 export async function continueWithGoogle(intent: "sign-up" | "sign-in"): Promise<MockUser | null> {
   try {
+    console.log("Google stub start:", intent);
     const token = await request<TokenResponse>("/auth/google-stub", {
       method: "POST",
       body: JSON.stringify({ intent }),
     });
+    console.log("Google stub token received:", token);
     setAccessToken(token.accessToken);
-    return currentUser();
-  } catch {
+    const user = await currentUser();
+    console.log("Google stub user:", user);
+    return user;
+  } catch (err) {
+    console.error("Google stub error:", err);
     return null;
   }
 }
@@ -84,7 +131,7 @@ export async function updatePreferences(preferences: Preferences): Promise<MockU
   return toUser(
     await request<MeResponse>("/me/preferences", {
       method: "PATCH",
-      body: JSON.stringify(preferences),
+      body: JSON.stringify(preferencesPayload(preferences)),
     }),
   );
 }

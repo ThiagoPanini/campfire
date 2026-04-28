@@ -1,7 +1,7 @@
 import type { Preferences } from "@features/onboarding";
 
 export const seededPreferences: Preferences = {
-  instruments: ["Guitar", "Vocals"],
+  instruments: ["Acoustic Guitar", "Vocals"],
   genres: ["Rock", "MPB", "Bossa Nova"],
   context: "friends",
   goals: ["Track my full repertoire", "Share my set with the group"],
