@@ -49,8 +49,10 @@ export function EntryRow({ entry, language, onUpdateProficiency, onRemove }: Pro
 
       <div className="rep-entry-info">
         <div className="rep-entry-title">{entry.songTitle}</div>
-        <div className="rep-entry-sub">{entry.songArtist} · {entry.instrument}</div>
+        <div className="rep-entry-sub">{entry.songArtist}</div>
       </div>
+
+      <div className="rep-entry-instrument">{entry.instrument}</div>
 
       {editing ? (
         <div className="rep-inline-edit">

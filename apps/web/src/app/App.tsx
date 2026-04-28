@@ -91,13 +91,11 @@ export function App() {
         return session.currentUser ? (
           <HomePage
             language={session.language}
-            user={session.currentUser}
             onRepertoire={() => navigate("repertoire")}
-            onAddSong={() => navigate("repertoire")}
           />
         ) : null;
       case "repertoire":
-        return <RepertoirePage language={session.language} />;
+        return <RepertoirePage language={session.language} onHome={() => navigate("home")} />;
       default:
         return (
           <LandingPage
@@ -113,7 +111,7 @@ export function App() {
 
   return (
     <>
-      <Nav action={navAction} />
+      <Nav action={navAction} onHome={() => navigate(session.currentUser ? "home" : "landing")} />
       <RequireAuth
         route={route}
         isAuthenticated={Boolean(session.currentUser)}
