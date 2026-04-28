@@ -1,13 +1,15 @@
-export const instruments = ["Guitar", "Bass", "Drums", "Piano / Keys", "Vocals", "Violin", "Cavaquinho", "Ukulele", "Cajon", "Mandolin", "Flute", "Other"] as const;
-export const genres = ["Rock", "MPB", "Samba", "Jazz", "Forro", "Bossa Nova", "Pop", "Blues", "Country", "Metal", "Reggae", "Funk", "Other"] as const;
+export const instruments = ["Acoustic Guitar", "Electric Guitar", "Bass", "Drums", "Vocals", "Piano / Keys", "Ukulele", "Violin", "Cajón", "Flute", "Other", "I don't play"] as const;
+export const genres = ["Rock", "Hard Rock", "Heavy Metal", "Metalcore", "Metal", "Blues", "Pop", "Country", "Reggae", "Jazz", "MPB", "Samba", "Bossa Nova", "Forro", "Other"] as const;
 
 export const contexts = [
-  { id: "friends", label: "Roda de amigos" },
-  { id: "amateur", label: "Banda amadora" },
-  { id: "pro", label: "Banda profissional" },
-  { id: "solo", label: "Pratica solo" },
-  { id: "church", label: "Grupo de louvor" },
-  { id: "sessions", label: "Sessoes / Jam sessions" },
+  { id: "friends", label: "With friends" },
+  { id: "amateur", label: "Amateur band" },
+  { id: "pro", label: "Professional band" },
+  { id: "solo", label: "Solo practice" },
+  { id: "church", label: "Worship group" },
+  { id: "sessions", label: "Jam sessions" },
+  { id: "rehearsal_studio", label: "Rehearsal studio" },
+  { id: "other", label: "Other" },
 ] as const;
 
 export const goals = [

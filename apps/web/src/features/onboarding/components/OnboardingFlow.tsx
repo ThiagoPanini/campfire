@@ -18,6 +18,13 @@ function toggle<T>(items: T[], item: T) {
   return items.includes(item) ? items.filter((candidate) => candidate !== item) : [...items, item];
 }
 
+function toggleInstrument(items: InstrumentId[], item: InstrumentId) {
+  if (item === "I don't play") {
+    return items.includes(item) ? [] : [item];
+  }
+  return toggle(items.filter((candidate) => candidate !== "I don't play"), item);
+}
+
 export function OnboardingFlow({ language, preferences, onSave, onSkip }: Props) {
   const t = translate(language).onboarding;
   const [draft, setDraft] = useState<Preferences>(preferences);
@@ -25,12 +32,12 @@ export function OnboardingFlow({ language, preferences, onSave, onSkip }: Props)
 
   useEffect(() => setDraft(preferences), [preferences]);
 
-  function save() {
+  async function save() {
+    if (saving) return;
     setSaving(true);
     window.setTimeout(() => {
-      onSave(draft);
-      setSaving(false);
-    }, 650);
+      Promise.resolve(onSave(draft)).finally(() => setSaving(false));
+    }, 350);
   }
 
   return (
@@ -40,7 +47,7 @@ export function OnboardingFlow({ language, preferences, onSave, onSkip }: Props)
         <p className="flow-copy">{t.sub}</p>
 
         <PreferenceGroup title={t.instruments}>
-          <div className="chip-grid">{instruments.map((item) => <PreferenceChip key={item} selected={draft.instruments.includes(item)} onClick={() => setDraft({ ...draft, instruments: toggle<InstrumentId>(draft.instruments, item) })}>{item}</PreferenceChip>)}</div>
+          <div className="chip-grid">{instruments.map((item) => <PreferenceChip key={item} selected={draft.instruments.includes(item)} onClick={() => setDraft({ ...draft, instruments: toggleInstrument(draft.instruments, item) })}>{item}</PreferenceChip>)}</div>
         </PreferenceGroup>
         <PreferenceGroup title={t.genres}>
           <div className="chip-grid">{genres.map((item) => <PreferenceChip key={item} selected={draft.genres.includes(item)} onClick={() => setDraft({ ...draft, genres: toggle<GenreId>(draft.genres, item) })}>{item}</PreferenceChip>)}</div>

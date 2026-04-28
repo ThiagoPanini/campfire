@@ -1,16 +1,15 @@
 export type ProficiencyLevel = "learning" | "practicing" | "ready";
 
 export type Instrument =
-  | "Guitar"
+  | "Acoustic Guitar"
+  | "Electric Guitar"
   | "Bass"
   | "Drums"
   | "Piano / Keys"
   | "Vocals"
   | "Violin"
-  | "Cavaquinho"
   | "Ukulele"
   | "Cajón"
-  | "Mandolin"
   | "Flute"
   | "Other";
 

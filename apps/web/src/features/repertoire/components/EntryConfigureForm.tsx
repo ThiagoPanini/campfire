@@ -54,16 +54,17 @@ export function EntryConfigureForm({ result, language, saving, onSave, onBack }:
         {/* Instrument selection */}
         <div className="rep-form-group">
           <p className="mono rep-form-label">{t.instrumentLabel}</p>
-          <div className="rep-chip-grid">
+          <div className="rep-instrument-grid">
             {INSTRUMENTS.map((ins) => (
               <button
                 key={ins}
                 type="button"
-                className="chip"
+                className="rep-instrument-option"
                 data-selected={instrument === ins ? "true" : undefined}
+                aria-pressed={instrument === ins}
                 onClick={() => setInstrument(ins)}
               >
-                {ins}
+                <span>{ins}</span>
               </button>
             ))}
           </div>

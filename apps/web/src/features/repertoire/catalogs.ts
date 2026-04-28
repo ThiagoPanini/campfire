@@ -3,16 +3,15 @@ import type { Instrument, ProficiencyLevel } from "./types";
 export const PROFICIENCY_LEVELS: ProficiencyLevel[] = ["learning", "practicing", "ready"];
 
 export const INSTRUMENTS: Instrument[] = [
-  "Guitar",
+  "Acoustic Guitar",
+  "Electric Guitar",
   "Bass",
   "Drums",
-  "Piano / Keys",
   "Vocals",
-  "Violin",
-  "Cavaquinho",
+  "Piano / Keys",
   "Ukulele",
+  "Violin",
   "Cajón",
-  "Mandolin",
   "Flute",
   "Other",
 ];
