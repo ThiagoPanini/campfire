@@ -1,24 +1,30 @@
-from campfire_api.shared.catalogs import INSTRUMENTS as INSTRUMENTS
+from campfire_api.shared.catalogs import INSTRUMENTS as PLAYABLE_INSTRUMENTS
+
+INSTRUMENTS = frozenset({*PLAYABLE_INSTRUMENTS, "I don't play"})
 
 GENRES = frozenset(
     {
         "Rock",
+        "Hard Rock",
+        "Heavy Metal",
+        "Metalcore",
+        "Metal",
+        "Blues",
+        "Pop",
+        "Country",
+        "Reggae",
+        "Jazz",
         "MPB",
         "Samba",
-        "Jazz",
-        "Forro",
         "Bossa Nova",
-        "Pop",
-        "Blues",
-        "Country",
-        "Metal",
-        "Reggae",
-        "Funk",
+        "Forro",
         "Other",
     }
 )
 
-CONTEXTS = frozenset({"friends", "amateur", "pro", "solo", "church", "sessions"})
+CONTEXTS = frozenset(
+    {"friends", "amateur", "pro", "solo", "church", "sessions", "rehearsal_studio", "other"}
+)
 
 GOALS = frozenset(
     {

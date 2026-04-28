@@ -1,15 +1,14 @@
 INSTRUMENTS = frozenset(
     {
-        "Guitar",
+        "Acoustic Guitar",
+        "Electric Guitar",
         "Bass",
         "Drums",
         "Piano / Keys",
         "Vocals",
         "Violin",
-        "Cavaquinho",
         "Ukulele",
-        "Cajon",
-        "Mandolin",
+        "Cajón",
         "Flute",
         "Other",
     }
