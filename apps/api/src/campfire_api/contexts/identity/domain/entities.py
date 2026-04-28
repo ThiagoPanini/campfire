@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 
-from campfire_api.contexts.identity.domain import catalogs
 from campfire_api.contexts.identity.domain.value_objects import (
     DisplayName,
     Email,
@@ -26,7 +25,6 @@ class User:
     id: UserId
     email: Email
     display_name: DisplayName
-    first_login: bool
     created_at: datetime
     updated_at: datetime
 
@@ -45,28 +43,6 @@ class Credentials:
         if len(plaintext) < 8:
             raise ValueError("password must be at least 8 characters")
         return cls(user_id=user_id, password_hash=password_hash, created_at=now, updated_at=now)
-
-
-@dataclass
-class PreferencesProfile:
-    user_id: UserId
-    instruments: list[str] = field(default_factory=list)
-    genres: list[str] = field(default_factory=list)
-    context: str | None = None
-    goals: list[str] = field(default_factory=list)
-    experience: str | None = None
-    updated_at: datetime | None = None
-
-    def validate_catalogs(self) -> None:
-        unknown = (
-            set(self.instruments) - catalogs.INSTRUMENTS
-            or set(self.genres) - catalogs.GENRES
-            or ({self.context} - catalogs.CONTEXTS if self.context else set())
-            or set(self.goals) - catalogs.GOALS
-            or ({self.experience} - catalogs.EXPERIENCE if self.experience else set())
-        )
-        if unknown:
-            raise ValueError(next(iter(unknown)))
 
 
 @dataclass

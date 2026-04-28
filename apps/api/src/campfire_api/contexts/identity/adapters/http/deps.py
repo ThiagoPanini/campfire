@@ -11,9 +11,6 @@ from campfire_api.contexts.identity.adapters.clock.system_clock import SystemClo
 from campfire_api.contexts.identity.adapters.persistence.credentials_repository import (
     SqlAlchemyCredentialsRepository,
 )
-from campfire_api.contexts.identity.adapters.persistence.preferences_repository import (
-    SqlAlchemyPreferencesRepository,
-)
 from campfire_api.contexts.identity.adapters.persistence.refresh_token_repository import (
     SqlAlchemyRefreshTokenRepository,
 )
@@ -64,7 +61,6 @@ async def get_repositories(session: AsyncSession = Depends(get_db_session)):
     return {
         "users": SqlAlchemyUserRepository(session),
         "credentials": SqlAlchemyCredentialsRepository(session),
-        "preferences": SqlAlchemyPreferencesRepository(session),
         "sessions": SqlAlchemySessionRepository(session),
         "refresh_tokens": SqlAlchemyRefreshTokenRepository(session),
     }

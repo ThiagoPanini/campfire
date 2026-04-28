@@ -4,7 +4,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, UniqueConstraint, text
-from sqlalchemy.dialects.postgresql import BYTEA, JSONB
+from sqlalchemy.dialects.postgresql import BYTEA
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -30,7 +30,6 @@ class UserRow(Base):
     id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
     email: Mapped[str] = mapped_column(nullable=False)
     display_name: Mapped[str] = mapped_column(nullable=False)
-    first_login: Mapped[bool] = mapped_column(nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -49,39 +48,6 @@ class CredentialsRow(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, server_default=func.now()
-    )
-
-
-class PreferencesRow(Base):
-    __tablename__ = "preferences"
-    __table_args__ = (
-        CheckConstraint(
-            "jsonb_typeof(instruments) = 'array'", name="ck_preferences_instruments_array"
-        ),
-        CheckConstraint("jsonb_typeof(genres) = 'array'", name="ck_preferences_genres_array"),
-        CheckConstraint("jsonb_typeof(goals) = 'array'", name="ck_preferences_goals_array"),
-        CheckConstraint(
-            "experience IS NULL OR experience IN ('beginner','learning','intermediate','advanced')",
-            name="ck_preferences_experience",
-        ),
-    )
-
-    user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
-    )
-    instruments: Mapped[list[str]] = mapped_column(
-        JSONB, nullable=False, default=list, server_default=text("'[]'::jsonb")
-    )
-    genres: Mapped[list[str]] = mapped_column(
-        JSONB, nullable=False, default=list, server_default=text("'[]'::jsonb")
-    )
-    context: Mapped[str | None] = mapped_column(nullable=True)
-    goals: Mapped[list[str]] = mapped_column(
-        JSONB, nullable=False, default=list, server_default=text("'[]'::jsonb")
-    )
-    experience: Mapped[str | None] = mapped_column(nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

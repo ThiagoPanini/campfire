@@ -3,13 +3,7 @@ from __future__ import annotations
 import hashlib
 from datetime import UTC, datetime, timedelta
 
-from campfire_api.contexts.identity.domain.entities import (
-    Credentials,
-    PreferencesProfile,
-    RefreshToken,
-    Session,
-    User,
-)
+from campfire_api.contexts.identity.domain.entities import Credentials, RefreshToken, Session, User
 from campfire_api.contexts.identity.domain.value_objects import Email, UserId
 
 
@@ -75,20 +69,6 @@ class FakeCredentials:
 
     async def add(self, credentials: Credentials) -> None:
         self.rows[credentials.user_id.value] = credentials
-
-
-class FakePreferences:
-    def __init__(self) -> None:
-        self.rows = {}
-
-    async def get_by_user_id(self, user_id: UserId) -> PreferencesProfile | None:
-        return self.rows.get(user_id.value)
-
-    async def add(self, preferences: PreferencesProfile) -> None:
-        self.rows[preferences.user_id.value] = preferences
-
-    async def replace(self, preferences: PreferencesProfile) -> None:
-        self.rows[preferences.user_id.value] = preferences
 
 
 class FakeSessions:

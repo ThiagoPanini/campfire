@@ -12,4 +12,8 @@ def test_openapi_snapshot_matches() -> None:
     snapshot = (
         Path(__file__).resolve().parents[4] / "specs/002-backend-auth-slice/contracts/openapi.json"
     )
-    assert json.loads(snapshot.read_text()) == create_app().openapi()
+    openapi = create_app().openapi()
+    assert json.loads(snapshot.read_text()) == openapi
+    assert "/me/preferences" not in openapi["paths"]
+    schemas = openapi.get("components", {}).get("schemas", {})
+    assert "PreferencesPayload" not in schemas

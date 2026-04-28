@@ -1,17 +1,10 @@
 from campfire_api.contexts.identity.adapters.persistence.models import (
     CredentialsRow,
-    PreferencesRow,
     RefreshTokenRow,
     SessionRow,
     UserRow,
 )
-from campfire_api.contexts.identity.domain.entities import (
-    Credentials,
-    PreferencesProfile,
-    RefreshToken,
-    Session,
-    User,
-)
+from campfire_api.contexts.identity.domain.entities import Credentials, RefreshToken, Session, User
 from campfire_api.contexts.identity.domain.value_objects import (
     DisplayName,
     Email,
@@ -28,7 +21,6 @@ def user_from_row(row: UserRow) -> User:
         id=UserId(row.id),
         email=Email(row.email),
         display_name=DisplayName(row.display_name),
-        first_login=row.first_login,
         created_at=row.created_at,
         updated_at=row.updated_at,
     )
@@ -39,18 +31,6 @@ def credentials_from_row(row: CredentialsRow) -> Credentials:
         user_id=UserId(row.user_id),
         password_hash=HashedPassword(row.password_hash),
         created_at=row.created_at,
-        updated_at=row.updated_at,
-    )
-
-
-def preferences_from_row(row: PreferencesRow) -> PreferencesProfile:
-    return PreferencesProfile(
-        user_id=UserId(row.user_id),
-        instruments=list(row.instruments),
-        genres=list(row.genres),
-        context=row.context,
-        goals=list(row.goals),
-        experience=row.experience,
         updated_at=row.updated_at,
     )
 

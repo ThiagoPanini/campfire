@@ -5,11 +5,15 @@ from tests.integration.identity.helpers import login
 pytestmark = pytest.mark.integration
 
 
-async def test_me_with_seeded_preferences(client) -> None:
+async def test_me_returns_identity_fields(client) -> None:
     _response, headers = await login(client)
     me = await client.get("/me", headers=headers)
     assert me.status_code == 200
-    assert me.json()["preferences"]["instruments"] == ["Acoustic Guitar", "Vocals"]
+    body = me.json()
+    assert body["email"] == "ada@campfire.test"
+    assert body["displayName"] == "Ada"
+    assert "preferences" not in body
+    assert "firstLogin" not in body
 
 
 async def test_me_without_or_malformed_bearer(client) -> None:

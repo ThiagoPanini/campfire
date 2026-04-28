@@ -13,8 +13,8 @@ schema details live in [Backend contracts](/backend/identity/contracts).
 
 ## Register
 
-Creates a user, credentials row, and empty preferences row. Registration does
-not return tokens; the frontend logs in immediately after successful creation.
+Creates a user and credentials row. Registration does not return tokens; the
+frontend logs in immediately after successful creation.
 
 | Concern | Behavior |
 | --- | --- |
@@ -30,7 +30,7 @@ sequenceDiagram
   participant API
   participant DB
   Web->>API: POST /auth/register
-  API->>DB: insert user, credentials, empty preferences
+  API->>DB: insert user and credentials
   API-->>Web: 201 user profile
   Web->>API: POST /auth/login
   API-->>Web: access token + refresh cookie

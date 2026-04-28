@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from campfire_api.contexts.identity.application.errors import GoogleStubDisabled, InvalidCredentials
 from campfire_api.contexts.identity.application.use_cases.authenticate_user import AuthenticateUser
 from campfire_api.contexts.identity.application.use_cases.session_tokens import IssuedSession
-from campfire_api.contexts.identity.domain.entities import PreferencesProfile, User
-from campfire_api.contexts.identity.domain.ports import Clock, PreferencesRepository, UserRepository
+from campfire_api.contexts.identity.domain.entities import User
+from campfire_api.contexts.identity.domain.ports import Clock, UserRepository
 from campfire_api.contexts.identity.domain.value_objects import DisplayName, Email, UserId
 
 GOOGLE_STUB_EMAIL = "google.member@campfire.test"
@@ -14,7 +14,6 @@ SEEDED_EMAIL = "ada@campfire.test"
 @dataclass
 class ContinueWithGoogleStub:
     users: UserRepository
-    preferences: PreferencesRepository
     authenticate_user: AuthenticateUser
     clock: Clock
     enabled: bool
@@ -32,10 +31,8 @@ class ContinueWithGoogleStub:
                 id=UserId.new(),
                 email=email,
                 display_name=DisplayName("Google Member"),
-                first_login=True,
                 created_at=now,
                 updated_at=now,
             )
             await self.users.add(user)
-            await self.preferences.add(PreferencesProfile(user_id=user.id, updated_at=now))
         return await self.authenticate_user._open_session(user.id)

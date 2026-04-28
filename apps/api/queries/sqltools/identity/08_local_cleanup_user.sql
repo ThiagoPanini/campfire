@@ -7,9 +7,9 @@ Use only in a local environment. This file exists to clean up users created
 during manual app testing.
 
 Why is DELETE FROM users enough?
-The credentials, preferences, sessions, and refresh_tokens tables have foreign
-keys with ON DELETE CASCADE to users. When the user is removed, Postgres removes
-dependent rows automatically.
+The credentials, sessions, and refresh_tokens tables have foreign keys with ON
+DELETE CASCADE to users. When the user is removed, Postgres removes dependent
+rows automatically.
 
 Recommended flow:
 1. Edit the email in params.
@@ -27,13 +27,11 @@ SELECT
   u.display_name,
   u.created_at,
   COUNT(DISTINCT c.user_id) AS credentials_to_delete,
-  COUNT(DISTINCT p.user_id) AS preferences_to_delete,
   COUNT(DISTINCT s.id) AS sessions_to_delete,
   COUNT(DISTINCT rt.id) AS refresh_tokens_to_delete
 FROM params
 JOIN users u ON u.email = params.email
 LEFT JOIN credentials c ON c.user_id = u.id
-LEFT JOIN preferences p ON p.user_id = u.id
 LEFT JOIN sessions s ON s.user_id = u.id
 LEFT JOIN refresh_tokens rt ON rt.user_id = u.id
 GROUP BY u.id, u.email, u.display_name, u.created_at;

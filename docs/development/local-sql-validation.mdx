@@ -65,7 +65,7 @@ VS Code workflow, but the SQL is plain PostgreSQL and can be run from any client
 
   <Accordion title="Identity context" icon="id-card" id="identity-context">
     The first query pack covers the `identity` bounded context: users,
-    credentials, preferences, sessions, and refresh tokens.
+    credentials, sessions, and refresh tokens.
 
     <AccordionGroup>
       <Accordion
@@ -87,16 +87,16 @@ VS Code workflow, but the SQL is plain PostgreSQL and can be run from any client
       >
         Run `identity/01_all_registered_users.sql`.
 
-        It lists every local user with credential, preference, session, and
+        It lists every local user with credential, session, and
         refresh-token status. Start here when validating identity data.
       </Accordion>
 
       <Accordion
-        title="Inspect preferences by email"
+        title="Inspect profile by email"
         icon="search"
-        id="identity-user-preference-by-email"
+        id="identity-user-profile-by-email"
       >
-        Run `identity/02_user_preference_by_email.sql`.
+        Run `identity/02_user_profile_by_email.sql`.
 
         By default it inspects `ada@campfire.test`. To inspect another user,
         edit the email in the query's `params` CTE.
@@ -109,9 +109,8 @@ VS Code workflow, but the SQL is plain PostgreSQL and can be run from any client
       >
         Run `identity/03_user_identity_snapshot.sql`.
 
-        It summarizes profile data, preferences, local credential presence,
-        total sessions, active access sessions, and exchangeable refresh tokens
-        for one email.
+        It summarizes profile data, local credential presence, total sessions,
+        active access sessions, and exchangeable refresh tokens for one email.
       </Accordion>
 
       <Accordion

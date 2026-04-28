@@ -9,7 +9,7 @@ tag: "PARTIAL"
 <p className="cf-kicker">IDENTITY · OVERVIEW</p>
 
 The identity context is Campfire's first backend bounded context. It owns users,
-credentials, sessions, refresh tokens, and preferences. All other contexts —
+credentials, sessions, and refresh tokens. All other contexts —
 repertoire, groups, jam sessions, ratings, notes, and recommendations — are
 deferred to future slices.
 
@@ -25,8 +25,7 @@ For project-wide maturity, see [Current status](/get-started/introduction/curren
 | Area | Implementation |
 | --- | --- |
 | Auth | Register, login, refresh, logout, and a development-only Google stub. |
-| Current user | `GET /me` returns the authenticated user's profile and preferences. |
-| Preferences | `PATCH /me/preferences` fully replaces the caller's saved selections. |
+| Current user | `GET /me` returns the authenticated user's profile. |
 | Persistence | PostgreSQL 16 through SQLAlchemy 2.x async and asyncpg. |
 | Contracts | FastAPI-generated OpenAPI snapshot committed with Spec 002. |
 | Tests | Unit, integration, and OpenAPI snapshot tests under `apps/api/tests/`. |
