@@ -194,6 +194,10 @@ a { color: inherit; }
 .rep-form-group { display: grid; gap: 10px; }
 .rep-form-label { color: #888; margin: 0; }
 .rep-chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.rep-instrument-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 8px; }
+.rep-instrument-option { min-height: 52px; border-radius: 8px; padding: 12px; background: var(--cf-surface-2); border: 1px solid var(--cf-border); color: var(--cf-text); display: block; text-align: left; transition: all .15s ease; }
+.rep-instrument-option:hover { border-color: #555; background: rgba(255,255,255,0.04); }
+.rep-instrument-option[data-selected="true"] { border-color: var(--cf-accent); background: var(--cf-selected); color: var(--cf-accent); }
 .rep-prof-grid { display: grid; gap: 8px; }
 .rep-prof-option { text-align: left; padding: 13px 15px; border-radius: 10px; background: var(--cf-surface-2); border: 1px solid var(--cf-border); color: var(--cf-text); display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all .15s ease; }
 .rep-prof-option--selected { background: rgba(232,129,58,0.08); border-color: var(--cf-accent); color: var(--cf-accent); }
