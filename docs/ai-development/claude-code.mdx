@@ -1,0 +1,59 @@
+---
+title: "Claude Code"
+description: "Primary AI CLI for working on Campfire."
+icon: "sparkles"
+---
+
+<p className="cf-kicker">PRIMARY CLI</p>
+
+Claude Code is the default AI agent for this repo. Configuration and
+guardrails live in version control so any session starts with the same
+context.
+
+## Repo-level configuration
+
+| File | Purpose |
+| --- | --- |
+| `AGENTS.md` | Top-level pointer for any agent. Currently delegates to the active spec's `plan.md`. |
+| `CLAUDE.md` | Symlinked to `AGENTS.md`. Claude Code reads this on session start. |
+| `.claude/` | Settings, skills, sub-agents, and project-specific config. |
+| `.mcp.json` | Model Context Protocol servers exposed to agents — see [MCP servers](/ai-development/mcp-servers). |
+| `.specify/memory/constitution.md` | Source of the [Constitution](/sdd/methodology/constitution). |
+
+## Recommended commands
+
+```bash
+# Run the frontend
+npm run dev
+
+# Run the docs site
+npm run docs:dev
+
+# Type-check the frontend
+npm run typecheck
+
+# Build the frontend
+npm run build
+```
+
+## Working on a feature
+
+<Steps>
+  <Step title="Read the active plan">
+    Open `specs/<feature>/plan.md`. It declares stack, scope, and structure
+    decisions for that slice.
+  </Step>
+  <Step title="Use Spec-Kit slash commands">
+    `/speckit-specify`, `/speckit-plan`, `/speckit-tasks`, `/speckit-implement`
+    — see [Spec-Kit](/sdd/methodology/spec-kit).
+  </Step>
+  <Step title="Update docs in the same change">
+    Constitution Principle V: docs and code land together.
+  </Step>
+</Steps>
+
+<Tip>
+  Sub-agents can be spawned for broad codebase exploration. Prefer the
+  `Explore` sub-agent over running ad-hoc grep when the question spans more
+  than three files.
+</Tip>

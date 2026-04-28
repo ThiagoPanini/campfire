@@ -1,0 +1,38 @@
+---
+title: "MCP servers"
+description: "Model Context Protocol servers wired into the repo."
+icon: "plug"
+---
+
+<p className="cf-kicker">.mcp.json</p>
+
+Model Context Protocol (MCP) servers expose external capabilities to AI
+agents. They are declared in `.mcp.json` at the repo root.
+
+## Configured servers
+
+| Server | Purpose |
+| --- | --- |
+| `serena` | Semantic code navigation and symbolic editing tools. |
+| `filesystem` | Sandboxed filesystem access scoped to this repo. |
+| `aws-docs` | Search and read public AWS documentation. |
+| `mintlify` | Mintlify docs assistance. Replace with a site-specific config (`npx mint-mcp add <siteId>`) once the docs site is published. |
+
+## Adding a server
+
+<Steps>
+  <Step title="Edit .mcp.json">
+    Add an entry under `mcpServers` with `command` and `args`.
+  </Step>
+  <Step title="Restart the agent session">
+    Most clients pick up MCP changes only on a fresh session.
+  </Step>
+  <Step title="Document it here">
+    Constitution Principle V — the docs change lands in the same commit.
+  </Step>
+</Steps>
+
+<Warning>
+  MCP servers can read and write files. Only add servers you trust, and prefer
+  scoping them to this repo's path rather than the whole filesystem.
+</Warning>

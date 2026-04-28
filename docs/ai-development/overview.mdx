@@ -1,0 +1,39 @@
+---
+title: "AI development"
+description: "How AI agents collaborate on Campfire."
+icon: "bot"
+sidebarTitle: "Overview"
+---
+
+<p className="cf-kicker">AGENT POSTURE</p>
+
+Campfire is built by a solo maintainer with heavy AI assistance. Agents are
+treated as collaborators with strict review and a small, sharp toolbelt.
+
+## Ground rules
+
+- Agents read `AGENTS.md` and the active spec's `plan.md` before doing work.
+- The [constitution](/sdd/methodology/constitution) wins over agent defaults
+  whenever they conflict.
+- All AI-generated changes are read and understood by the maintainer before
+  being committed.
+
+## The toolbelt
+
+<CardGroup cols={3}>
+  <Card title="Claude Code" icon="sparkles" href="/ai-development/claude-code">
+    Primary CLI. Reads `CLAUDE.md` / `AGENTS.md`, runs the workflow.
+  </Card>
+  <Card title="Skills" icon="puzzle" href="/ai-development/skills">
+    Reusable agent capabilities under `.claude/skills/`.
+  </Card>
+  <Card title="MCP servers" icon="plug" href="/ai-development/mcp-servers">
+    External capabilities wired through `.mcp.json`.
+  </Card>
+</CardGroup>
+
+## Spec-driven by default
+
+Features flow through the [Spec-Kit methodology](/sdd/methodology/spec-kit):
+spec → plan → tasks → implementation. Agents follow the same lifecycle the
+maintainer does.

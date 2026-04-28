@@ -1,0 +1,17 @@
+---
+title: "Repository pattern"
+description: "The persistence boundary used by backend use cases."
+---
+
+<p className="cf-kicker">GLOSSARY · ARCHITECTURE</p>
+
+The repository pattern hides storage details behind interfaces. Campfire defines
+repository ports in the identity domain and implements them with SQLAlchemy
+adapters.
+
+Why it matters here: use cases can be tested with fake repositories and do not
+depend on ORM rows.
+
+Where it appears: [Backend architecture playbook](/backend/architecture), [ADR-0002](/sdd/adrs/0002-sqlalchemy-async-asyncpg).
+
+Related terms: [Hexagonal architecture](/glossary/hexagonal-architecture), [Database](/glossary/database).

@@ -1,0 +1,206 @@
+---
+title: "Local SQL validation"
+description: "Validate the local identity backend database with SQL query packs."
+icon: "database-zap"
+sidebarTitle: "SQL validation"
+keywords: ["sqltools", "postgres", "local validation", "identity", "database"]
+---
+
+<p className="cf-kicker">DEVELOPMENT · DATABASE</p>
+
+Use these SQL query packs when you want to inspect the local PostgreSQL state
+while exercising the backend. They are manual validation aids for development;
+the automated source of truth remains the unit, integration, and contract test
+suite in [Testing strategy](/development/testing-strategy).
+
+The queries live in `apps/api/queries/sqltools/`. SQLTools is the recommended
+VS Code workflow, but the SQL is plain PostgreSQL and can be run from any client.
+
+<AccordionGroup>
+  <Accordion
+    title="Setup and connection"
+    icon="plug-zap"
+    id="setup-and-connection"
+    defaultOpen
+  >
+    Start the local database and apply the current backend schema:
+
+    ```bash
+    docker compose up -d postgres
+    cd apps/api
+    uv sync
+    cp .env.example .env
+    make migrate
+    make seed
+    ```
+
+    Create a SQLTools connection named exactly:
+
+    ```sql
+    -- @conn campfire-local
+    ```
+
+    Use the Compose database credentials:
+
+    | Field | Value |
+    | --- | --- |
+    | Host | `localhost` |
+    | Port | `5432` |
+    | Database | `campfire` |
+    | Username | `campfire` |
+    | Password | `campfire` |
+
+    Every committed query starts with the `-- @conn` header so SQLTools can run
+    it against the right local connection.
+  </Accordion>
+
+  <Accordion title="Shared database checks" icon="database" id="shared-database-checks">
+    Use `apps/api/queries/sqltools/shared/00_connection_and_migrations.sql`
+    first. It confirms the connected database, PostgreSQL version, Alembic
+    revision, and the public tables created by the migrations.
+
+    This is the fastest check when `make migrate`, `make seed`, or `/readyz`
+    behaves differently than expected.
+  </Accordion>
+
+  <Accordion title="Identity context" icon="id-card" id="identity-context">
+    The first query pack covers the `identity` bounded context: users,
+    credentials, preferences, sessions, and refresh tokens.
+
+    <AccordionGroup>
+      <Accordion
+        title="Validate connection and Alembic revision"
+        icon="check-circle"
+        id="identity-connection-and-migrations"
+      >
+        Run `shared/00_connection_and_migrations.sql`.
+
+        Expect the `campfire` database and the latest Alembic revision after
+        `make migrate`. If the revision is missing, run migrations from
+        `apps/api` before inspecting context-specific state.
+      </Accordion>
+
+      <Accordion
+        title="List all registered users"
+        icon="users-round"
+        id="identity-all-registered-users"
+      >
+        Run `identity/01_all_registered_users.sql`.
+
+        It lists every local user with credential, preference, session, and
+        refresh-token status. Start here when validating identity data.
+      </Accordion>
+
+      <Accordion
+        title="Inspect preferences by email"
+        icon="search"
+        id="identity-user-preference-by-email"
+      >
+        Run `identity/02_user_preference_by_email.sql`.
+
+        By default it inspects `ada@campfire.test`. To inspect another user,
+        edit the email in the query's `params` CTE.
+      </Accordion>
+
+      <Accordion
+        title="Inspect a full identity snapshot"
+        icon="user-check"
+        id="identity-user-snapshot"
+      >
+        Run `identity/03_user_identity_snapshot.sql`.
+
+        It summarizes profile data, preferences, local credential presence,
+        total sessions, active access sessions, and exchangeable refresh tokens
+        for one email.
+      </Accordion>
+
+      <Accordion
+        title="Observe sessions after login and logout"
+        icon="key-round"
+        id="identity-session-families"
+      >
+        Run `identity/04_session_families.sql` after exercising login or logout
+        in the app.
+
+        Edit the email in the query's `params` CTE to target a non-seeded user,
+        then confirm active access sessions, session families, refreshed
+        sessions, signed-out sessions, reuse-detected sessions, and the
+        computed state of each session row.
+      </Accordion>
+
+      <Accordion
+        title="Observe refresh-token rotation"
+        icon="rotate-cw"
+        id="identity-refresh-token-state"
+      >
+        Run `identity/05_refresh_token_state.sql` after login, page reload, or
+        `/auth/refresh`.
+
+        Edit the email in the query's `params` CTE to target a non-seeded user.
+        The query shows token families, exchangeable tokens, consumed tokens,
+        revoked tokens, and the computed state of each refresh-token row. This
+        is the main local check for single-use refresh-token rotation.
+      </Accordion>
+
+      <Accordion title="Run integrity checks" icon="shield-check" id="identity-integrity-checks">
+        Run `identity/06_data_quality_checks.sql`.
+
+        The first result set should report `0` for each problem count in a
+        healthy local database. The second result set should be empty unless a
+        session family has more than one exchangeable refresh token.
+      </Accordion>
+
+      <Accordion title="Inspect schema reference" icon="table" id="identity-schema-reference">
+        Run `identity/07_schema_reference.sql`.
+
+        It reads Postgres catalog tables to show identity columns, constraints,
+        and indexes without opening the migrations.
+      </Accordion>
+    </AccordionGroup>
+  </Accordion>
+
+  <Accordion title="Safety and cleanup" icon="triangle-alert" id="safety-and-cleanup">
+    Query files are read-only unless the file name clearly says `cleanup` or
+    `reset`. Destructive SQL should be commented by default and preceded by a
+    preview query.
+
+    For local cleanup, use `identity/08_local_cleanup_user.sql`. Edit the email
+    in its `params` CTE, run the preview, and only then uncomment the `DELETE`
+    block if the preview matches the user you meant to remove.
+
+    Do not select password hashes or full token fingerprints in routine
+    validation queries. The useful local signal is whether secret material
+    exists and rotates correctly, not the secret value itself.
+  </Accordion>
+
+  <Accordion title="Adding queries for a new context" icon="layers" id="adding-new-context-queries">
+    Add future query packs as sibling folders under `apps/api/queries/sqltools/`.
+    For example:
+
+    ```text
+    apps/api/queries/sqltools/
+      shared/
+      identity/
+      repertoire/
+      jam_session/
+    ```
+
+    Use one scenario per file, keep a numeric prefix for reading order, and put
+    editable values in a top `params` CTE. Each query should start with:
+
+    ```sql
+    -- @conn campfire-local
+    ```
+
+    When a context grows large enough to need multiple documentation pages,
+    keep this page as the overview and introduce nested navigation groups in
+    `docs/docs.json` with `expanded: false`.
+  </Accordion>
+</AccordionGroup>
+
+## Related pages
+
+- [Local development](/development/local-development)
+- [Testing strategy](/development/testing-strategy)
+- [Data and persistence](/backend/identity/data-persistence)
+- [Backend architecture playbook](/backend/architecture)

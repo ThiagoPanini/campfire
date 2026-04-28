@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Campfire — Private jam circle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="styles/tokens.css" />
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="src/i18n.jsx"></script>
+  <script type="text/babel" src="src/data.jsx"></script>
+  <script type="text/babel" src="src/atmosphere.jsx"></script>
+  <script type="text/babel" src="src/primitives.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="src/landing.jsx"></script>
+  <script type="text/babel" src="src/login.jsx"></script>
+  <script type="text/babel" src="src/signup.jsx"></script>
+  <script type="text/babel" src="src/shell.jsx"></script>
+  <script type="text/babel" src="src/home.jsx"></script>
+  <script type="text/babel" src="src/profile.jsx"></script>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "intensity": 0.85,
+      "showBg": false,
+      "lang": "en",
+      "landingVariant": "b"
+    }/*EDITMODE-END*/;
+
+    function App() {
+      const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      const [screen, setScreen] = React.useState("landing");
+      const [navData, setNavData] = React.useState({});
+      const [variant, setVariant] = React.useState(tweaks.landingVariant || "a");
+
+      const go = (next, data) => {
+        if (data) setNavData(d => ({ ...d, ...data }));
+        setScreen(next);
+        window.scrollTo({ top: 0, behavior: "instant" });
+      };
+
+      React.useEffect(() => { setVariant(tweaks.landingVariant); }, [tweaks.landingVariant]);
+
+      const common = {
+        lang: tweaks.lang,
+        intensity: tweaks.intensity,
+        showBg: tweaks.showBg,
+      };
+
+      return (
+        <>
+          <GlobalAtmosphereStyles />
+
+          {screen === "landing" && (
+            <LandingPage
+              {...common}
+              variant={variant}
+              onEnter={(next, data) => go(next, data)}
+              onVariant={(v) => { setVariant(v); setTweak('landingVariant', v); }}
+            />
+          )}
+          {screen === "login" && (
+            <LoginPage {...common}
+              initialMode="signin"
+              prefilledEmail={navData.email || ""}
+              onEnter={(next) => go(next)}
+            />
+          )}
+          {screen === "signup" && (
+            <SignupPage {...common} onEnter={(next) => go(next)} />
+          )}
+          {(screen === "home" || screen === "songs" || screen === "groups" || screen === "history") && (
+            <HomePage {...common} onEnter={(next) => go(next)} />
+          )}
+          {screen === "profile" && (
+            <ProfilePage {...common} onEnter={(next) => go(next)} />
+          )}
+
+          <TweaksPanel title="Campfire · Tweaks">
+            <TweakSection label="Screens">
+              <TweakRadio
+                label="Screen"
+                value={screen === "songs" || screen === "groups" || screen === "history" ? "home" : screen}
+                options={[
+                  { value: "landing", label: "Landing" },
+                  { value: "login", label: "Login" },
+                  { value: "signup", label: "Signup" },
+                  { value: "home", label: "Home" },
+                  { value: "profile", label: "Profile" },
+                ]}
+                onChange={(v) => go(v)}
+              />
+            </TweakSection>
+            <TweakSection label="Atmosphere">
+              <TweakSlider
+                label="Ember intensity"
+                value={Math.round(tweaks.intensity * 100)}
+                min={0} max={100} step={5} unit="%"
+                onChange={(v) => setTweak('intensity', v / 100)}
+              />
+              <TweakToggle
+                label="Atmospheric background"
+                value={tweaks.showBg}
+                onChange={(v) => setTweak('showBg', v)}
+              />
+              {screen === "landing" && (
+                <TweakRadio
+                  label="Landing variant"
+                  value={variant}
+                  options={[
+                    { value: "a", label: "Scene" },
+                    { value: "b", label: "Ember" },
+                  ]}
+                  onChange={(v) => { setVariant(v); setTweak('landingVariant', v); }}
+                />
+              )}
+            </TweakSection>
+            <TweakSection label="Language">
+              <TweakRadio
+                label="Copy"
+                value={tweaks.lang}
+                options={[
+                  { value: "en", label: "EN" },
+                  { value: "pt", label: "PT" },
+                ]}
+                onChange={(v) => setTweak('lang', v)}
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

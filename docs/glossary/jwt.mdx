@@ -1,0 +1,17 @@
+---
+title: "JWT"
+description: "A token format Campfire depends on as a library but does not use for v1 access tokens."
+---
+
+<p className="cf-kicker">GLOSSARY · IDENTITY</p>
+
+JWT means JSON Web Token. Campfire's v1 access tokens are not JWTs; they are
+opaque server-issued strings validated by session lookup.
+
+Why it matters here: clients must not parse token claims or assume a JWKS
+contract. `python-jose` is present for possible future federation work, not for
+the v1 access-token contract.
+
+Where it appears: [Backend contracts](/backend/identity/contracts), [Spec 002](/sdd/specs/002-backend-auth-slice).
+
+Related terms: [Authentication](/glossary/authentication), [Authorization](/glossary/authorization).

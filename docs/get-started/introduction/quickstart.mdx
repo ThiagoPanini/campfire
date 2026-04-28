@@ -1,0 +1,74 @@
+---
+title: "Quickstart"
+description: "Run the Campfire frontend, identity backend, and docs site locally."
+icon: "rocket"
+keywords: ["quickstart", "install", "vite", "fastapi", "mintlify"]
+---
+
+<p className="cf-kicker">START HERE</p>
+
+## Prerequisites
+
+- Node.js 24 LTS and npm
+- Docker with Compose v2
+- `uv` for the Python backend
+
+## Install
+
+```bash
+npm install
+```
+
+## Run the backend
+
+```bash
+docker compose up -d postgres
+cd apps/api
+uv sync
+cp .env.example .env
+make migrate
+make seed
+make run
+```
+
+The API runs at `http://localhost:8000`.
+
+## Run the frontend
+
+In a second terminal:
+
+```bash
+npm run dev
+```
+
+Open the Vite URL printed in the terminal. You should land on `/`.
+
+## Run the docs
+
+```bash
+npm run docs:dev
+```
+
+Mintlify serves on `localhost:3000` against `docs/docs.json`.
+
+## Verify the slice
+
+<Steps>
+  <Step title="Landing">
+    `/` renders the hero and `ENTER CAMPFIRE` CTA.
+  </Step>
+  <Step title="Sign-up journey">
+    Submit any well-formed email and an 8+ char password, complete onboarding,
+    and land on home.
+  </Step>
+  <Step title="Sign-in journey">
+    Use `ada@campfire.test` / `campfire123` to reach home with seeded preferences.
+  </Step>
+  <Step title="Reload and sign out">
+    Reload keeps the user signed in when the refresh cookie exists. Sign out
+    revokes the server-side session.
+  </Step>
+</Steps>
+
+Backend-specific commands live in [Local development](/development/local-development)
+and [Identity context](/backend/identity/overview).

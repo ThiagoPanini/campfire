@@ -1,0 +1,58 @@
+---
+title: "Overview"
+description: "What Campfire is, who it's for, and how these docs are organized."
+icon: "flame"
+keywords: ["campfire", "introduction", "music", "repertoire"]
+---
+
+<p className="cf-kicker">CAMPFIRE · OVERVIEW</p>
+
+Campfire is a private music hub for people who play in small, informal circles.
+It is built around three jobs and nothing else.
+
+<CardGroup cols={3}>
+  <Card title="Track" icon="check">
+    Record songs you already know how to play.
+  </Card>
+  <Card title="Learn" icon="book-open">
+    Capture songs you are still working on.
+  </Card>
+  <Card title="Share" icon="users">
+    Make that repertoire visible to your circle.
+  </Card>
+</CardGroup>
+
+## Status
+
+<span className="cf-badge">ALPHA</span> &nbsp; <span className="cf-label">CURRENT</span> Frontend MVP plus identity backend slice.
+
+The frontend MVP is implemented. The first backend slice, `identity`, is also
+implemented in code but still has manual verification gates open. Infrastructure
+and CI/CD remain planned. See [Current status](/get-started/introduction/current-status)
+for the canonical status matrix.
+
+<hr className="cf-rule" />
+
+## How these docs are organized
+
+<CardGroup cols={2}>
+  <Card title="Docs" icon="book" href="/get-started/introduction/quickstart">
+    Quickstart, architecture, contributing, and AI tooling.
+  </Card>
+  <Card title="Specs" icon="file-text" href="/sdd/methodology/constitution">
+    The constitution, the spec-driven workflow, and the specs themselves.
+  </Card>
+  <Card title="Glossary" icon="book-open-text" href="/glossary/overview">
+    Project-specific terms used across docs, specs, and source code.
+  </Card>
+</CardGroup>
+
+## Source of truth
+
+| Concern | Location |
+| --- | --- |
+| Product perimeter | [Constitution](/sdd/methodology/constitution) |
+| Visual system | `DESIGN.md` at the repo root |
+| Implementation status | [Current status](/get-started/introduction/current-status) |
+| Active specs | [Specs index](/sdd/overview) |
+| Code | `apps/web/` and `apps/api/` |

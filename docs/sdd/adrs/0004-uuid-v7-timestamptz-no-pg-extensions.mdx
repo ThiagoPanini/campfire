@@ -1,0 +1,14 @@
+---
+title: "ADR-0004 — UUID v7 and timestamptz"
+description: "Accepted decision for application-generated UUIDs, UTC timestamptz, and no Postgres extensions in v1."
+icon: "fingerprint"
+sidebarTitle: "0004 · UUID/time"
+---
+
+<p className="cf-kicker">ADR · ACCEPTED</p>
+
+Generate UUIDs application-side, store time as UTC `timestamptz`, and avoid
+Postgres extensions in the identity slice unless a future ADR proves support.
+
+Related: [Data and persistence](/backend/identity/data-persistence), [Migration](/glossary/migration).
+

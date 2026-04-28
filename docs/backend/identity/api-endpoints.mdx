@@ -1,0 +1,40 @@
+---
+title: "API endpoints"
+description: "Endpoint summary for the Campfire identity backend."
+icon: "route"
+sidebarTitle: "API endpoints"
+---
+
+<p className="cf-kicker">IDENTITY · API</p>
+
+This page summarizes implemented HTTP endpoints. The generated schema remains
+the committed OpenAPI snapshot referenced by [Backend contracts](/backend/identity/contracts).
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `GET /healthz` | Public | Liveness check; does not touch the database. |
+| `GET /readyz` | Public | Readiness check; verifies database access. |
+| `POST /auth/register` | Public | Create user, credentials, and empty preferences. |
+| `POST /auth/login` | Public | Authenticate and issue access token plus refresh cookie. |
+| `POST /auth/refresh` | Refresh cookie + bearer guard | Rotate token pair. |
+| `POST /auth/logout` | Optional bearer session | Revoke the current session family and clear the cookie. |
+| `POST /auth/google-stub` | Public when enabled | Development-only managed-identity stub. |
+| `GET /me` | Bearer token | Return the authenticated user's profile and preferences. |
+| `PATCH /me/preferences` | Bearer token | Fully replace the authenticated user's preferences. |
+
+## Error behavior
+
+| Condition | Status |
+| --- | --- |
+| Invalid credentials, invalid bearer, missing refresh token, or refresh reuse | `401` |
+| Duplicate registration email | `409` |
+| Invalid payload or unknown catalog id | `422` |
+| Register/login rate limit exceeded | `429` |
+| Google stub disabled | `503` |
+
+## Related pages
+
+- [Auth flow](/backend/identity/auth-flow)
+- [Backend contracts](/backend/identity/contracts)
+- [Endpoint](/glossary/endpoint)
+- [API](/glossary/api)

@@ -1,0 +1,67 @@
+---
+title: "Identity context"
+description: "What the Campfire identity context implements and what remains deferred."
+icon: "id-card"
+sidebarTitle: "Overview"
+tag: "PARTIAL"
+---
+
+<p className="cf-kicker">IDENTITY · OVERVIEW</p>
+
+The identity context is Campfire's first backend bounded context. It owns users,
+credentials, sessions, refresh tokens, and preferences. All other contexts —
+repertoire, groups, jam sessions, ratings, notes, and recommendations — are
+deferred to future slices.
+
+The API is a FastAPI modular monolith under `apps/api`. Domain and application
+layers are framework-free; FastAPI, SQLAlchemy, Argon2, and token generation live
+in adapters at `apps/api/src/campfire_api/contexts/identity/`. Local development
+runs the API natively and uses Compose only for PostgreSQL 16.
+
+For project-wide maturity, see [Current status](/get-started/introduction/current-status).
+
+## Implemented surface
+
+| Area | Implementation |
+| --- | --- |
+| Auth | Register, login, refresh, logout, and a development-only Google stub. |
+| Current user | `GET /me` returns the authenticated user's profile and preferences. |
+| Preferences | `PATCH /me/preferences` fully replaces the caller's saved selections. |
+| Persistence | PostgreSQL 16 through SQLAlchemy 2.x async and asyncpg. |
+| Contracts | FastAPI-generated OpenAPI snapshot committed with Spec 002. |
+| Tests | Unit, integration, and OpenAPI snapshot tests under `apps/api/tests/`. |
+
+## Deferred surface
+
+- Real Google OAuth
+- Password reset or password change
+- Admin user lookup, user listing, or account deletion endpoints
+- Repertoire, groups, jam sessions, ratings, notes, and recommendations
+- Production infrastructure and CI/CD
+
+## Aurora-readiness checklist
+
+- PostgreSQL-compatible SQL only.
+- UUIDs are generated application-side; no Postgres UUID extensions.
+- Email normalization and password hashing happen in application code.
+- Timestamps are UTC `timestamptz`.
+- No session-scoped Postgres features such as temp tables or `LISTEN/NOTIFY`.
+- Database URLs flow through `SettingsProvider` so a future secrets provider
+  can rotate credentials without changing call sites.
+- Migrations contain no `CREATE EXTENSION` statements unless a future slice
+  explicitly proves Aurora support.
+
+## Docs for this context
+
+- [Auth flow](/backend/identity/auth-flow) — register, login, refresh, and logout sequences.
+- [Backend contracts](/backend/identity/contracts) — OpenAPI snapshot, response shapes, and environment variables.
+- [Data and persistence](/backend/identity/data-persistence) — tables, migrations, and persistence rules.
+- [API endpoints](/backend/identity/api-endpoints) — implemented HTTP endpoint summary.
+- [Local SQL validation](/development/local-sql-validation) — query packs for the identity context.
+- [002 — Backend auth slice](/sdd/specs/002-backend-auth-slice) — spec, plan, and artifacts.
+
+<Tip>
+Future bounded contexts (repertoire, groups, jam_session) will appear as sibling
+groups alongside Identity context in the navigation. Each context lives at
+`docs/backend/<context>/` and `apps/api/src/campfire_api/contexts/<context>/`.
+</Tip>

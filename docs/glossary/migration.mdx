@@ -1,0 +1,16 @@
+---
+title: "Migration"
+description: "A versioned database schema change."
+---
+
+<p className="cf-kicker">GLOSSARY · PERSISTENCE</p>
+
+A migration changes database schema or seed state in a controlled order.
+Campfire uses Alembic migrations for the identity backend.
+
+Why it matters here: migrations create identity tables and seed
+`ada@campfire.test` idempotently.
+
+Where it appears: [Data and persistence](/backend/identity/data-persistence), Spec 002 quickstart.
+
+Related terms: [Database](/glossary/database), [Testing](/glossary/testing).

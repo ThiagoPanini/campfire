@@ -1,0 +1,73 @@
+---
+title: "002 — Backend auth slice"
+description: "Identity backend slice replacing mock auth and preferences with a FastAPI service."
+icon: "server"
+sidebarTitle: "002 · Backend auth"
+tag: "PARTIAL"
+---
+
+<p className="cf-kicker">SPEC 002</p>
+
+<span className="cf-badge cf-badge--partial">PARTIAL</span>
+&nbsp; <span className="cf-label">BRANCH</span> `002-backend-auth-slice`
+&nbsp; <span className="cf-label">CREATED</span> 2026-04-26
+
+## Goal
+
+Replace the frontend's in-memory mock auth and preferences layer with a real
+FastAPI identity backend while keeping scope limited to what the existing
+frontend already uses.
+
+## Status
+
+The implementation is present in `apps/api/` and the frontend is wired through
+real fetch calls. The source spec still says `Status: Draft`, and several
+manual verification tasks remain open in `tasks.md`, so the docs mark this
+slice as partial.
+
+## In scope
+
+- User registration and email/password login.
+- Opaque access tokens and HttpOnly refresh-token cookies.
+- Refresh-token rotation and family revocation on reuse.
+- Current-user profile through `GET /me`.
+- Full preferences replacement through `PATCH /me/preferences`.
+- Development-only Google stub.
+- PostgreSQL persistence, Alembic migrations, and OpenAPI snapshot.
+
+## Out of scope
+
+- Real Google OAuth.
+- Password reset or password change.
+- Repertoire, groups, jam sessions, ratings, notes, and recommendations.
+- LocalStack, Terraform, production infrastructure, and CI/CD.
+
+## Artifacts
+
+| Artifact | Source |
+| --- | --- |
+| Feature spec | `specs/002-backend-auth-slice/spec.md` |
+| Implementation plan | `specs/002-backend-auth-slice/plan.md` |
+| Tasks | `specs/002-backend-auth-slice/tasks.md` |
+| Data model | `specs/002-backend-auth-slice/data-model.md` |
+| Quickstart | `specs/002-backend-auth-slice/quickstart.md` |
+| OpenAPI snapshot | `specs/002-backend-auth-slice/contracts/openapi.json` |
+| ADRs | `specs/002-backend-auth-slice/adr/` |
+
+## Related docs
+
+- [Identity context](/backend/identity/overview)
+- [Auth flow](/backend/identity/auth-flow)
+- [Backend contracts](/backend/identity/contracts)
+- [Data and persistence](/backend/identity/data-persistence)
+- [API endpoints](/backend/identity/api-endpoints)
+- [Current status](/get-started/introduction/current-status)
+
+## Related ADRs
+
+- [ADR-0001](/sdd/adrs/0001-postgresql-as-engine)
+- [ADR-0002](/sdd/adrs/0002-sqlalchemy-async-asyncpg)
+- [ADR-0003](/sdd/adrs/0003-aws-target-service-deferred)
+- [ADR-0004](/sdd/adrs/0004-uuid-v7-timestamptz-no-pg-extensions)
+- [ADR-0005](/sdd/adrs/0005-localstack-deferred)
+- [ADR-0006](/sdd/adrs/0006-backend-hexagonal-ddd-pattern)

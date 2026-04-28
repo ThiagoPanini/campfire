@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Campfire — Track the songs you know</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #131313; color: #fff; }
+    body { font-family: 'Space Grotesk', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    #root { min-height: 100%; }
+    input, button { font-family: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #131313; }
+    ::-webkit-scrollbar-thumb { background: #2d2d2d; border-radius: 3px; }
+    input::placeholder { color: #555; }
+
+    @keyframes flicker {
+      0%,100% { transform: scaleX(1) scaleY(1) rotate(-1deg); }
+      20%      { transform: scaleX(0.96) scaleY(1.04) rotate(1deg); }
+      40%      { transform: scaleX(1.03) scaleY(0.97) rotate(-0.5deg); }
+      60%      { transform: scaleX(0.98) scaleY(1.03) rotate(1.5deg); }
+      80%      { transform: scaleX(1.02) scaleY(0.98) rotate(-1deg); }
+    }
+    @keyframes flicker2 {
+      0%,100% { transform: scaleX(1) scaleY(1) rotate(1deg); opacity: 0.9; }
+      33%      { transform: scaleX(1.05) scaleY(0.96) rotate(-1deg); opacity: 1; }
+      66%      { transform: scaleX(0.95) scaleY(1.05) rotate(0.5deg); opacity: 0.85; }
+    }
+    @keyframes emberPulse {
+      0%,100% { opacity: 0.55; r: 2px; }
+      50%      { opacity: 0.9; r: 3px; }
+    }
+    .flame-outer { transform-origin: 50% 100%; animation: flicker 2.2s ease-in-out infinite; }
+    .flame-inner { transform-origin: 50% 100%; animation: flicker2 1.7s ease-in-out infinite; }
+    .ember      { animation: emberPulse 1.4s ease-in-out infinite; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.5s ease both; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+/* ─── Constants ─────────────────────────────────────── */
+const ACCENT_PRESETS = [
+  { label: "EMBER",  value: "#FF6B2B", dark: "#7C1E00" },
+  { label: "FLAME",  value: "#FFAA00", dark: "#7A4800" },
+  { label: "GOLD",   value: "#FFD166", dark: "#6B4900" },
+  { label: "COPPER", value: "#E8813A", dark: "#6B2E00" },
+  { label: "BRASS",  value: "#D4A84B", dark: "#5C3A00" },
+];
+const DEFAULT_ACCENT = ACCENT_PRESETS[1]; // FLAME
+
+const INSTRUMENTS = ["Guitar","Bass","Drums","Piano / Keys","Vocals","Violin","Cavaquinho","Ukulele","Cajón","Mandolin","Flute","Other"];
+const GENRES = ["Rock","MPB","Samba","Jazz","Forró","Bossa Nova","Pop","Blues","Country","Metal","Reggae","Funk","Other"];
+const CONTEXTS = [
+  { id:"friends",  label:"Roda de amigos",       icon:"🫂" },
+  { id:"amateur",  label:"Banda amadora",         icon:"🎸" },
+  { id:"pro",      label:"Banda profissional",    icon:"🎤" },
+  { id:"solo",     label:"Prática solo",          icon:"🎧" },
+  { id:"church",   label:"Grupo de louvor",       icon:"🙏" },
+  { id:"sessions", label:"Sessões / Jam sessions",icon:"🔥" },
+];
+const GOALS = [
+  "Learn new songs faster",
+  "Track my full repertoire",
+  "Share my set with the group",
+  "Prepare for jam sessions",
+  "Practice more consistently",
+  "Know what I can already play",
+];
+const EXPERIENCE = [
+  { id:"beginner",     label:"Beginner",     sub:"Less than 1 year" },
+  { id:"learning",     label:"Learning",     sub:"1–3 years" },
+  { id:"intermediate", label:"Intermediate", sub:"3–7 years" },
+  { id:"advanced",     label:"Advanced",     sub:"7+ years" },
+];
+
+/* ─── i18n ───────────────────────────────────────────── */
+const COPY = {
+  en: {
+    nav_signin: "SIGN IN",
+    alpha_kicker: "EARLY ACCESS · CURRENTLY IN ALPHA",
+    hero1: "TRACK THE SONGS",
+    hero2: "YOU KNOW TO PLAY",
+    hero3: "AND SHARE",
+    hero4: "WITH OTHERS.",
+    hero_sub: "Build your personal repertoire by instrument, track what you're learning, and share your set with your group.",
+    cta: "ENTER CAMPFIRE",
+    feat: [
+      { kicker: "YOUR REPERTOIRE", body: "Every song you know, organised by instrument and how well you play it.", icon: "list" },
+      { kicker: "WHAT TO PRACTICE", body: "Songs you're still learning surface automatically so you always know what to work on next.", icon: "target" },
+      { kicker: "SHARE WITH YOUR CIRCLE", body: "Let your group see your set — so everyone knows what the room can play before the session starts.", icon: "people" },
+    ],
+    footer: "Campfire is in alpha. Expect rough edges.",
+    signin_title: "WELCOME BACK",
+    signup_title: "JOIN CAMPFIRE",
+    email_label: "EMAIL",
+    email_ph: "your@email.com",
+    pass_label: "PASSWORD",
+    pass_ph: "Password",
+    btn_signin: "SIGN IN",
+    btn_signup: "CREATE ACCOUNT",
+    to_signup: "No account yet? Create one.",
+    to_signin: "Already have an account? Sign in.",
+    or: "OR",
+    google: "CONTINUE WITH GOOGLE",
+    ob_title: "ONE LAST THING",
+    ob_sub: "Help Campfire understand how you play. You can always update this later.",
+    ob_instruments: "WHICH INSTRUMENTS DO YOU PLAY?",
+    ob_genres: "YOUR FAVOURITE GENRES",
+    ob_context: "WHERE DO YOU USUALLY PLAY?",
+    ob_goals: "WHAT DO YOU WANT FROM CAMPFIRE?",
+    ob_xp: "HOW LONG HAVE YOU BEEN PLAYING?",
+    ob_cta: "START TRACKING",
+    ob_skip: "SKIP FOR NOW",
+  },
+  pt: {
+    nav_signin: "ENTRAR",
+    alpha_kicker: "ACESSO ANTECIPADO · EM FASE ALPHA",
+    hero1: "REGISTRE AS",
+    hero2: "MÚSICAS QUE VOCÊ",
+    hero3: "SABE TOCAR",
+    hero4: "E COMPARTILHE.",
+    hero_sub: "Monte seu repertório por instrumento, acompanhe o que está aprendendo e compartilhe com o grupo.",
+    cta: "ENTRAR NO CAMPFIRE",
+    feat: [
+      { kicker: "SEU REPERTÓRIO", body: "Todas as músicas que você toca, organizadas por instrumento e nível.", icon: "list" },
+      { kicker: "O QUE PRATICAR", body: "Músicas que você ainda está aprendendo aparecem automaticamente — sem planilha.", icon: "target" },
+      { kicker: "COMPARTILHE COM SUA RODA", body: "Deixe seu grupo ver seu repertório antes da próxima sessão.", icon: "people" },
+    ],
+    footer: "O Campfire está em alpha. Espere imperfeições.",
+    signin_title: "BEM-VINDO DE VOLTA",
+    signup_title: "ENTRAR NO CAMPFIRE",
+    email_label: "E-MAIL",
+    email_ph: "voce@email.com",
+    pass_label: "SENHA",
+    pass_ph: "Senha",
+    btn_signin: "ENTRAR",
+    btn_signup: "CRIAR CONTA",
+    to_signup: "Sem conta? Crie uma.",
+    to_signin: "Já tem conta? Entre.",
+    or: "OU",
+    google: "CONTINUAR COM GOOGLE",
+    ob_title: "ÚLTIMA ETAPA",
+    ob_sub: "Ajude o Campfire a entender como você toca. Você pode atualizar isso depois.",
+    ob_instruments: "QUAIS INSTRUMENTOS VOCÊ TOCA?",
+    ob_genres: "SEUS GÊNEROS FAVORITOS",
+    ob_context: "ONDE VOCÊ COSTUMA TOCAR?",
+    ob_goals: "O QUE VOCÊ QUER DO CAMPFIRE?",
+    ob_xp: "HÁ QUANTO TEMPO VOCÊ TOCA?",
+    ob_cta: "COMEÇAR A REGISTRAR",
+    ob_skip: "PULAR POR ENQUANTO",
+  },
+};
+const T = (lang, key) => (COPY[lang] || COPY.en)[key] || key;
+
+/* ─── Fire icon ─────────────────────────────────────── */
+function FireIcon({ size = 28, accent = "#FFAA00" }) {
+  const inner = "#FFD166";
+  const core  = "#FFF5B0";
+  return (
+    <svg width={size} height={size * 1.15} viewBox="0 0 28 32" fill="none" style={{ overflow: "visible", flexShrink: 0 }}>
+      <g className="flame-outer">
+        <path d="M14 30C7.5 30 3 25 3 19C3 12 9 7 11 2C11 7 13.5 9 14 10C14.5 9 16 6 15 1C19 5 25 12 25 19C25 25 20.5 30 14 30Z" fill={accent} />
+      </g>
+      <g className="flame-inner">
+        <path d="M14 26C10 26 8 23 8 20C8 16.5 10.5 14 12 12C12 15 13.5 16 14 17C14.5 16 15.5 14.5 15 12C17.5 14 20 17 20 20.5C20 23.5 17.5 26 14 26Z" fill={inner} />
+      </g>
+      <ellipse className="ember" cx="14" cy="26" rx="3" ry="2" fill={core} opacity="0.7" />
+    </svg>
+  );
+}
+
+/* ─── Shared UI ─────────────────────────────────────── */
+function AlphaBadge({ accent }) {
+  return (
+    <span style={{
+      fontFamily: "'Space Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.18em",
+      color: "#000", background: accent, padding: "3px 9px", borderRadius: 20,
+      lineHeight: 1, display: "inline-flex", alignItems: "center", userSelect: "none",
+    }}>ALPHA</span>
+  );
+}
+
+function MonoLabel({ children, color, size = 11, style: sx }) {
+  return (
+    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: size, fontWeight: 700,
+      letterSpacing: "0.16em", textTransform: "uppercase", color, ...sx }}>
+      {children}
+    </span>
+  );
+}
+
+function AccentBtn({ children, onClick, accent, size = "md", fullWidth }) {
+  const [h, setH] = React.useState(false);
+  return (
+    <button onClick={onClick}
+      onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{
+        background: h ? "rgba(255,255,255,0.12)" : accent,
+        color: h ? "#fff" : "#000",
+        fontFamily: "'Space Mono', monospace",
+        fontSize: size === "lg" ? 13 : 11,
+        fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase",
+        padding: size === "lg" ? "15px 40px" : "11px 28px",
+        borderRadius: 40, border: h ? "1px solid rgba(255,255,255,0.25)" : "1px solid transparent",
+        transition: "all 0.18s ease", whiteSpace: "nowrap", minHeight: 48,
+        width: fullWidth ? "100%" : undefined, display: "inline-flex", alignItems: "center", justifyContent: "center",
+      }}>{children}</button>
+  );
+}
+
+function GhostBtn({ children, onClick }) {
+  const [h, setH] = React.useState(false);
+  return (
+    <button onClick={onClick}
+      onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{
+        background: "transparent", color: h ? "#fff" : "#949494",
+        fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700,
+        letterSpacing: "0.14em", textTransform: "uppercase",
+        padding: "11px 24px", borderRadius: 40,
+        border: `1px solid ${h ? "#555" : "#2d2d2d"}`,
+        transition: "all 0.18s ease", minHeight: 48,
+      }}>{children}</button>
+  );
+}
+
+function FormInput({ label, type, placeholder, value, onChange, autoFocus }) {
+  const [focused, setFocused] = React.useState(false);
+  return (
+    <label style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+      <MonoLabel size={9} color="#666">{label}</MonoLabel>
+      <input type={type} placeholder={placeholder} value={value} onChange={e => onChange(e.target.value)}
+        autoFocus={autoFocus} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+        style={{
+          background: "#1a1a1a", border: `1px solid ${focused ? "#FFAA00" : "#2e2e2e"}`,
+          borderRadius: 6, color: "#fff", fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: 15, fontWeight: 400, padding: "12px 14px", outline: "none",
+          transition: "border-color 0.15s ease", width: "100%",
+        }} />
+    </label>
+  );
+}
+
+/* ─── Nav ────────────────────────────────────────────── */
+function Nav({ lang, accent, onSignIn }) {
+  return (
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+      height: 58, background: "#131313", borderBottom: "1px solid #1e1e1e",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "0 clamp(20px, 5vw, 64px)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <FireIcon size={22} accent={accent} />
+        <span style={{ fontFamily: "'Anton', Impact, sans-serif", fontSize: 20,
+          letterSpacing: "0.07em", color: "#fff", lineHeight: 1 }}>CAMPFIRE</span>
+        <AlphaBadge accent={accent} />
+      </div>
+      <button onClick={onSignIn}
+        onMouseEnter={e => e.currentTarget.style.color="#3860be"}
+        onMouseLeave={e => e.currentTarget.style.color=accent}
+        style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700,
+          letterSpacing: "0.16em", color: accent, background: "none", border: "none",
+          cursor: "pointer", padding: "8px 0", transition: "color 0.15s ease" }}>
+        {T(lang, "nav_signin")}
+      </button>
+    </nav>
+  );
+}
+
+/* ─── Card icons ─────────────────────────────────────── */
+function CardIcon({ type, color }) {
+  if (type === "list") return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect x="2" y="6" width="10" height="2" rx="1" fill={color} />
+      <rect x="2" y="12" width="10" height="2" rx="1" fill={color} opacity="0.7" />
+      <rect x="2" y="18" width="10" height="2" rx="1" fill={color} opacity="0.4" />
+      <rect x="16" y="5" width="10" height="4" rx="2" fill={color} opacity="0.25" />
+      <rect x="16" y="11" width="7" height="4" rx="2" fill={color} opacity="0.25" />
+      <rect x="16" y="17" width="8" height="4" rx="2" fill={color} opacity="0.25" />
+    </svg>
+  );
+  if (type === "target") return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="11" stroke={color} strokeWidth="1.5" opacity="0.3" />
+      <circle cx="14" cy="14" r="7" stroke={color} strokeWidth="1.5" opacity="0.6" />
+      <circle cx="14" cy="14" r="3" fill={color} />
+      <line x1="22" y1="6" x2="17" y2="11" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="19" y1="4" x2="22" y2="6" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="22" y1="6" x2="24" y2="3" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+  if (type === "people") return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <circle cx="9" cy="10" r="4" stroke={color} strokeWidth="1.5" opacity="0.5" />
+      <circle cx="19" cy="10" r="4" stroke={color} strokeWidth="1.5" opacity="0.5" />
+      <circle cx="14" cy="9" r="4" fill={color} opacity="0.9" />
+      <path d="M4 24c0-4 2.5-6 5-6" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
+      <path d="M24 24c0-4-2.5-6-5-6" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
+      <path d="M8 24c0-3.5 2.7-6 6-6s6 2.5 6 6" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+  return null;
+}
+
+/* ─── Landing ────────────────────────────────────────── */
+function LandingPage({ lang, accent, onSignIn, onSignUp }) {
+  const t = COPY[lang];
+  const darkTile = "#3D1A00";
+
+  return (
+    <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
+      <Nav lang={lang} accent={accent} onSignIn={onSignIn} />
+
+      {/* HERO */}
+      <section style={{
+        flex: 1, paddingTop: "clamp(110px, 18vw, 168px)",
+        paddingBottom: "clamp(60px, 10vw, 120px)",
+        padding: "clamp(110px, 18vw, 168px) clamp(24px, 6vw, 80px) clamp(60px, 8vw, 100px)",
+        maxWidth: 1300, margin: "0 auto", width: "100%",
+      }}>
+        <div style={{ marginBottom: 28, display: "flex", alignItems: "center", gap: 14 }} className="fade-up">
+          <div style={{ width: 32, height: 1, background: accent }} />
+          <MonoLabel size={10} color={accent}>{t.alpha_kicker}</MonoLabel>
+        </div>
+
+        <h1 className="fade-up" style={{
+          fontFamily: "'Anton', Impact, sans-serif",
+          fontSize: "clamp(52px, 11.5vw, 118px)",
+          lineHeight: 0.93, letterSpacing: "0.025em", color: "#fff",
+          marginBottom: "clamp(28px, 5vw, 48px)", maxWidth: 860,
+          animationDelay: "0.06s",
+        }}>
+          {t.hero1}<br />
+          {t.hero2}<br />
+          {t.hero3}<br />
+          <span style={{ color: accent }}>{t.hero4}</span>
+        </h1>
+
+        <p className="fade-up" style={{
+          fontSize: "clamp(15px, 1.8vw, 17px)", fontWeight: 300, lineHeight: 1.7,
+          color: "#777", maxWidth: 480, marginBottom: "clamp(36px, 6vw, 56px)",
+          letterSpacing: "0.01em", animationDelay: "0.12s",
+        }}>{t.hero_sub}</p>
+
+        <div className="fade-up" style={{ animationDelay: "0.18s" }}>
+          <AccentBtn size="lg" accent={accent} onClick={onSignUp}>{t.cta}</AccentBtn>
+        </div>
+      </section>
+
+      {/* FEATURE TILES */}
+      <section style={{
+        borderTop: "1px solid #1e1e1e",
+        padding: "clamp(40px, 7vw, 72px) clamp(24px, 6vw, 80px)",
+        maxWidth: 1300, margin: "0 auto", width: "100%",
+      }}>
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          border: "1px solid #222", borderRadius: 20, overflow: "hidden", gap: 0,
+        }}>
+          {t.feat.map((f, i) => {
+            const bg = i === 0 ? accent : i === 2 ? darkTile : "#181818";
+            const onDark = i !== 0;
+            const iconColor = i === 0 ? "#000" : accent;
+            const kickerColor = i === 0 ? "rgba(0,0,0,0.55)" : "#555";
+            const textColor = i === 0 ? "#000" : "#bbb";
+            return (
+              <div key={i} style={{
+                background: bg, padding: "clamp(24px, 3vw, 36px)",
+                minHeight: 200, display: "flex", flexDirection: "column",
+                justifyContent: "space-between", gap: 20,
+                borderRight: i < 2 ? "1px solid #222" : "none",
+              }}>
+                <CardIcon type={f.icon} color={iconColor} />
+                <div>
+                  <MonoLabel size={10} color={kickerColor} style={{ display: "block", marginBottom: 10 }}>{f.kicker}</MonoLabel>
+                  <p style={{
+                    fontSize: "clamp(13px, 1.3vw, 15px)", fontWeight: 400, lineHeight: 1.6,
+                    color: textColor, letterSpacing: "0.01em",
+                  }}>{f.body}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{
+        borderTop: "1px solid #1a1a1a",
+        padding: "20px clamp(24px, 6vw, 80px)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        flexWrap: "wrap", gap: 10, maxWidth: 1300, margin: "0 auto", width: "100%",
+      }}>
+        <MonoLabel size={9} color="#333">{t.footer}</MonoLabel>
+        <MonoLabel size={9} color="#2a2a2a">© 2025 CAMPFIRE</MonoLabel>
+      </footer>
+    </div>
+  );
+}
+
+/* ─── Auth ───────────────────────────────────────────── */
+function AuthPage({ lang, accent, initialMode, onBack, onPostSignup }) {
+  const [mode, setMode] = React.useState(initialMode || "signin");
+  const [email, setEmail] = React.useState("");
+  const [pass, setPass] = React.useState("");
+  const t = COPY[lang];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (mode === "signup") onPostSignup();
+  };
+
+  return (
+    <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
+      <Nav lang={lang} accent={accent} onSignIn={onBack} />
+      <div style={{
+        flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "clamp(80px, 14vw, 130px) clamp(20px, 5vw, 40px) clamp(40px, 6vw, 64px)",
+      }}>
+        <div style={{ width: "100%", maxWidth: 400 }} className="fade-up">
+          <div style={{ marginBottom: 32, display: "flex", alignItems: "center", gap: 10 }}>
+            <FireIcon size={20} accent={accent} />
+            <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 17, letterSpacing: "0.07em", color: "#fff" }}>CAMPFIRE</span>
+            <AlphaBadge accent={accent} />
+          </div>
+
+          <h2 style={{
+            fontFamily: "'Anton', Impact, sans-serif",
+            fontSize: "clamp(34px, 7vw, 52px)", lineHeight: 0.93,
+            letterSpacing: "0.03em", color: "#fff", marginBottom: 28,
+          }}>{mode === "signin" ? t.signin_title : t.signup_title}</h2>
+
+          {/* Google */}
+          <GoogleButton label={t.google} accent={accent} />
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "18px 0" }}>
+            <div style={{ flex: 1, height: 1, background: "#232323" }} />
+            <MonoLabel size={9} color="#444">{t.or}</MonoLabel>
+            <div style={{ flex: 1, height: 1, background: "#232323" }} />
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <FormInput label={t.email_label} type="email" placeholder={t.email_ph} value={email} onChange={setEmail} autoFocus />
+            <FormInput label={t.pass_label} type="password" placeholder={t.pass_ph} value={pass} onChange={setPass} />
+            <AccentBtn accent={accent} size="lg" fullWidth onClick={handleSubmit}>
+              {mode === "signin" ? t.btn_signin : t.btn_signup}
+            </AccentBtn>
+          </form>
+
+          <p style={{ marginTop: 18, fontSize: 13, color: "#555", textAlign: "center", lineHeight: 1.5 }}>
+            <span onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+              style={{ color: accent, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
+              {mode === "signin" ? t.to_signup : t.to_signin}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GoogleButton({ label, accent }) {
+  const [h, setH] = React.useState(false);
+  return (
+    <button onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{
+        width: "100%", padding: "12px 20px", background: h ? "#242424" : "#1e1e1e",
+        border: "1px solid #2e2e2e", borderRadius: 8, color: "#ccc",
+        fontFamily: "'Space Mono', monospace", fontSize: 10, fontWeight: 700,
+        letterSpacing: "0.13em", display: "flex", alignItems: "center",
+        justifyContent: "center", gap: 12, cursor: "pointer",
+        transition: "background 0.15s ease", minHeight: 48,
+      }}>
+      <svg width="16" height="16" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      {label}
+    </button>
+  );
+}
+
+/* ─── Onboarding ─────────────────────────────────────── */
+function MultiChip({ label, selected, onToggle, accent }) {
+  return (
+    <button onClick={onToggle} style={{
+      padding: "8px 16px", borderRadius: 40,
+      background: selected ? accent : "#1e1e1e",
+      color: selected ? "#000" : "#888",
+      border: `1px solid ${selected ? accent : "#2e2e2e"}`,
+      fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: selected ? 600 : 400,
+      cursor: "pointer", transition: "all 0.15s ease", whiteSpace: "nowrap",
+    }}>{label}</button>
+  );
+}
+
+function SingleChip({ label, sub, selected, onSelect, accent }) {
+  return (
+    <button onClick={onSelect} style={{
+      padding: "12px 16px", borderRadius: 10, textAlign: "left",
+      background: selected ? `${accent}18` : "#1a1a1a",
+      border: `1px solid ${selected ? accent : "#2a2a2a"}`,
+      cursor: "pointer", transition: "all 0.15s ease", display: "flex", flexDirection: "column", gap: 3,
+    }}>
+      <span style={{ fontSize: 14, fontWeight: 600, color: selected ? "#fff" : "#888" }}>{label}</span>
+      {sub && <span style={{ fontSize: 11, color: "#555" }}>{sub}</span>}
+    </button>
+  );
+}
+
+function Section({ title, children, accent }) {
+  return (
+    <div style={{ marginBottom: 36 }}>
+      <MonoLabel size={10} color={accent} style={{ display: "block", marginBottom: 16 }}>{title}</MonoLabel>
+      {children}
+    </div>
+  );
+}
+
+function OnboardingPage({ lang, accent, onDone }) {
+  const t = COPY[lang];
+  const [instruments, setInstruments] = React.useState([]);
+  const [genres, setGenres] = React.useState([]);
+  const [context, setContext] = React.useState("");
+  const [goals, setGoals] = React.useState([]);
+  const [xp, setXp] = React.useState("");
+
+  const toggle = (arr, setArr, val) =>
+    setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
+
+  return (
+    <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
+      <Nav lang={lang} accent={accent} onSignIn={() => {}} />
+      <div style={{
+        flex: 1, maxWidth: 640, margin: "0 auto", width: "100%",
+        padding: "clamp(80px, 14vw, 120px) clamp(24px, 5vw, 48px) clamp(60px, 8vw, 80px)",
+      }}>
+        <div className="fade-up">
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+            <div style={{ width: 24, height: 1, background: accent }} />
+            <MonoLabel size={10} color={accent}>STEP 2 OF 2</MonoLabel>
+          </div>
+          <h2 style={{
+            fontFamily: "'Anton', Impact, sans-serif",
+            fontSize: "clamp(36px, 7vw, 56px)", lineHeight: 0.93,
+            letterSpacing: "0.03em", color: "#fff", marginBottom: 14,
+          }}>{t.ob_title}</h2>
+          <p style={{ fontSize: 15, fontWeight: 300, color: "#666", lineHeight: 1.6, marginBottom: 48 }}>
+            {t.ob_sub}
+          </p>
+
+          <Section title={t.ob_instruments} accent={accent}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {INSTRUMENTS.map(i => (
+                <MultiChip key={i} label={i} selected={instruments.includes(i)}
+                  onToggle={() => toggle(instruments, setInstruments, i)} accent={accent} />
+              ))}
+            </div>
+          </Section>
+
+          <Section title={t.ob_genres} accent={accent}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {GENRES.map(g => (
+                <MultiChip key={g} label={g} selected={genres.includes(g)}
+                  onToggle={() => toggle(genres, setGenres, g)} accent={accent} />
+              ))}
+            </div>
+          </Section>
+
+          <Section title={t.ob_context} accent={accent}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
+              {CONTEXTS.map(c => (
+                <button key={c.id} onClick={() => setContext(c.id)} style={{
+                  padding: "14px 16px", borderRadius: 10, textAlign: "left",
+                  background: context === c.id ? `${accent}18` : "#1a1a1a",
+                  border: `1px solid ${context === c.id ? accent : "#2a2a2a"}`,
+                  cursor: "pointer", transition: "all 0.15s ease",
+                  display: "flex", alignItems: "center", gap: 10,
+                }}>
+                  <span style={{ fontSize: 18 }}>{c.icon}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: context === c.id ? "#fff" : "#777" }}>{c.label}</span>
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          <Section title={t.ob_goals} accent={accent}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {GOALS.map(g => (
+                <MultiChip key={g} label={g} selected={goals.includes(g)}
+                  onToggle={() => toggle(goals, setGoals, g)} accent={accent} />
+              ))}
+            </div>
+          </Section>
+
+          <Section title={t.ob_xp} accent={accent}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 8 }}>
+              {EXPERIENCE.map(e => (
+                <SingleChip key={e.id} label={e.label} sub={e.sub} selected={xp === e.id}
+                  onSelect={() => setXp(e.id)} accent={accent} />
+              ))}
+            </div>
+          </Section>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 14, paddingTop: 8 }}>
+            <AccentBtn accent={accent} size="lg" onClick={onDone}>{t.ob_cta}</AccentBtn>
+            <GhostBtn onClick={onDone}>{t.ob_skip}</GhostBtn>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Tweaks Panel ───────────────────────────────────── */
+function AppTweaks({ lang, setLang, accentPreset, setAccentPreset, screen, setScreen }) {
+  const [visible, setVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const handler = e => {
+      if (e.data?.type === "__activate_edit_mode")   setVisible(true);
+      if (e.data?.type === "__deactivate_edit_mode") setVisible(false);
+    };
+    window.addEventListener("message", handler);
+    window.parent.postMessage({ type: "__edit_mode_available" }, "*");
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
+  const save = (k, v) => window.parent.postMessage({ type: "__edit_mode_set_keys", edits: { [k]: v } }, "*");
+
+  if (!visible) return null;
+  const accent = ACCENT_PRESETS.find(p => p.label === accentPreset) || DEFAULT_ACCENT;
+
+  const PillBtn = ({ active, onClick, children }) => (
+    <button onClick={onClick} style={{
+      fontFamily: "'Space Mono', monospace", fontSize: 9, fontWeight: 700,
+      letterSpacing: "0.12em", textTransform: "uppercase",
+      padding: "5px 11px", borderRadius: 20, cursor: "pointer",
+      background: active ? accent.value : "#242424",
+      color: active ? "#000" : "#777", border: "none", transition: "all 0.15s ease",
+    }}>{children}</button>
+  );
+  const Row = ({ label, children }) => (
+    <div style={{ padding: "10px 0", borderBottom: "1px solid #1e1e1e" }}>
+      <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, letterSpacing: "0.14em",
+        textTransform: "uppercase", color: "#444", marginBottom: 8 }}>{label}</div>
+      {children}
+    </div>
+  );
+
+  const screenMap = { landing:"Landing", signin:"Sign In", signup:"Sign Up", onboarding:"Onboarding" };
+
+  return (
+    <div style={{
+      position: "fixed", bottom: 20, right: 20, zIndex: 9999,
+      background: "#141414", border: "1px solid #242424", borderRadius: 16,
+      padding: "14px 16px", width: 228,
+      boxShadow: "0 12px 48px rgba(0,0,0,0.9)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <MonoLabel size={9} color={accent.value}>TWEAKS</MonoLabel>
+        <button onClick={() => { setVisible(false); window.parent.postMessage({ type: "__edit_mode_dismissed" }, "*"); }}
+          style={{ color: "#555", fontSize: 16, cursor: "pointer", background: "none", border: "none", lineHeight: 1 }}>×</button>
+      </div>
+
+      <Row label="Screen">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+          {Object.entries(screenMap).map(([k, v]) => (
+            <PillBtn key={k} active={screen === k} onClick={() => setScreen(k)}>{v}</PillBtn>
+          ))}
+        </div>
+      </Row>
+
+      <Row label="Accent color">
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+          {ACCENT_PRESETS.map(p => (
+            <button key={p.label} onClick={() => { setAccentPreset(p.label); save("accentPreset", p.label); }}
+              title={p.label}
+              style={{
+                width: 28, height: 28, borderRadius: "50%", background: p.value, border: "none",
+                cursor: "pointer", outline: accentPreset === p.label ? `3px solid ${p.value}` : "3px solid transparent",
+                outlineOffset: 2, transition: "outline 0.15s ease",
+              }} />
+          ))}
+        </div>
+        <div style={{ marginTop: 6, fontFamily: "'Space Mono',monospace", fontSize: 8,
+          letterSpacing: "0.12em", color: "#555", textTransform: "uppercase" }}>
+          {accent.label} · {accent.value}
+        </div>
+      </Row>
+
+      <Row label="Language">
+        <div style={{ display: "flex", gap: 5 }}>
+          <PillBtn active={lang === "en"} onClick={() => { setLang("en"); save("lang", "en"); }}>EN</PillBtn>
+          <PillBtn active={lang === "pt"} onClick={() => { setLang("pt"); save("lang", "pt"); }}>PT</PillBtn>
+        </div>
+      </Row>
+    </div>
+  );
+}
+
+/* ─── Root ───────────────────────────────────────────── */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "lang": "en",
+  "accentPreset": "COPPER"
+}/*EDITMODE-END*/;
+
+function App() {
+  const saved = (() => {
+    try { return { ...TWEAK_DEFAULTS, ...JSON.parse(localStorage.getItem("cf_tweaks2") || "{}") }; }
+    catch { return TWEAK_DEFAULTS; }
+  })();
+
+  const [lang, setLang] = React.useState(saved.lang || "en");
+  const [accentPreset, setAccentPreset] = React.useState(saved.accentPreset || "FLAME");
+  const [screen, setScreen] = React.useState("landing");
+
+  React.useEffect(() => {
+    localStorage.setItem("cf_tweaks2", JSON.stringify({ lang, accentPreset }));
+  }, [lang, accentPreset]);
+
+  const accent = (ACCENT_PRESETS.find(p => p.label === accentPreset) || DEFAULT_ACCENT).value;
+
+  const go = (s) => { setScreen(s); window.scrollTo({ top: 0, behavior: "instant" }); };
+
+  return (
+    <>
+      {screen === "landing"    && <LandingPage lang={lang} accent={accent} onSignIn={() => go("signin")} onSignUp={() => go("signup")} />}
+      {(screen === "signin" || screen === "signup") && (
+        <AuthPage lang={lang} accent={accent} initialMode={screen} onBack={() => go("landing")} onPostSignup={() => go("onboarding")} />
+      )}
+      {screen === "onboarding" && <OnboardingPage lang={lang} accent={accent} onDone={() => go("landing")} />}
+
+      <AppTweaks
+        lang={lang} setLang={setLang}
+        accentPreset={accentPreset} setAccentPreset={setAccentPreset}
+        screen={screen} setScreen={go}
+      />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

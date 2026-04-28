@@ -1,0 +1,38 @@
+---
+title: "Recent implementations"
+description: "Recently shipped Campfire slices and the docs they affected."
+icon: "history"
+sidebarTitle: "Recent implementations"
+keywords: ["recent", "implementation", "specs", "backend", "frontend"]
+---
+
+<p className="cf-kicker">RECENT WORK</p>
+
+## 002 — Backend auth slice
+
+<span className="cf-badge cf-badge--partial">PARTIAL</span>
+
+The identity backend adds a FastAPI service under `apps/api/`, PostgreSQL
+persistence, opaque access tokens, refresh-token rotation, seeded local sign-in,
+OpenAPI contracts, and frontend fetch wiring.
+
+Canonical docs:
+
+- [002 — Backend auth slice](/sdd/specs/002-backend-auth-slice)
+- [Identity context](/backend/identity/overview)
+- [Auth flow](/backend/identity/auth-flow)
+- [Backend contracts](/backend/identity/contracts)
+
+## 001 — Frontend MVP prototype
+
+<span className="cf-badge cf-badge--live">LIVE</span>
+
+The frontend MVP created the responsive Campfire app shell, auth screens,
+onboarding flow, home screen, visual system implementation, and initial Mintlify
+docs.
+
+Canonical docs:
+
+- [001 — Frontend MVP prototype](/sdd/specs/001-frontend-mvp-prototype)
+- [Frontend architecture](/get-started/architecture/frontend)
+

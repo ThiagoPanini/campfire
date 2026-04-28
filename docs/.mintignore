@@ -1,0 +1,12 @@
+node_modules/**
+apps/**
+specs/**
+tmp/**
+.agents/**
+.claude/**
+.serena/**
+.specify/**
+.vscode/**
+.git/**
+*.md
+**/*.md

@@ -1,0 +1,76 @@
+---
+title: "Spec-Kit"
+description: "How features move from idea to merged change."
+icon: "file-text"
+---
+
+<p className="cf-kicker">METHODOLOGY</p>
+
+Campfire uses [Spec-Kit](https://github.com/github/spec-kit) for spec-driven
+development. Every non-trivial feature flows through the same lifecycle so
+specs, plans, and tasks stay aligned with the [constitution](/sdd/methodology/constitution).
+
+## Lifecycle
+
+<Steps>
+  <Step title="Specify">
+    `/speckit-specify` — write or update the feature spec from a natural
+    language description. Output: `specs/<feature>/spec.md`.
+  </Step>
+  <Step title="Clarify (optional)">
+    `/speckit-clarify` — surface up to five targeted questions and fold the
+    answers back into the spec.
+  </Step>
+  <Step title="Plan">
+    `/speckit-plan` — produce the implementation plan, data model, contracts,
+    and quickstart. Output: `plan.md`, `data-model.md`, `contracts/`,
+    `quickstart.md`, `research.md`.
+  </Step>
+  <Step title="Tasks">
+    `/speckit-tasks` — generate a dependency-ordered task list. Output:
+    `tasks.md`.
+  </Step>
+  <Step title="Analyze (optional)">
+    `/speckit-analyze` — non-destructive consistency check across spec, plan,
+    and tasks.
+  </Step>
+  <Step title="Implement">
+    `/speckit-implement` — execute the tasks. Docs land in the same change
+    set per Constitution Principle V.
+  </Step>
+</Steps>
+
+## Where things live
+
+```text
+specs/<feature>/
+├── spec.md                # What and why
+├── plan.md                # How — stack, structure, constraints
+├── tasks.md               # Dependency-ordered work breakdown
+├── research.md            # Resolved technical-context unknowns
+├── data-model.md          # Entities and relationships
+├── quickstart.md          # How to run and verify the slice
+├── contracts/             # UI / API contracts for the slice
+├── checklists/            # Acceptance checklists
+└── design-reference/      # External design inputs (e.g. Claude exports)
+```
+
+## Templates
+
+The Spec-Kit templates this repo uses live under `.specify/templates/`. They
+are tuned to enforce the constitution's gates (scope, incrementality, stack,
+rigor, docs).
+
+## See also
+
+<CardGroup cols={2}>
+  <Card title="Specs index" icon="list-tree" href="/sdd/overview">
+    Current specs and implementation state.
+  </Card>
+  <Card title="Constitution" icon="scroll-text" href="/sdd/methodology/constitution">
+    The five principles every spec must respect.
+  </Card>
+  <Card title="Spec lifecycle" icon="repeat" href="/sdd/methodology/spec-lifecycle">
+    How specs move from draft to verified work.
+  </Card>
+</CardGroup>

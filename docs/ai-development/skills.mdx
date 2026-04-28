@@ -1,0 +1,51 @@
+---
+title: "Skills"
+description: "Reusable agent capabilities installed in this repo."
+icon: "puzzle"
+---
+
+<p className="cf-kicker">.claude/skills</p>
+
+Skills are reusable capabilities an agent can invoke during a session. They
+live under `.claude/skills/` (some are symlinked from `.agents/skills/` for
+sharing across tools).
+
+## Spec-Kit skills
+
+The Spec-Kit lifecycle is implemented as skills. They are the canonical way to
+move a feature from idea to merged change.
+
+| Skill | Purpose |
+| --- | --- |
+| `speckit-constitution` | Create or update the project constitution. |
+| `speckit-specify` | Draft or update a feature spec from a description. |
+| `speckit-clarify` | Ask up to five targeted clarification questions. |
+| `speckit-plan` | Generate the implementation plan and design artifacts. |
+| `speckit-tasks` | Generate a dependency-ordered `tasks.md`. |
+| `speckit-checklist` | Generate a custom acceptance checklist for the feature. |
+| `speckit-analyze` | Cross-artifact consistency check across spec / plan / tasks. |
+| `speckit-implement` | Execute the tasks defined in `tasks.md`. |
+| `speckit-taskstoissues` | Convert tasks into actionable GitHub issues. |
+| `speckit-git-initialize` | Initialize a git repository with an initial commit. |
+| `speckit-git-feature` | Create a feature branch with sequential or timestamp numbering. |
+| `speckit-git-commit` | Auto-commit changes after a Spec-Kit command completes. |
+| `speckit-git-validate` | Validate the current branch follows feature branch naming. |
+| `speckit-git-remote` | Detect the git remote URL for GitHub integration. |
+
+## Project skills
+
+| Skill | Purpose |
+| --- | --- |
+| `ai-dev-setup` | Bootstrap and harden a repo for AI-assisted development. |
+| `mintlify` | Build and maintain Mintlify documentation sites. |
+| `frontend-design` | Produce distinctive, production-grade frontend UI. |
+| `documentation-writer` | Diátaxis-driven technical writing. |
+| `folder-structure-blueprint-generator` | Document and standardize folder structures. |
+| `git-commit` | Conventional-commit message generation and intelligent staging. |
+| `caveman` | Token-efficient communication mode for agent runs. |
+
+<Note>
+  When a skill matches a request, the agent invokes it before generating any
+  other response. Skills that mutate state always describe what they will
+  change first.
+</Note>

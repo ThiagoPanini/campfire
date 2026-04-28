@@ -1,0 +1,72 @@
+---
+title: "Frontend"
+description: "React + TypeScript + Vite app under apps/web."
+icon: "monitor"
+---
+
+<p className="cf-kicker">STAGE 1 · LIVE</p>
+
+The frontend renders the Campfire MVP screens and preserves the visual system in
+`DESIGN.md`. It began as a mock-backed prototype in Spec 001; Spec 002 replaced
+the auth and preferences boundary with real backend calls.
+
+## Stack
+
+| Concern | Choice |
+| --- | --- |
+| Language | TypeScript 5.x |
+| Framework | React 19.2 |
+| Build / dev server | Vite 8 |
+| Routing | In-app routing over a small session store |
+| Styling | Plain CSS files (`tokens.css`, `global.css`, `motion.css`) |
+| State | In-memory access token and user state; `sessionStorage` for language and accent |
+| Testing | Manual acceptance — see [Quickstart](/get-started/introduction/quickstart) |
+
+## Source layout
+
+```text
+apps/web/
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+├── public/
+└── src/
+    ├── main.tsx
+    ├── app/             # App shell, routes, session store
+    ├── pages/           # Landing, SignIn, SignUp, Onboarding, Home
+    ├── features/        # Feature-scoped components and logic
+    ├── shared/          # Shared UI primitives (buttons, forms, etc.)
+    ├── theme/           # Tokens and accent presets
+    ├── styles/          # global.css, tokens.css, motion.css
+    ├── i18n/            # EN / PT-BR copy table
+    ├── api/             # Backend client boundary
+    ├── mocks/           # Legacy fixtures and seeded credential values
+    └── assets/
+```
+
+## Route map
+
+| Route | Screen | Guard |
+| --- | --- | --- |
+| `/` | Landing | Public |
+| `/signin` | Sign In | Public |
+| `/signup` | Sign Up | Public |
+| `/onboarding` | Onboarding | Session required, else redirect to `/` |
+| `/home` | Home | Session required, else redirect to `/` |
+
+## Session model
+
+- The access token lives in memory.
+- The refresh token is delivered by the backend as an HttpOnly cookie.
+- Browser refresh attempts `/auth/refresh` and keeps the user signed in when
+  the refresh cookie is valid.
+- Language and accent persist for the tab via `sessionStorage`.
+- Real OAuth is not implemented. The Google button uses the backend's
+  development-only stub endpoint.
+
+## Visual system
+
+The look is defined by [`DESIGN.md`](https://github.com/ThiagoPanini/campfire/blob/main/DESIGN.md):
+near-black surfaces, oversized condensed display type, mono uppercase labels,
+and one warm orange accent. New screens must reuse the existing tokens and
+primitives before introducing new ones.

@@ -1,0 +1,402 @@
+---
+title: "Backend architecture playbook"
+description: How a new backend feature is designed, sliced, and assembled. The practical companion to ADR-0006.
+icon: "boxes"
+sidebarTitle: "Architecture playbook"
+---
+
+<p className="cf-kicker">RECIPE · CANONICAL</p>
+
+This page is the **practical guide** for adding a new backend feature
+to Campfire. It is the companion to:
+
+- the [Constitution](/sdd/methodology/constitution) (the *what* — the
+  invariants the build will not relitigate), and
+- [ADR-0006](https://github.com/ThiagoPanini/campfire/blob/main/specs/002-backend-auth-slice/adr/0006-backend-hexagonal-ddd-pattern.md)
+  (the *why* — the decision and the alternatives that were rejected).
+
+This page is the *how*: where each file goes, what idiom to use, and
+what to do (or postpone) when the next bounded context lands.
+
+## Mental model in one paragraph
+
+Each backend feature lives inside a **bounded context**. A context is a
+self-contained unit with three layers: a `domain/` of pure dataclasses
+and `Protocol`s, an `application/` of use cases that orchestrate ports,
+and an `adapters/` folder where every framework, database driver, and
+external library actually lives. Routers, repositories, password
+hashers, token issuers, and rate limiters are all *adapters* — they
+implement domain Protocols and they are the only place imports like
+`fastapi` or `sqlalchemy` are allowed. An automated test fails the
+build if `domain/` or `application/` ever import a framework.
+
+## The non-negotiables
+
+These come from the constitution (v1.1.0) and are enforced by code, not
+by review etiquette.
+
+<CardGroup cols={2}>
+  <Card title="Slicing by bounded context" icon="layers">
+    Each context lives at `apps/api/src/campfire_api/contexts/<name>/`
+    and owns its own `domain/`, `application/`, `adapters/`.
+  </Card>
+  <Card title="Layer purity is a test" icon="shield-check">
+    `apps/api/tests/unit/test_architecture.py` walks the AST and
+    rejects banned imports inside `domain/` and `application/`.
+  </Card>
+  <Card title="Cross-context by ID only" icon="key">
+    A context never imports another context's entities, rows, or
+    repositories. Identifier value objects (e.g. `UserId`) cross.
+  </Card>
+  <Card title="Errors translate at the edge" icon="triangle-alert">
+    Use cases raise domain exceptions. One registered FastAPI handler
+    maps them to HTTP. Never `HTTPException` inside a use case.
+  </Card>
+  <Card title="Transactions have an owner" icon="database">
+    The session/Unit-of-Work is opened and committed by the adapter
+    that invoked the use case, not by the use case itself.
+  </Card>
+  <Card title="Settings and time are ports" icon="clock">
+    `SettingsProvider` and `Clock` Protocols replace `os.getenv` and
+    `datetime.utcnow()` everywhere in `domain/` and `application/`.
+  </Card>
+</CardGroup>
+
+## File map of a context
+
+```text
+apps/api/src/campfire_api/contexts/<context>/
+  domain/
+    entities.py            # @dataclass — User, Session, ...
+    value_objects.py       # @dataclass(frozen=True) — Email, UserId, ...
+    ports.py               # typing.Protocol — repositories, hashers, clocks, ...
+    events.py              # domain events (use it or delete it)
+    catalogs.py            # frozen sets, enums-as-data
+  application/
+    errors.py              # <Context>Error hierarchy
+    use_cases/
+      <use_case>.py        # @dataclass with __call__
+  adapters/
+    http/
+      routers/<area>.py    # FastAPI routers — thin
+      schemas.py           # Pydantic — only here
+      deps.py              # Depends factories
+      error_mapping.py     # <Context>Error -> HTTP
+    persistence/
+      engine.py            # SQLA async engine
+      unit_of_work.py      # session_scope context manager
+      models.py            # SQLA ORM rows (suffix *Row)
+      mappers.py           # row <-> entity (pure functions)
+      <thing>_repository.py
+    security/               # password hashing, token issuance, ...
+    rate_limiting/
+    clock/
+```
+
+## Idiom cheat sheet
+
+<AccordionGroup>
+  <Accordion title="Define a port (Protocol)" icon="plug">
+    ```python
+    # contexts/<ctx>/domain/ports.py
+    from typing import Protocol
+
+    class FooRepository(Protocol):
+        async def get_by_id(self, foo_id: FooId) -> Foo | None: ...
+        async def add(self, foo: Foo) -> None: ...
+    ```
+    No `ABC`, no `@abstractmethod`, no leading `I`. Fakes are plain
+    classes that match the shape.
+  </Accordion>
+
+  <Accordion title="Write a use case" icon="play">
+    ```python
+    # contexts/<ctx>/application/use_cases/do_thing.py
+    from dataclasses import dataclass
+
+    @dataclass
+    class DoThing:
+        repo: FooRepository
+        clock: Clock
+
+        async def __call__(self, foo_id: FooId) -> Foo:
+            foo = await self.repo.get_by_id(foo_id)
+            if foo is None:
+                raise FooNotFound()
+            ...
+            return foo
+    ```
+    Constructor lists every dependency. The body has zero framework
+    imports. Errors are domain exceptions (`FooNotFound`), never
+    `HTTPException`.
+  </Accordion>
+
+  <Accordion title="Wire a repository (adapter)" icon="database">
+    ```python
+    # contexts/<ctx>/adapters/persistence/foo_repository.py
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from .mappers import foo_from_row
+    from .models import FooRow
+
+    class SqlAlchemyFooRepository:
+        def __init__(self, session: AsyncSession) -> None:
+            self.session = session
+
+        async def get_by_id(self, foo_id: FooId) -> Foo | None:
+            row = await self.session.get(FooRow, foo_id.value)
+            return foo_from_row(row) if row else None
+    ```
+    No inheritance from a base class — duck typing satisfies the
+    Protocol.
+  </Accordion>
+
+  <Accordion title="Expose it over HTTP" icon="server">
+    ```python
+    # contexts/<ctx>/adapters/http/routers/<area>.py
+    @router.post("/things/{thing_id}/do", response_model=ThingResponse)
+    async def do_thing(
+        thing_id: UUID,
+        repos = Depends(get_repositories),
+        clock = Depends(get_clock),
+    ) -> ThingResponse:
+        result = await DoThing(repos["foos"], clock)(FooId(thing_id))
+        return ThingResponse.from_domain(result)
+    ```
+    Router constructs the use case and calls it. Domain errors
+    propagate; the registered exception handler turns them into HTTP.
+  </Accordion>
+
+  <Accordion title="Translate errors to HTTP" icon="triangle-alert">
+    ```python
+    # contexts/<ctx>/adapters/http/error_mapping.py
+    @app.exception_handler(<Context>Error)
+    async def _handle(_req, exc):
+        if isinstance(exc, FooNotFound):
+            return JSONResponse(404, {"message": "foo not found"})
+        if isinstance(exc, RateLimited):
+            return JSONResponse(429, {"message": "slow down"},
+                                headers={"Retry-After": str(exc.retry_after)})
+        return JSONResponse(500, {"message": "request failed"})
+    ```
+    One handler per context. Registered once in `main.py`.
+  </Accordion>
+</AccordionGroup>
+
+## Recipe: adding a new bounded context
+
+Use the upcoming `repertoire` context (the songs a user knows how to
+play) as the worked example. The same recipe applies to any new
+context.
+
+<Steps>
+  <Step title="Decide it is actually a new context">
+    Ask: can the rules be described without referencing another
+    context's rules? If yes, it is a new context. *"Add a song to a
+    user's repertoire with a proficiency level"* qualifies — it never
+    has to mention password hashing, refresh tokens, or rate limiting.
+  </Step>
+
+  <Step title="Create the directory skeleton">
+    ```
+    contexts/repertoire/
+      domain/{entities,value_objects,ports}.py
+      application/{errors.py,use_cases/}
+      adapters/{http,persistence}/...
+    ```
+    Mirror the `identity` layout. Skip subfolders you don't need yet
+    (no `security/`, no `rate_limiting/` until they are required).
+  </Step>
+
+  <Step title="Model the domain in pure Python">
+    ```python
+    @dataclass(frozen=True)
+    class SongId: value: UUID
+
+    @dataclass(frozen=True)
+    class ProficiencyLevel:
+        value: Literal["learning", "rough", "solid", "performance"]
+
+    @dataclass
+    class Song:
+        id: SongId
+        title: SongTitle
+        artist: ArtistName
+
+    @dataclass
+    class UserSong:        # the user-knows-song relationship
+        user_id: UserId    # imported from contexts.identity (allowed: VO)
+        song_id: SongId
+        proficiency: ProficiencyLevel
+        learned_at: datetime
+    ```
+    `UserId` is the only thing imported from `identity`. Importing
+    `User` (the entity) would be a cross-context entity import and is
+    forbidden.
+  </Step>
+
+  <Step title="Define ports">
+    ```python
+    class SongRepository(Protocol):
+        async def get_by_id(self, song_id: SongId) -> Song | None: ...
+        async def search(self, query: str, limit: int) -> list[Song]: ...
+
+    class UserSongRepository(Protocol):
+        async def list_for_user(self, user_id: UserId) -> list[UserSong]: ...
+        async def add(self, user_song: UserSong) -> None: ...
+        async def remove(self, user_id: UserId, song_id: SongId) -> None: ...
+    ```
+  </Step>
+
+  <Step title="Write use cases as dataclasses with __call__">
+    `AddSongToRepertoire`, `RemoveSongFromRepertoire`,
+    `ListUserRepertoire`, `UpdateProficiency`, `SearchSongCatalog`.
+    Each lists its dependencies (`UserSongRepository`,
+    `SongRepository`, `Clock`) in its constructor.
+  </Step>
+
+  <Step title="Implement adapters">
+    `SqlAlchemySongRepository`, `SqlAlchemyUserSongRepository`, ORM
+    rows in `models.py`, mappers in `mappers.py`. The shared
+    `engine.py` and `session_scope` either stay in `identity/` and get
+    promoted to `_shared/` (preferred — see next step), or are
+    re-imported from `identity` (acceptable as a stop-gap).
+  </Step>
+
+  <Step title="Promote shared infrastructure to _shared/">
+    The first new context is the right moment to create
+    `contexts/_shared/adapters/persistence/` and move `engine.py`
+    plus the `session_scope` (rename to a `UnitOfWork` class if a
+    non-HTTP trigger is also being added in the same slice). Each
+    context keeps its own `models.py`, `mappers.py`, repositories.
+  </Step>
+
+  <Step title="Add HTTP layer">
+    Routers under `adapters/http/routers/`, Pydantic schemas in
+    `schemas.py`, `Depends` factories in `deps.py`, an
+    `error_mapping.py` for the new `<Context>Error` hierarchy.
+  </Step>
+
+  <Step title="Register everything in main.py">
+    ```python
+    from campfire_api.contexts.repertoire.adapters.http.error_mapping \\
+        import register_repertoire_error_handlers
+    from campfire_api.contexts.repertoire.adapters.http.routers \\
+        import repertoire, songs
+
+    register_repertoire_error_handlers(app)
+    app.include_router(repertoire.router)
+    app.include_router(songs.router)
+    ```
+    No auto-discovery. The composition root is explicit and grep-able.
+  </Step>
+
+  <Step title="Add the architecture test for the new context">
+    Either extend the existing `test_architecture.py` to cover the new
+    `contexts/<ctx>/{domain,application}` paths, or add a sibling test
+    next to it. Do not skip this step.
+  </Step>
+
+  <Step title="Authenticate via Depends, not via import">
+    Endpoints that need the current user use
+    `Depends(get_current_session)` from
+    `identity/adapters/http/deps.py`. This is a permitted
+    cross-context dependency at the *adapter* layer; it does not
+    pierce the domain.
+  </Step>
+</Steps>
+
+## Cross-context dependency rules
+
+| Direction | Allowed? | Notes |
+|---|---|---|
+| `repertoire.domain` imports `identity.domain.value_objects` (e.g. `UserId`) | ✅ | Identifier VOs are the cross-context contract. |
+| `repertoire.domain` imports `identity.domain.entities` (e.g. `User`) | ❌ | Forbidden. Use the `UserId` and let `identity` own its entity. |
+| `repertoire.domain` imports `identity.application.use_cases.GetMe` | ❌ | Application is internal to the context. |
+| `repertoire.adapters.http` calls `Depends(identity.adapters.http.deps.get_current_session)` | ✅ | Adapter-to-adapter is fine; this is composition at the edge. |
+| `repertoire.adapters.persistence` reads from `identity.adapters.persistence.UserRow` | ❌ | ORM rows are internal. Cross via published interfaces only. |
+
+## Mechanical decisions already made
+
+You do not need to re-decide any of these per feature.
+
+- **Port mechanism**: `typing.Protocol`. Not `ABC`.
+- **Use case API**: `@dataclass` with `async def __call__`. Not
+  `.execute()`, not class methods.
+- **Identifiers**: frozen dataclass over `UUID`, generated
+  application-side via `uuid_utils.uuid7` with a v4 fallback
+  (ADR-0004).
+- **Time**: `Clock` Protocol everywhere. `datetime.utcnow()` is banned
+  in `domain/` and `application/`.
+- **Settings**: `SettingsProvider` Protocol everywhere. `os.getenv` is
+  banned in `domain/` and `application/`.
+- **Errors**: one `<Context>Error` base class per context, mapped to
+  HTTP by one registered handler.
+- **HTTP DTOs**: Pydantic models live only in `adapters/http/schemas.py`.
+- **ORM rows**: SQLAlchemy models live only in
+  `adapters/persistence/models.py`, suffixed with `Row`.
+
+## Refinements that are intentionally deferred
+
+These are tracked in ADR-0006 and remain *out of scope* until the
+specific trigger fires. Adopting them earlier is overengineering;
+adopting them after the trigger is on time.
+
+| Refinement | Trigger |
+|---|---|
+| Typed `IdentityRepositories` dataclass + per-use-case `Depends` factories | Adding the third use case to a context, or a router file > ~150 lines. |
+| Explicit `UnitOfWork` Protocol (in `domain/ports.py` of `_shared/`) | First non-HTTP trigger (cron, queue consumer, CLI). |
+| `PlainPassword` value object — single source of truth for password rules | Any change to password policy. |
+| Strongly-typed `AuthContext` | First endpoint that consumes its fields directly. |
+| Deciding `events.py` (use it or delete it) | First feature that needs an audit trail or notification. |
+| `contexts/_shared/` | Second bounded context lands. |
+
+## Anti-patterns to refuse
+
+If a PR proposes any of the following, push back. Each violates either
+the constitution or this playbook.
+
+- A FastAPI route function that opens a SQLAlchemy session and writes
+  to it directly (skip-all-layers).
+- A `service.py` module that wraps SQLAlchemy queries and is called
+  by the router. ("Service layer" is just a misplaced application
+  layer; put it in `application/use_cases/`.)
+- A use case that imports `fastapi`, `sqlalchemy`, `argon2`, `jose`,
+  or `os.environ`. The architecture test should already catch this.
+- A repository that returns ORM rows. Repositories return entities;
+  the mapper is what turns rows into entities.
+- A use case that returns a Pydantic model. Use cases return entities,
+  domain DTOs, or primitives. Pydantic happens at the HTTP boundary
+  only.
+- A new context that imports another context's entities or rows.
+- An auto-discovery mechanism for routers, error handlers, or
+  contexts. The composition root is explicit on purpose.
+
+## Implementation reference docs convention
+
+Each bounded context has a matching documentation group under
+`docs/backend/<context>/`. The identity context is the current worked example:
+
+| Page | Path |
+|---|---|
+| Context landing page | `docs/backend/identity/overview.mdx` |
+| Auth sequences | `docs/backend/identity/auth-flow.mdx` |
+| OpenAPI and error contract | `docs/backend/identity/contracts.mdx` |
+| Tables and migrations | `docs/backend/identity/data-persistence.mdx` |
+| Endpoint list | `docs/backend/identity/api-endpoints.mdx` |
+
+When you add a new bounded context, create a sibling directory
+`docs/backend/<context>/` with at minimum an `overview.mdx` and register it as
+a nested group in `docs/docs.json` under **IMPLEMENTATION REFERENCE > Backend**,
+following the same shape as the Identity context group.
+
+## Reference
+
+- [Constitution](/sdd/methodology/constitution) — invariants
+  (v1.1.0).
+- [ADR-0006](https://github.com/ThiagoPanini/campfire/blob/main/specs/002-backend-auth-slice/adr/0006-backend-hexagonal-ddd-pattern.md)
+  — the architecture decision and rejected alternatives.
+- Comparative review against `b3stocks`:
+  `specs/002-backend-auth-slice/analysis/architecture-review.md`.
+- Worked example: `apps/api/src/campfire_api/contexts/identity/`.
+- Architecture test: `apps/api/tests/unit/test_architecture.py`.
+- Identity context docs: [Identity context](/backend/identity/overview).

@@ -1,0 +1,15 @@
+---
+title: "ADR-0005 — LocalStack deferred"
+description: "Accepted decision to defer LocalStack until a slice depends on AWS services."
+icon: "cloud-off"
+sidebarTitle: "0005 · LocalStack"
+---
+
+<p className="cf-kicker">ADR · ACCEPTED</p>
+
+Defer LocalStack until Campfire has a real AWS-service dependency to validate.
+The identity backend uses local PostgreSQL only, so LocalStack would not prove a
+production-relevant path yet.
+
+Related: [Roadmap](/get-started/introduction/roadmap), [Infrastructure](/get-started/architecture/infrastructure).
+

@@ -1,0 +1,54 @@
+---
+title: "Workflow"
+description: "Branching, commits, PRs, and definition of done."
+icon: "git-branch"
+---
+
+<p className="cf-kicker">DAY-TO-DAY</p>
+
+## Branching
+
+- Branch off `main` per feature.
+- Name feature branches with the spec id when one exists, e.g.
+  `001-frontend-mvp-prototype`.
+- Keep branches short-lived. Rebase if `main` advances meaningfully.
+
+## Commits
+
+- Conventional-style messages are encouraged but not enforced.
+- Keep commits focused. Prefer many small commits over one giant one.
+- Never commit secrets. `.env` files are git-ignored; cloud secrets live in
+  AWS-native stores.
+
+## Pull requests
+
+- The maintainer is the sole reviewer. AI-generated changes must still be
+  read and understood before merge.
+- A PR description should answer: what changed, why, and what was manually
+  verified.
+
+## Definition of done
+
+A slice is done when:
+
+<Steps>
+  <Step title="It runs locally">
+    The change works end-to-end on the maintainer's machine.
+  </Step>
+  <Step title="Docs are updated">
+    Mintlify reflects the change in the **same** change set.
+  </Step>
+  <Step title="Applicable checks are green">
+    LocalStack and GitHub Actions paths pass — once those stages exist.
+  </Step>
+  <Step title="Tests exist where Principle IV justifies them">
+    Recurring bug class, regression risk, or logic complex enough that a test
+    is the cheapest way to reason about it.
+  </Step>
+</Steps>
+
+<Note>
+  Performance, accessibility, and observability are tracked as known gaps
+  until a real user, device, or incident forces the work. When forced, the
+  fix ships with enough instrumentation to prevent recurrence.
+</Note>

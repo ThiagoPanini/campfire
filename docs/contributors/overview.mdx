@@ -1,0 +1,43 @@
+---
+title: "Contributing"
+description: "How work gets done on Campfire — solo, AI-assisted, but reviewed."
+icon: "users"
+sidebarTitle: "Overview"
+---
+
+<p className="cf-kicker">SOLO + AI · REVIEWED</p>
+
+Campfire is built by a single maintainer with heavy AI assistance. The
+guardrails come from the [constitution](/sdd/methodology/constitution); this
+section turns those rules into day-to-day practice.
+
+## Operating rules
+
+<CardGroup cols={2}>
+  <Card title="One reviewer" icon="user-check">
+    The maintainer is the sole reviewer. AI-generated diffs are read and
+    understood before they land.
+  </Card>
+  <Card title="Thin slices" icon="layers">
+    Ship in slices that are demonstrable end-to-end, even if data is mocked.
+  </Card>
+  <Card title="Docs in the same change" icon="file-text">
+    Every user-facing or architectural change updates Mintlify docs in the
+    same commit. No "docs PR later".
+  </Card>
+  <Card title="Proportional rigor" icon="scale">
+    Tests, observability, and process show up when a real trigger justifies
+    them — not preemptively.
+  </Card>
+</CardGroup>
+
+## Where to look
+
+<CardGroup cols={2}>
+  <Card title="Workflow" icon="git-branch" href="/contributors/workflow">
+    Branching, commits, PRs, definition of done.
+  </Card>
+  <Card title="Code style" icon="code" href="/contributors/code-style">
+    Formatting, naming, and language-specific rules.
+  </Card>
+</CardGroup>

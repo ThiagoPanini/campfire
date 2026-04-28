@@ -1,0 +1,33 @@
+---
+title: "Infrastructure"
+description: "AWS-native infra defined in Terraform, validated locally with LocalStack."
+icon: "cloud"
+---
+
+<p className="cf-kicker">STAGES 3-4 · PLANNED</p>
+
+<span className="cf-badge cf-badge--planned">PLANNED</span> Infrastructure work
+starts after the backend slice is usable. The shape is locked by the
+[constitution](/sdd/methodology/constitution).
+
+## Locked choices
+
+| Concern | Choice |
+| --- | --- |
+| Cloud provider | AWS |
+| Provisioning | Terraform |
+| Local validation | Docker + LocalStack |
+| Secrets — local | `.env` files excluded by `.gitignore` |
+| Secrets — cloud | AWS-native secret stores |
+| Environment parity | Cloud parity is a goal, not a gate |
+
+## What lands here next
+
+- Terraform module layout (`infra/` or equivalent).
+- LocalStack docker-compose and the parity checklist it covers.
+- Environment matrix (dev / staging / prod) and the promotion model.
+- Cost and footprint expectations for the alpha phase.
+
+Until that slice starts, implementation status is tracked in
+[Current status](/get-started/introduction/current-status) and roadmap intent in
+[Roadmap](/get-started/introduction/roadmap).
