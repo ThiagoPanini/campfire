@@ -4,12 +4,11 @@ import { translate } from "@i18n";
 import { Nav } from "@shared/components/Nav";
 import { HomePage } from "@pages/HomePage";
 import { LandingPage } from "@pages/LandingPage";
-import { OnboardingPage } from "@pages/OnboardingPage";
 import { RepertoirePage } from "@pages/RepertoirePage";
 import { SignInPage } from "@pages/SignInPage";
 import { SignUpPage } from "@pages/SignUpPage";
 import { RequireAuth } from "./router/guards";
-import { pathToRoute, routeToPath, type RouteId } from "./router/routes";
+import { isStaleOnboardingPath, pathToRoute, routeToPath, type RouteId } from "./router/routes";
 
 export function App() {
   const session = useSessionStore();
@@ -33,8 +32,19 @@ export function App() {
     document.documentElement.style.setProperty("--cf-accent-dark", session.accentPreset.dark);
   }, [session.accentPreset]);
 
+  useEffect(() => {
+    if (session.currentUser && route === "landing") {
+      navigate("home", true);
+    }
+  }, [navigate, route, session.currentUser]);
+
+  useEffect(() => {
+    if (!isStaleOnboardingPath(window.location.pathname)) return;
+    navigate(session.currentUser ? "home" : "landing", true);
+  }, [navigate, session.currentUser]);
+
   const t = translate(session.language);
-  const isProtected = route === "home" || route === "repertoire" || route === "onboarding";
+  const isProtected = route === "home" || route === "repertoire";
   const navAction = route === "landing"
     ? <button className="nav-button" onClick={() => navigate("signin")}>{t.nav.signin}</button>
     : isProtected
@@ -66,26 +76,15 @@ export function App() {
             language={session.language}
             onSubmit={async (email, password) => {
               const ok = await session.signUp(email, password);
-              if (ok) navigate("onboarding");
+              if (ok) navigate("home");
               return ok;
             }}
             onGoogle={async () => {
               const ok = await session.signUpWithGoogle();
-              if (ok) navigate("onboarding");
+              if (ok) navigate("home");
               return ok;
             }}
             onSwap={() => navigate("signin")}
-          />
-        );
-      case "onboarding":
-        return (
-          <OnboardingPage
-            language={session.language}
-            preferences={session.preferences}
-            onSave={async (preferences) => {
-              if (await session.savePreferences(preferences)) navigate("home");
-            }}
-            onSkip={() => navigate("home")}
           />
         );
       case "home":
@@ -93,10 +92,8 @@ export function App() {
           <HomePage
             language={session.language}
             user={session.currentUser}
-            preferences={session.preferences}
-            authMode={session.authMode}
-            onUpdatePreferences={() => navigate("onboarding")}
             onRepertoire={() => navigate("repertoire")}
+            onAddSong={() => navigate("repertoire")}
           />
         ) : null;
       case "repertoire":

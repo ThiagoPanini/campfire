@@ -10,5 +10,5 @@ Pages, components, hooks, and shared modules must never import from `@mocks/*`. 
 
 ## Layout
 
-- `fixtures/` — typed seed data (users, preferences, future song catalogs).
+- `fixtures/` — typed seed data (users, future song catalogs).
 - `handlers/` — reserved for MSW request handlers when integration tests or Storybook need them.
