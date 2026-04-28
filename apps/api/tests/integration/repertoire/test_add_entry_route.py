@@ -87,12 +87,12 @@ class TestAddEntryRoute:
         _, headers = await login(client)
         await client.post(
             "/repertoire/entries",
-            json={**WONDERWALL_PAYLOAD, "instrument": "Guitar"},
+            json={**WONDERWALL_PAYLOAD, "instrument": "Acoustic Guitar"},
             headers=headers,
         )
         await client.post(
             "/repertoire/entries",
-            json={**WONDERWALL_PAYLOAD, "instrument": "Piano / Keys"},
+            json={**WONDERWALL_PAYLOAD, "instrument": "Electric Guitar"},
             headers=headers,
         )
         engine = create_async_engine(database_url)

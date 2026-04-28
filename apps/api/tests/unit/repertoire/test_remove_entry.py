@@ -67,7 +67,7 @@ class TestRemoveEntry:
             song_album=None,
             song_release_year=None,
             song_cover_art_url=None,
-            instrument="Guitar",
+            instrument="Acoustic Guitar",
             proficiency="practicing",
         )
         uc = RemoveEntry(repo)
@@ -89,7 +89,7 @@ class TestRemoveEntry:
             song_album=None,
             song_release_year=None,
             song_cover_art_url=None,
-            instrument="Guitar",
+            instrument="Acoustic Guitar",
             proficiency="practicing",
         )
         uc = RemoveEntry(repo)
@@ -117,7 +117,7 @@ class TestRemoveEntry:
             song_album=None,
             song_release_year=None,
             song_cover_art_url=None,
-            instrument="Guitar",
+            instrument="Acoustic Guitar",
             proficiency="practicing",
         )
         entry1, _ = await add_uc.execute(**payload)

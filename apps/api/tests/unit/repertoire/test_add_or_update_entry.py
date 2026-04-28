@@ -63,7 +63,7 @@ def _base_payload(**overrides) -> dict:
         song_album="(What's the Story) Morning Glory?",
         song_release_year=1995,
         song_cover_art_url="https://cdn.deezer.com/cover.jpg",
-        instrument="Guitar",
+        instrument="Acoustic Guitar",
         proficiency="practicing",
     )
     defaults.update(overrides)
@@ -113,6 +113,6 @@ class TestAddOrUpdateEntry:
         repo = FakeRepo()
         uc = AddOrUpdateEntry(repo, FakeClock())
         user_id = uuid4()
-        await uc.execute(**_base_payload(user_id=user_id, instrument="Guitar"))
-        await uc.execute(**_base_payload(user_id=user_id, instrument="Piano / Keys"))
+        await uc.execute(**_base_payload(user_id=user_id, instrument="Acoustic Guitar"))
+        await uc.execute(**_base_payload(user_id=user_id, instrument="Electric Guitar"))
         assert len(repo._entries) == 2

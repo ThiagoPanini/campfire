@@ -10,7 +10,7 @@ async def test_preferences_ignores_body_user_id(client) -> None:
     response = await client.patch(
         "/me/preferences",
         headers=headers,
-        json={"userId": "someone-else", "instruments": ["Guitar"], "genres": [], "goals": []},
+        json={"userId": "someone-else", "instruments": ["Acoustic Guitar"], "genres": [], "goals": []},
     )
     assert response.status_code == 200
     assert "someone-else" not in response.text

@@ -26,7 +26,7 @@ def test_password_length_floor() -> None:
 
 def test_preferences_catalog_membership() -> None:
     profile = PreferencesProfile(
-        UserId.new(), instruments=["Guitar"], genres=["Rock"], context="friends"
+        UserId.new(), instruments=["Acoustic Guitar", "I don't play"], genres=["Rock"], context="friends"
     )
     profile.validate_catalogs()
     bad = PreferencesProfile(UserId.new(), instruments=["Theremin"])

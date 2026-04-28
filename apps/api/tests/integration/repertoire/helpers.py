@@ -16,6 +16,6 @@ WONDERWALL_PAYLOAD = {
     "songAlbum": "(What's the Story) Morning Glory?",
     "songReleaseYear": 1995,
     "songCoverArtUrl": "https://cdn.deezer.com/images/cover/wonderwall.jpg",
-    "instrument": "Guitar",
+    "instrument": "Acoustic Guitar",
     "proficiency": "practicing",
 }

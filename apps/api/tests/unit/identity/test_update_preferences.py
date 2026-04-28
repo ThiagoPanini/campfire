@@ -32,9 +32,9 @@ async def setup_user():
 async def test_update_preferences_happy_path_flips_first_login() -> None:
     users, preferences, clock, user = await setup_user()
     profile = await UpdatePreferences(users, preferences, clock)(
-        user.id, ["Guitar"], ["Rock"], "friends", ["Track my full repertoire"], "intermediate"
+        user.id, ["Acoustic Guitar"], ["Rock"], "friends", ["Track my full repertoire"], "intermediate"
     )
-    assert profile.instruments == ["Guitar"]
+    assert profile.instruments == ["Acoustic Guitar"]
     assert (await users.get_by_id(user.id)).first_login is False
 
 

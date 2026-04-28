@@ -21,7 +21,7 @@ def _entry(user_id: UUID, created_at: datetime, **kwargs) -> RepertoireEntry:
         song_album=None,
         song_release_year=None,
         song_cover_art_url=None,
-        instrument="Guitar",
+        instrument="Acoustic Guitar",
         proficiency="practicing",
         created_at=created_at,
         updated_at=created_at,

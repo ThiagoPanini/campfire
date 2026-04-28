@@ -79,7 +79,7 @@ async def reset_db(database_url: str) -> AsyncIterator[None]:
                 INSERT INTO preferences (user_id, instruments, genres, context, goals, experience)
                 VALUES (
                   :id,
-                  '["Guitar","Vocals"]'::jsonb,
+                  '["Acoustic Guitar","Vocals"]'::jsonb,
                   '["Rock","MPB","Bossa Nova"]'::jsonb,
                   'friends',
                   '["Track my full repertoire","Share my set with the group"]'::jsonb,

@@ -36,8 +36,8 @@ class TestSongExternalId:
 
 class TestInstrument:
     def test_accepts_valid_instrument(self) -> None:
-        obj = Instrument("Guitar")
-        assert obj.value == "Guitar"
+        obj = Instrument("Acoustic Guitar")
+        assert obj.value == "Acoustic Guitar"
 
     def test_rejects_unknown_instrument(self) -> None:
         with pytest.raises(InstrumentUnknown):

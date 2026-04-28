@@ -29,7 +29,7 @@ class TestListRoute:
         app.dependency_overrides[get_song_catalog] = lambda: FakeSongCatalog()
 
         _, headers = await login(client)
-        for instrument in ["Guitar", "Piano / Keys", "Bass"]:
+        for instrument in ["Acoustic Guitar", "Piano / Keys", "Bass"]:
             await client.post(
                 "/repertoire/entries",
                 json={**WONDERWALL_PAYLOAD, "instrument": instrument},

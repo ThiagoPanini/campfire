@@ -59,7 +59,7 @@ def _stored_entry(repo: FakeRepo, user_id: UUID) -> RepertoireEntry:
         song_album=None,
         song_release_year=None,
         song_cover_art_url=None,
-        instrument="Guitar",
+        instrument="Acoustic Guitar",
         proficiency="learning",
         created_at=_BASE_TS,
         updated_at=_BASE_TS,

@@ -10,7 +10,7 @@ pytestmark = pytest.mark.integration
 async def test_preferences_happy_path(client) -> None:
     _response, headers = await login(client)
     payload = {
-        "instruments": ["Guitar"],
+        "instruments": ["Acoustic Guitar"],
         "genres": ["Rock"],
         "context": "friends",
         "goals": ["Track my full repertoire"],
@@ -62,7 +62,7 @@ async def test_preferences_unknown_id_zero_change(client) -> None:
     )
     assert response.status_code == 422
     me = await client.get("/me", headers=headers)
-    assert me.json()["preferences"]["instruments"] == ["Guitar", "Vocals"]
+    assert me.json()["preferences"]["instruments"] == ["Acoustic Guitar", "Vocals"]
 
 
 async def test_preferences_nullable_shapes(client) -> None:

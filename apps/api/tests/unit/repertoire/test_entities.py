@@ -20,7 +20,7 @@ def _entry(**kwargs) -> RepertoireEntry:
         song_album="(What's the Story) Morning Glory?",
         song_release_year=1995,
         song_cover_art_url="https://cdn.deezer.com/cover.jpg",
-        instrument="Guitar",
+        instrument="Acoustic Guitar",
         proficiency="practicing",
         created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
         updated_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
