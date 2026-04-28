@@ -1,18 +1,23 @@
-**Project Name**: Campfire
+**Project**: Campfire — private music hub for small, informal music circles. Solo-builder MVP; AI-heavy workflow.
 
-**Purpose**: Frontend-only web app prototype that turns the Claude Design `campfire-v3` export into a real, responsive web application. It covers Landing, Sign In, Sign Up, Onboarding, and Home pages for tracking songs users know and sharing with others.
+**Three sanctioned MVP user jobs** (constitution Principle I — anything else is out of scope until amended):
+1. record songs a user already knows
+2. capture songs the user is still learning
+3. share that repertoire with a small circle
 
-**Key Characteristics**:
-- Frontend prototype (no backend, no real OAuth, no persistence across refresh)
-- In-memory React state for auth user and preferences
-- Session storage only for language and accent preset
-- Manual acceptance testing (automated tests deferred)
-- Responsive design from 360px to 1440px viewports
-- Multi-language support (EN/PT) with 5 accent presets
-- Respects `prefers-reduced-motion: reduce` for accessibility
+**Repo shape** (monorepo, NOT frontend-only — older memories that say "frontend-only prototype" are wrong):
 
-**Authoritative Design Inputs**:
-- `specs/001-frontend-mvp-prototype/design-reference/project/Campfire Landing.html`
-- `specs/001-frontend-mvp-prototype/design-reference/project/src/*` (richer modular app files)
-- `specs/001-frontend-mvp-prototype/design-reference/chats/chat1.md` (design intent)
-- Root `DESIGN.md` (fallback for Home details)
+```
+apps/
+├── api/   # Python 3.12 FastAPI backend (uv-managed)
+└── web/   # React 19 + Vite + TypeScript SPA
+docs/      # Mintlify docs-as-code (mint dev)
+specs/     # Spec Kit feature folders (NNN-slug/)
+.specify/  # Spec Kit templates + constitution
+```
+
+**Active feature branch (as of last session)**: `003-repertoire-song-entry`. Authoritative plan for the in-flight slice is always pointed to by `AGENTS.md` (and its `CLAUDE.md` symlink) inside the `<!-- SPECKIT START --> … <!-- SPECKIT END -->` markers — re-read that block whenever the branch changes.
+
+**Backend bounded contexts shipped**: `identity` (auth, sessions, preferences) and `repertoire` (song catalog search via Deezer + per-user entries). Both live under `apps/api/src/campfire_api/contexts/<name>/{domain,application,adapters}/`.
+
+**Frontend feature slices shipped**: `auth/`, `onboarding/`, `repertoire/` under `apps/web/src/features/`.

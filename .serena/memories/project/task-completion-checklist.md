@@ -1,29 +1,20 @@
-**When Completing a Task**:
+**Backend changes (`apps/api/`)**:
+1. `make lint` — ruff (incl. banned-imports) must pass. New adapter folders need an entry in `[tool.ruff.lint.per-file-ignores]`.
+2. `make test-unit` — fast, no Docker. Architecture test must stay green (it walks all `contexts/*` automatically; banned imports are `fastapi/sqlalchemy/argon2/jose/httpx` in `domain/`+`application/`).
+3. `make test-integration` — Testcontainers Postgres. Slow but mandatory before declaring done. If Docker is unavailable, set `SKIP_DB_TESTS=1` to skip — do not silently disable.
+4. If routes changed: `make openapi-snapshot` and review the diff in `specs/NNN-slug/contracts/openapi.json`. The contract test fails CI on drift.
+5. New error type? Add it to the `<Context>Error` hierarchy AND to `adapters/http/error_mapping.py`. Never raise `HTTPException` from a use case.
+6. New env var? Add to `SettingsProvider` Protocol, `EnvSettings`, `EnvSettingsProvider`, and `.env.example`.
+7. Migration? Hand-write under `apps/api/alembic/versions/00NN_<slug>.py`. Both `upgrade()` and `downgrade()`. No autogenerate without review.
 
-1. **Code Quality**:
-   - Ensure TypeScript strict mode compliance (no `any` types)
-   - Follow component naming conventions (PascalCase)
-   - Maintain CSS structure (no inline styles unless necessary)
+**Frontend changes (`apps/web/`)**:
+1. `npm run typecheck` — `tsc -b` strict, no `any`.
+2. `npm run build` — full Vite build; verifies tree-shaking + asset wiring.
+3. Manual quickstart: walk through `specs/NNN-slug/quickstart.md` end-to-end at 360px and 1440px. This is the gate (no automated UI tests by design — Principle IV).
+4. Strings touched? EN AND PT updated in the same commit.
+5. New top-level src dir? Register the alias in BOTH `vite.config.ts` and `tsconfig.json`.
 
-2. **Testing & Verification**:
-   - Manual acceptance: test feature across responsive viewports (360px, mobile, desktop)
-   - Test multi-language support if copy is affected
-   - Test accent preset variations if styling is affected
-   - Verify no network requests during documented journeys
-   - Check `prefers-reduced-motion: reduce` behavior if motion/transitions added
-
-3. **Before Committing**:
-   - Run `npm run build` to verify TypeScript compilation
-   - Check for any type errors or warnings
-   - Update relevant documentation in `specs/` or `docs/` if needed
-   - Use /git-commit skill for organized, conventional commits
-
-4. **Documentation**:
-   - Update Mintlify docs if feature/behavior changes
-   - Update design reference notes if new patterns emerge
-   - Keep specs in sync with implementation
-
-5. **Performance**:
-   - Verify first journey remains usable in under 90 seconds
-   - Ensure route transitions feel instant
-   - Check for unnecessary re-renders in components
+**Always**:
+- Mintlify docs in `docs/` updated in the same change set if user-facing or architectural (constitution Principle V).
+- `quickstart.md` in `specs/NNN-slug/` matches what a fresh checkout would do.
+- Use `/git-commit` skill for conventional, scoped commits (existing convention: `feat(api):`, `feat(web):`, `style(web):`, `test(api):`).
