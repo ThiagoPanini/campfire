@@ -30,15 +30,10 @@ def create_app(settings: SettingsProvider | None = None) -> FastAPI:
 
     app.add_middleware(RequestIdMiddleware)
 
-    # Starlette middleware must be registered during construction. Settings are
-    # env-backed in v1, so this synchronous unwrap is safe for app assembly.
-    import asyncio
-
-    try:
-        asyncio.get_running_loop()
-        origins = ["http://localhost:5173"]
-    except RuntimeError:
-        origins = list(asyncio.run(provider.cors_origins()))
+    # Starlette middleware must be registered during construction. CORS origins
+    # are env-backed, so read them synchronously even when tests construct the app
+    # inside an already-running event loop.
+    origins = list(provider.cors_origins_sync())
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
