@@ -12,13 +12,13 @@ Render Static Site
   -> Render PostgreSQL
 ```
 
-O app e deployavel, mas eu nao colocaria em producao sem tres ajustes antes:
+O app e deployavel, mas eu nao colocaria em producao sem estes ajustes antes:
 
 | Bloqueador | Evidencia | Acao |
 |---|---|---|
-| URL do Postgres do Render nao casa diretamente com asyncpg | O app espera `postgresql+asyncpg://...` em `apps/api/src/campfire_api/settings.py`; Render fornece URL interna no formato `postgresql://...` segundo a doc de Render Postgres. | Normalizar a URL no codigo ou configurar manualmente `DATABASE_URL` com `postgresql+asyncpg://...`. |
-| Seed de usuario demo entra via migration | `apps/api/alembic/versions/0002_seed_ada.py` insere `ada@campfire.test` com credencial conhecida. | Remover da cadeia antes do primeiro deploy real ou adicionar migration que remove/desativa o usuario demo. |
-| Exemplos de env estao ignorados pelo Git | `.gitignore` ignora `.env*`; `apps/api/.env.example` e `apps/web/.env.local.example` existem localmente, mas nao estao versionados. | Ajustar `.gitignore` e versionar exemplos sem segredos. |
+| URL do Postgres do Render nao casa diretamente com asyncpg | Render fornece URL interna no formato `postgresql://...`; SQLAlchemy async usa `asyncpg`. | Normalizar a URL no codigo para `postgresql+asyncpg://...`. |
+| Refresh cookie pode nao persistir cross-origin | Login e google-stub recebem `Set-Cookie`; o browser so aceita cookie cross-origin quando a chamada usa credentials. | Garantir `credentials: "include"` nos endpoints de auth. |
+| Exemplos de env estao ignorados pelo Git | `.gitignore` ignorava `.env*`; `apps/api/.env.example` e `apps/web/.env.local.example` precisam ser versionados. | Ajustar `.gitignore` e versionar exemplos sem segredos. |
 
 Estrategia recomendada: primeiro deploy manual pelo Render Dashboard, com backend pago minimo para usar pre-deploy migrations com seguranca; depois migrar para `render.yaml`.
 
@@ -30,12 +30,12 @@ Estrategia recomendada: primeiro deploy manual pelo Render Dashboard, com backen
 | Frontend | SPA Vite. Build real: `npm run build` passou e gerou `apps/web/dist`. Script em `package.json`. |
 | Backend | FastAPI app em `apps/api/src/campfire_api/main.py`, com rotas `/healthz`, `/readyz`, auth e repertoire. |
 | Banco | PostgreSQL obrigatorio: docker local so tem Postgres 16 em `docker-compose.yml`; runtime usa `create_async_engine` com `DATABASE_URL`. |
-| Migracoes | Alembic head e `0004_remove_identity_preferences`; migration `0004` e destrutiva para preferences e `users.first_login`. |
+| Migracoes | Alembic head real: `0002_repertoire_initial`. Nao ha migration de seed Ada no branch atual. |
 | API externa | Deezer via `httpx` para `{DEEZER_BASE_URL}/search` em `deezer_song_catalog.py`. |
-| Integracao frontend-backend | O cliente usa `VITE_API_URL`, default `localhost:8000`, em `apps/web/src/api/client.ts`. Repertoire tambem chama API real, mas tem um `fetch` direto em `repertoire.api.ts`. |
+| Integracao frontend-backend | O cliente usa `VITE_API_URL`, default `localhost:8000`, em `apps/web/src/api/client.ts`. Repertoire deve passar pelo cliente comum para reaproveitar auth/refresh. |
 | Mocks | Repertoire so usa mock se `VITE_API_URL === "mock://repertoire"` em `repertoire.store.ts`. |
 | Ausentes | Root `README.md`, `render.yaml`, Dockerfile, `.github/workflows` e `apps/web/package.json` nao foram encontrados. Nenhum e obrigatorio para Render, mas `render.yaml`, CI e docs de deploy sao recomendaveis. |
-| Validacao local | Frontend build passou. Backend importou e expos `/healthz`, `/readyz`, `/me`. Unit tests: `78 passed`. `ruff check` falha com 37 issues. Migracoes contra Postgres nao foram validadas porque o Docker daemon local nao estava ativo. |
+| Validacao local | Frontend build passou. Backend importou e expos `/healthz`, `/readyz`, `/me`. Unit tests: `81 passed`. `ruff check` global ainda falha em issues preexistentes fora do patch de deploy. Migracoes contra Postgres nao foram validadas porque o Docker daemon local nao estava ativo. |
 
 ## 3. Recommended Render Architecture
 
@@ -73,12 +73,12 @@ Fontes oficiais:
 
 | Priority | Change | File/Path | Required? | Reason | Suggested Implementation | Risk if Ignored |
 |---|---|---|---|---|---|---|
-| Required before deploy | Ajustar `DATABASE_URL` para Render | `apps/api/src/campfire_api/settings.py` | Sim | Render fornece `postgresql://`, app espera `postgresql+asyncpg://`. | Adicionar normalizador para `postgresql://` -> `postgresql+asyncpg://` ou configurar manualmente a URL ja normalizada. | Backend e Alembic podem falhar ao conectar. |
-| Required before production | Remover seed demo | `apps/api/alembic/versions/0002_seed_ada.py` | Sim para publico | Migration cria usuario demo com hash conhecido. | Como app ainda nao foi deployado, reescrever migration ou criar `0005_remove_demo_seed`. | Conta conhecida em producao. |
+| Required before deploy | Ajustar `DATABASE_URL` para Render | `apps/api/src/campfire_api/settings.py` | Sim | Render fornece `postgresql://`, app precisa de `postgresql+asyncpg://` para SQLAlchemy async. | Adicionar normalizador para `postgresql://` -> `postgresql+asyncpg://`. | Backend e Alembic podem falhar ao conectar. |
+| Required before deploy | Persistir refresh cookie cross-origin | `apps/web/src/api/client.ts` | Sim | Auth em dominios Render distintos depende de credentials no fetch para aceitar `Set-Cookie`. | Usar `credentials: "include"` para endpoints `/auth/*`. | Reload perde sessao. |
 | Required before deploy | Definir Python do Render | Backend env | Sim | Render default atual pode nao respeitar `>=3.12,<3.13` sem configuracao explicita. | `PYTHON_VERSION=3.12.3` ou adicionar `.python-version` em `apps/api`. | Build falha por versao incompatvel. |
 | Required before deploy | Comando de producao sem reload | Render backend | Sim | `make run` usa `--reload` e porta 8000. | `uv run uvicorn campfire_api.main:app --host 0.0.0.0 --port $PORT`. | Render nao roteia ou processo fica em modo dev. |
-| Required before deploy | Versionar env examples | `.gitignore`, env examples | Sim | `.env*` ignora exemplos. | Trocar para ignorar `.env`/`.env.local` e permitir `!.env.example`, `!.env.local.example`. | Deploy depende de conhecimento local nao versionado. |
-| Strongly recommended | Centralizar fetch do repertoire | `apps/web/src/features/repertoire/api/repertoire.api.ts` | Forte | `addOrUpdateEntry` bypassa `request()`, refresh/retry e credentials. | Fazer `request<Entry>` retornar tambem header/action ou adicionar helper no cliente. | Sessoes expiram em fluxo de adicionar musica. |
+| Required before deploy | Versionar env examples | `.gitignore`, env examples | Sim | `.env*` ignora exemplos. | Permitir `!.env.example` e exemplos por app. | Deploy depende de conhecimento local nao versionado. |
+| Strongly recommended | Centralizar fetch do repertoire | `apps/web/src/features/repertoire/api/repertoire.api.ts` | Forte | `addOrUpdateEntry` bypassava `request()`, refresh/retry e URL centralizada. | Fazer a chamada pelo cliente comum e preservar o header `X-Repertoire-Action`. | Sessoes expiram em fluxo de adicionar musica. |
 | Strongly recommended | Cookie policy configuravel | `auth.py`, settings | Forte | Cookie hardcoded `SameSite=Lax`, `Secure` so com `ENV=prod`. | Adicionar `REFRESH_COOKIE_SAMESITE`, manter `Secure=true` em prod, usar dominio customizado compartilhado. | Login/refresh pode falhar entre dominios distintos. |
 | Strongly recommended | Corrigir CORS app factory | `main.py` | Forte | Se houver loop rodando, origens viram localhost. | Resolver settings de forma sincrona no construtor ou instanciar `EnvSettings` diretamente. | CORS incorreto em testes/contexts async. |
 | Strongly recommended | Corrigir lint | `apps/api/src`, `tests` | Forte | `ruff check` falhou com 37 issues. | Rodar `ruff check --fix`, revisar nao-fixaveis. | CI/deploy gates futuros quebram. |
@@ -89,7 +89,7 @@ Fontes oficiais:
 
 | Variable | Service | Required? | Production Recommendation | Render Configuration Location | Notes |
 |---|---|---|---|---|---|
-| `DATABASE_URL` | API | Sim | URL interna Render Postgres convertida para `postgresql+asyncpg://...` | API env | Codigo le em `settings.py`. |
+| `DATABASE_URL` | API | Sim | URL interna Render Postgres, pode ser `postgresql://...` | API env | Codigo normaliza para `postgresql+asyncpg://...`. |
 | `PYTHON_VERSION` | API | Sim | `3.12.3` | API env | Necessario por `requires-python >=3.12,<3.13`. |
 | `UV_VERSION` | API | Opcional | Fixar versao, ex. `0.11.7` | API env | Render suporta versionar uv. |
 | `ACCESS_TOKEN_TTL_SECONDS` | API | Sim | `900` | API env/env group | Default local ja e 900. |
@@ -111,7 +111,6 @@ Fontes oficiais:
 | `VITE_API_URL` | Web | Sim | URL publica HTTPS da API | Static Site env | Usado em build time pelo Vite. |
 | `VITE_AUTH_FALLBACK` | Web | Nao | Nao configurar | Static Site env | Fallback sessionStorage parece incompleto e tem risco XSS. |
 | `NODE_VERSION` | Web | Recomendado | Fixar versao compativel com Vite 8, ex. Node 24 usado localmente | Static Site env | Evita drift do runtime Node. |
-| `JWT_SECRET` | API | Nao atualmente | Remover do example ou implementar JWT de fato | Nenhum | Aparece no `.env.example` local, mas nao e usado. Tokens sao opacos. |
 
 ## 6. Frontend Deployment Plan
 
@@ -231,9 +230,9 @@ Render documenta `rootDir`, `staticPublishPath`, `healthCheckPath` e Blueprints 
 ### Phase 1 — Repository Preparation
 
 1. Corrigir `.gitignore` para versionar `.env.example`.
-2. Remover `JWT_SECRET` do example ou marcar como nao usado.
+2. Remover variaveis nao usadas dos exemplos de ambiente.
 3. Adicionar `PYTHON_VERSION=3.12.3` a configuracao Render.
-4. Corrigir/decidir seed Ada.
+4. Confirmar que seed Ada continua fora do fluxo produtivo.
 5. Normalizar `DATABASE_URL` ou documentar conversao manual para asyncpg.
 6. Trocar o `fetch` direto de repertoire para o cliente central.
 7. Definir cookie/CORS para o dominio escolhido.
@@ -327,11 +326,11 @@ Render documenta `rootDir`, `staticPublishPath`, `healthCheckPath` e Blueprints 
 | Health endpoints | Ready |
 | Deezer integration | Ready |
 | Render native deployment, no Docker | Ready |
-| Env inventory | Partial |
-| Env examples versioned | Missing |
-| DB URL compatibility with Render | Partial |
+| Env inventory | Ready |
+| Env examples versioned | Ready |
+| DB URL compatibility with Render | Ready |
 | Migration strategy | Partial |
-| Production seed policy | Missing |
+| Production seed policy | Ready: no seed migration in current head |
 | CI/CD | Missing |
 | Backups | Missing until paid DB |
 | Cookie/domain production policy | Partial |
@@ -342,8 +341,7 @@ Render documenta `rootDir`, `staticPublishPath`, `healthCheckPath` e Blueprints 
 
 | Risk | Probability | Impact | Mitigation | Priority |
 |---|---|---|---|---|
-| `DATABASE_URL` incompativel | Alta | Alto | Normalizar scheme ou configurar URL asyncpg | P0 |
-| Usuario demo em producao | Alta se migrar como esta | Alto | Remover/desativar seed Ada | P0 |
+| `DATABASE_URL` incompativel | Alta | Alto | Normalizar scheme no settings provider | P0 |
 | Cookie refresh falhar cross-domain | Media | Alto | Dominio customizado compartilhado ou SameSite configuravel | P1 |
 | Migrations no start command | Media | Medio | Usar pre-deploy pago | P1 |
 | Free tier causar cold starts/DB expirada | Alta em free | Alto | Paid Starter para API/DB | P1 |
@@ -353,7 +351,7 @@ Render documenta `rootDir`, `staticPublishPath`, `healthCheckPath` e Blueprints 
 
 ## 13. Final Recommendation
 
-Render e um bom fit para este repositorio porque o app ja se separa naturalmente em Static Site, Web Service e Postgres. O caminho mais rapido e seguro e: corrigir `DATABASE_URL`, remover a seed Ada, versionar env examples, criar Postgres no Render, subir a API com pre-deploy migration e depois publicar o frontend como Static Site com rewrite SPA.
+Render e um bom fit para este repositorio porque o app ja se separa naturalmente em Static Site, Web Service e Postgres. O caminho mais rapido e seguro e: manter `DATABASE_URL` normalizado no codigo, versionar env examples, criar Postgres no Render, subir a API com pre-deploy migration e depois publicar o frontend como Static Site com rewrite SPA.
 
 Nao vale overengineering agora: nao precisa Docker, Redis, worker, cron, Terraform, private service para API, nem disco persistente. Revisit apos validacao do MVP: `render.yaml`, staging, CI completo, preview environments, dominio customizado, politica de cookie mais robusta e pooling/conexoes conforme trafego.
 

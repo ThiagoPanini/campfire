@@ -1,4 +1,4 @@
-import { request } from "@api/client";
+import { ApiError, request, requestResponse } from "@api/client";
 import type { Entry, Instrument, ProficiencyLevel, RepertoireAction, SearchResult } from "../types";
 
 type SearchResultRaw = {
@@ -65,21 +65,12 @@ export async function addOrUpdateEntry(payload: {
   instrument: Instrument;
   proficiency: ProficiencyLevel;
 }): Promise<AddOrUpdateResult> {
-  const response = await fetch(
-    `${import.meta.env.VITE_API_URL ?? "http://localhost:8000"}/repertoire/entries`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${(await import("@api/client")).getAccessToken() ?? ""}`,
-      },
-      body: JSON.stringify(payload),
-    },
-  );
-
+  const response = await requestResponse("/repertoire/entries", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
   const body = await response.json();
   if (!response.ok) {
-    const { ApiError } = await import("@api/client");
     throw new ApiError(response.status, body?.detail?.message ?? body?.message ?? "Request failed");
   }
 
