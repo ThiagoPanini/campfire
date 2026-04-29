@@ -1,0 +1,240 @@
+---
+title: CI/CD Operations
+description: GitHub Actions, Render deploy hooks, branch promotion, secrets, probes, rollback, and troubleshooting.
+---
+
+## Operating Model
+
+Campfire deploys through GitHub Actions only. Render auto-deploy must stay disabled on every API and Web service. Branch flow is:
+
+```text
+feature branch -> staging -> main
+```
+
+- Feature branches named `###-feature-name` open or update one PR into `staging`.
+- PRs into `staging` and `main`, plus pushes to those branches, run `CI`.
+- `ci-status` is the only required branch-protection check.
+- Successful CI for the current `staging` tip triggers `Deploy Staging`.
+- Successful staging deploy and probes create or update one `staging -> main` PR.
+- Successful CI for the current `main` tip triggers `Deploy Production`.
+- Production uses the protected `production` GitHub Environment before secrets are read or hooks are called.
+
+## Workflow Inventory
+
+| Workflow | File | Trigger | Required result |
+| --- | --- | --- | --- |
+| Feature PR | `.github/workflows/feature-pr.yml` | Push to `###-feature-name` | PR into `staging` exists or branch is ignored with success. |
+| CI | `.github/workflows/ci.yml` | PR/push for `staging` and `main` | `ci-status` succeeds only when every required job succeeds. |
+| Deploy Staging | `.github/workflows/deploy-staging.yml` | Successful CI for current `staging` tip or manual dispatch from `staging` | API deploy, Web deploy, probes, promotion PR. |
+| Deploy Production | `.github/workflows/deploy-production.yml` | Successful CI for current `main` tip or manual dispatch from `main` | Preflight, environment approval, API deploy, Web deploy, probes. |
+
+## GitHub Secrets And Variables
+
+Set deploy hooks as Environment secrets. Set public URLs as Environment variables.
+
+### `staging` Environment
+
+| Name | Kind | Required | Purpose |
+| --- | --- | --- | --- |
+| `RENDER_STAGING_API_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for staging API. |
+| `RENDER_STAGING_WEB_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for staging Web. |
+| `STAGING_API_URL` | variable | yes | Base API URL, without path. |
+| `STAGING_WEB_URL` | variable | yes | Frontend URL, without path. |
+
+### `production` Environment
+
+| Name | Kind | Required | Purpose |
+| --- | --- | --- | --- |
+| `RENDER_PROD_API_DEPLOY_HOOK` | secret | yes, when production exists | Render Deploy Hook URL for production API. |
+| `RENDER_PROD_WEB_DEPLOY_HOOK` | secret | yes, when production exists | Render Deploy Hook URL for production Web. |
+| `PROD_API_URL` | variable | yes, when production exists | Base API URL, without path. |
+| `PROD_WEB_URL` | variable | yes, when production exists | Frontend URL, without path. |
+
+`GITHUB_TOKEN` is built in. The workflows scope it per job. Hook URLs must never be copied into docs, issues, PR comments, or shell history.
+
+## GitHub Environments
+
+Create two environments in GitHub repository settings.
+
+### `staging`
+
+- Deployment branches: selected branches, `staging` only.
+- Required reviewers: none.
+- Secrets: `RENDER_STAGING_API_DEPLOY_HOOK`, `RENDER_STAGING_WEB_DEPLOY_HOOK`.
+- Variables: `STAGING_API_URL`, `STAGING_WEB_URL`.
+
+### `production`
+
+- Deployment branches: selected branches, `main` only.
+- Required reviewers: at least one maintainer.
+- Wait timer: optional.
+- Secrets: `RENDER_PROD_API_DEPLOY_HOOK`, `RENDER_PROD_WEB_DEPLOY_HOOK`.
+- Variables: `PROD_API_URL`, `PROD_WEB_URL`.
+
+GitHub may request production approval before the preflight job can show missing production values, because Environment secrets and variables are readable only after the environment gate opens.
+
+## Branch Protection
+
+### `staging`
+
+- Require a pull request before merging.
+- Require status checks to pass.
+- Required check: `ci-status`.
+- Block direct pushes.
+- Block force pushes.
+- Block branch deletion.
+- No approval required for solo-maintainer staging merges.
+
+### `main`
+
+- Require a pull request before merging.
+- Require status checks to pass.
+- Required check: `ci-status`.
+- Require at least one approval.
+- Require branch up to date before merge.
+- Restrict PR source branch to `staging` when repository plan supports it.
+- Block direct pushes.
+- Block force pushes.
+- Block branch deletion.
+
+The CI workflow also fails PRs into `main` when the source branch is not `staging`.
+
+## Render Setup
+
+Create or verify these services.
+
+### Staging
+
+- API service: `campfire-api-staging`.
+- Root directory: `apps/api`.
+- Start command: `uv run uvicorn campfire_api.main:app --host 0.0.0.0 --port $PORT`.
+- Web service/static site: `campfire-web-staging`.
+- Build command: `npm ci && npm run build`.
+- Publish directory: `apps/web/dist`.
+- PostgreSQL: `campfire-db-staging`.
+
+### Production
+
+- API service: `campfire-api-prod`.
+- Web service/static site: `campfire-web-prod`.
+- PostgreSQL: `campfire-db-prod`.
+- Same root, build, start, and publish settings as staging.
+
+For every Render API and Web service:
+
+1. Disable Auto-Deploy.
+2. Create a Deploy Hook.
+3. Store the hook URL only in the matching GitHub Environment secret.
+4. Put the public service URL in the matching GitHub Environment variable.
+
+## Migrations
+
+CI validates migrations against ephemeral PostgreSQL:
+
+- `backend-integration-postgres` runs `alembic upgrade head` before integration tests.
+- `migrations-contracts` runs `alembic upgrade head`, `alembic current`, `alembic check`, and contract tests.
+
+For live Render databases:
+
+- Paid API service: use Render Pre-Deploy Command `uv run alembic upgrade head`.
+- Free-tier staging API: Render Pre-Deploy Command may be unavailable. Run migrations manually from a trusted local shell against staging DB before expecting probes to pass.
+- Production: prefer Render Pre-Deploy Command. If unavailable, approve a separate migration runbook before exposing production database credentials to GitHub Actions.
+
+Staging PostgreSQL may be disposable on free-tier plans. Treat staging data as temporary and recreate within Render plan limits when needed.
+
+## Provisioning Production
+
+Production can be unconfigured safely. The workflow fails closed in `preflight` and lists missing names only:
+
+```text
+RENDER_PROD_API_DEPLOY_HOOK
+RENDER_PROD_WEB_DEPLOY_HOOK
+PROD_API_URL
+PROD_WEB_URL
+```
+
+To enable production:
+
+1. Create production API, Web, and PostgreSQL services in Render.
+2. Disable Auto-Deploy on API and Web.
+3. Create deploy hooks for API and Web.
+4. Add hook URLs as production Environment secrets.
+5. Add public URLs as production Environment variables.
+6. Confirm production Environment reviewers are configured.
+7. Merge a green `staging -> main` PR.
+
+## Manual Redeploy
+
+Use manual redeploy only for a known-good commit already on the target branch.
+
+### Staging
+
+1. Open `Deploy Staging`.
+2. Select `Run workflow`.
+3. Choose branch `staging`.
+4. Confirm API deploy, Web deploy, and all probes pass.
+
+Dispatching from any other branch fails at `Staging branch guard`.
+
+### Production
+
+1. Open `Deploy Production`.
+2. Select `Run workflow`.
+3. Choose branch `main`.
+4. Approve the `production` Environment gate.
+5. Confirm preflight, deploy, and probes pass.
+
+Dispatching from any other branch fails at `Production branch guard`.
+
+## Rollback
+
+Preferred rollback is Git revert plus normal promotion:
+
+1. Revert the bad commit on `staging`.
+2. Let CI run.
+3. Deploy staging and verify probes.
+4. Merge the generated `staging -> main` PR.
+5. Approve production deploy.
+
+Emergency rollback:
+
+1. In Render, redeploy the last known-good deploy for the affected service.
+2. Open an incident note in the tracking issue or PR.
+3. Revert in Git immediately after service is stable.
+4. Run normal CI/CD again so Git becomes source of truth.
+
+## Troubleshooting
+
+| Symptom | Check | Fix |
+| --- | --- | --- |
+| `ci-status` failed | Failed dependency listed in aggregate job. | Open named job logs, fix root failure, push again. |
+| Frontend build failed | `Frontend - typecheck and build`. | Run `npm ci && npm run typecheck && npm run build` locally. |
+| Backend lint failed | `Backend - lint and typecheck`. | Run `cd apps/api && uv run ruff check src tests scripts`. |
+| Mypy warning shown | Non-blocking mypy step. | Track cleanup; does not block merge. |
+| Integration failed | PostgreSQL service job. | Check migration, DB URL, test marker, and async fixtures. |
+| Migration check failed | `migrations-contracts`. | Create or fix Alembic revision before merge. |
+| Deploy hook failed | Deploy job summary shows service and status code. | Confirm Render service exists and hook secret is current. |
+| Probe failed | Probe summary shows first unhealthy URL. | Check Render logs, cold start, migrations, and `*_API_URL`/`*_WEB_URL`. |
+| Production preflight failed | Missing names listed. | Add missing production Environment secrets/variables. |
+| Promotion PR duplicated | Open PR filters. | Keep source `staging`, target `main`; close stale duplicate manually. |
+
+## Operational Health Checklist
+
+- [ ] Render Auto-Deploy disabled for every API and Web service.
+- [ ] GitHub Environments restrict deployment branches.
+- [ ] Production Environment has required reviewer.
+- [ ] Branch protection requires only `ci-status`.
+- [ ] `staging` and `main` block direct pushes and force pushes.
+- [ ] Production values are either fully configured or expected to fail preflight.
+- [ ] Rollback path has been reviewed before production merge.
+
+## External Setup Still Manual
+
+These settings cannot be committed to the repository and must be confirmed in GitHub or Render:
+
+- GitHub branches `staging` and `main` exist on the remote.
+- GitHub branch protection or rulesets match this runbook.
+- GitHub Environments and Environment secrets/variables exist.
+- Render API/Web/PostgreSQL services exist for each enabled environment.
+- Render Auto-Deploy is disabled on API and Web services.
+- Render Pre-Deploy Command is configured for migrations when the API service plan supports it.
