@@ -6,6 +6,12 @@ from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def normalize_database_url(database_url: str) -> str:
+    if database_url.startswith("postgresql://"):
+        return database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return database_url
+
+
 class SettingsProvider(Protocol):
     async def database_url(self) -> str: ...
     async def access_token_ttl_seconds(self) -> int: ...
@@ -91,7 +97,7 @@ class EnvSettingsProvider:
         self._settings = settings or EnvSettings()
 
     async def database_url(self) -> str:
-        return self._settings.database_url_value
+        return normalize_database_url(self._settings.database_url_value)
 
     async def access_token_ttl_seconds(self) -> int:
         return self._settings.access_token_ttl_seconds_value

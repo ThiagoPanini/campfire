@@ -34,6 +34,10 @@ async function parse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
+function shouldIncludeCredentials(path: string) {
+  return path.startsWith("/auth/");
+}
+
 async function refreshAccessToken(): Promise<boolean> {
   const headers: HeadersInit = {};
   const fallback = fallbackRefreshToken();
@@ -56,18 +60,30 @@ async function refreshAccessToken(): Promise<boolean> {
 
 type RequestInitWithRetry = RequestInit & { skipRefresh?: boolean };
 
-export async function request<T>(path: string, init: RequestInitWithRetry = {}): Promise<T> {
+export async function rawRequest(path: string, init: RequestInitWithRetry = {}): Promise<Response> {
   const headers = new Headers(init.headers);
   if (!headers.has("Content-Type") && init.body) headers.set("Content-Type", "application/json");
   if (accessToken && !headers.has("Authorization")) headers.set("Authorization", `Bearer ${accessToken}`);
-  const response = await fetch(`${API_URL}${path}`, {
+  return fetch(`${API_URL}${path}`, {
     ...init,
     headers,
-    credentials: init.credentials ?? (path === "/auth/refresh" || path === "/auth/logout" ? "include" : "same-origin"),
+    credentials: init.credentials ?? (shouldIncludeCredentials(path) ? "include" : "same-origin"),
   });
+}
+
+export async function request<T>(path: string, init: RequestInitWithRetry = {}): Promise<T> {
+  const response = await requestResponse(path, init);
+  return parse<T>(response);
+}
+
+export async function requestResponse(
+  path: string,
+  init: RequestInitWithRetry = {},
+): Promise<Response> {
+  const response = await rawRequest(path, init);
   if (response.status === 401 && !init.skipRefresh && path !== "/auth/refresh") {
     const refreshed = await refreshAccessToken();
-    if (refreshed) return request<T>(path, { ...init, skipRefresh: true });
+    if (refreshed) return requestResponse(path, { ...init, skipRefresh: true });
   }
-  return parse<T>(response);
+  return response;
 }

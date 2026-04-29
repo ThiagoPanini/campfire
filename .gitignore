@@ -8,6 +8,9 @@ coverage/
 vite.config.js
 vite.config.d.ts
 .env*
+!.env.example
+!apps/api/.env.example
+!apps/web/.env.local.example
 .DS_Store
 Thumbs.db
 *.tmp
