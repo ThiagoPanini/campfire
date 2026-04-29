@@ -1,9 +1,18 @@
 # ADR-0003: AWS as production target; specific managed service deferred
 
-**Status**: Accepted
+**Status**: Superseded by [ADR-0011](../../004-app-home-redesign/adr/0011-aws-terraform-localstack-deprioritized.md) (2026-04-29)
 **Date**: 2026-04-26
 **Deciders**: Maintainer (Thiago Panini)
 **Slice**: `002-backend-auth-slice`
+
+> **Superseded.** AWS is no longer the production target. The current
+> deployment platform is Render (see ADR-0010), and the AWS / Terraform
+> track has been deprioritized indefinitely (see ADR-0011). The
+> *application-level* constraints listed below (Postgres-only, asyncpg,
+> DSN via `SettingsProvider`, no session-scoped Postgres state, no
+> non-allowlisted extensions, `timestamptz` UTC) remain in force because
+> they preserve portability between any Postgres host — Render today, a
+> hypothetical AWS-managed Postgres tomorrow.
 
 ## Context
 

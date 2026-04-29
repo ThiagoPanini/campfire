@@ -1,0 +1,22 @@
+---
+title: "ADR-0012 — Render PostgreSQL as production database"
+description: "Accepted decision to use Render PostgreSQL as the production database, with Alembic migrations executed via Render's pre-deploy step."
+icon: "database"
+sidebarTitle: "0012 · Render Postgres"
+---
+
+<p className="cf-kicker">ADR · ACCEPTED</p>
+
+The production database is Render PostgreSQL, reached over Render's
+internal network from the Web Service that runs `apps/api`. Schema
+migrations execute as a Render pre-deploy command (`alembic upgrade head`)
+against the same Alembic revision history used for local Docker Postgres.
+
+DSN normalization (`postgresql://` → `postgresql+asyncpg://`) lives in the
+settings adapter, not in the domain or application layers. No
+Render-specific Postgres feature may leak into application code; the
+service must remain compatible with any standard PostgreSQL ≥ 16. The
+host-portability constraints originally documented in
+[ADR-0003](/sdd/adrs/0003-aws-target-service-deferred) remain in force.
+
+Related: [ADR-0001](/sdd/adrs/0001-postgresql-as-engine), [ADR-0002](/sdd/adrs/0002-sqlalchemy-async-asyncpg), [ADR-0010](/sdd/adrs/0010-render-as-deployment-platform), [ADR-0011](/sdd/adrs/0011-aws-terraform-localstack-deprioritized).

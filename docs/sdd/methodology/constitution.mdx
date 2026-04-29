@@ -11,9 +11,9 @@ The canonical document lives at
 This page summarizes it. When the two disagree, the canonical file wins.
 
 <Info>
-  Current version: <span className="cf-label">VERSION</span> 1.1.0 &nbsp;
+  Current version: <span className="cf-label">VERSION</span> 1.2.0 &nbsp;
   <span className="cf-label">RATIFIED</span> 2026-04-24 &nbsp;
-  <span className="cf-label">LAST AMENDED</span> 2026-04-26
+  <span className="cf-label">LAST AMENDED</span> 2026-04-29
 </Info>
 
 ## Principles
@@ -26,17 +26,21 @@ This page summarizes it. When the two disagree, the canonical file wins.
     the default answer.**
   </Accordion>
   <Accordion title="II. Incremental delivery" icon="layers">
-    Work ships in thin, demonstrable slices in this order: frontend → backend
-    → LocalStack → AWS infrastructure (Terraform) → GitHub Actions
-    deployment. Earlier stages must be usable, even with mocked data, before
-    later ones begin.
+    Work ships in thin, demonstrable slices. The general order is frontend →
+    backend → deployment on a managed platform. Earlier stages must be
+    usable, even with mocked data, before later ones begin. The specific
+    platform and any post-deployment infrastructure work are decided by ADR.
   </Accordion>
   <Accordion title="III. Boring, proven stack" icon="anchor">
     React + TypeScript + Vite on the frontend. Python + `uv` + FastAPI +
     relational DB on the backend, with Clean / Hex / DDD applied
-    pragmatically. AWS-native infra in Terraform. Docker + LocalStack for
-    local validation. GitHub Actions for CI/CD. Mintlify for docs. New
-    languages, frameworks, or providers require an amendment.
+    pragmatically. Hosting on a managed platform (currently Render: static
+    site + web service + PostgreSQL). Docker for local PostgreSQL and
+    dependencies. GitHub Actions for CI/CD when justified. Mintlify for
+    docs. An AWS-native track in Terraform with LocalStack is recognized as
+    a possible future evolution with no committed timeline; adopting it
+    requires a new ADR. New languages, frameworks, or hosting platforms
+    require an amendment.
   </Accordion>
   <Accordion title="IV. Proportional rigor" icon="scale">
     Tests, accessibility, observability, and process show up when a real
@@ -54,8 +58,11 @@ This page summarizes it. When the two disagree, the canonical file wins.
 
 ## Hard constraints
 
-- Domain layer must not import frameworks, ORMs, or AWS SDKs.
-- Secrets never committed. Local via `.env`; cloud via AWS-native stores.
+- Domain layer must not import frameworks, ORMs, or cloud SDKs.
+- Application code must not assume a specific hosting platform; platform
+  glue lives in adapters.
+- Secrets never committed. Local via `.env`; cloud via the deployment
+  platform's secret store (Render environment groups today).
 - Relational DB by default. No NoSQL, queues, or caches without a feature
   that demonstrably requires them.
 - Solo + AI default. The maintainer reviews every change.

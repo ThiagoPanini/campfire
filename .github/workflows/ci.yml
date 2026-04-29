@@ -1,0 +1,367 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - staging
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - staging
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend-checks:
+    name: Frontend - typecheck and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install frontend dependencies
+        run: |
+          echo "::group::npm ci"
+          npm ci
+          echo "::endgroup::"
+
+      - name: Typecheck frontend
+        run: |
+          echo "::group::npm run typecheck"
+          npm run typecheck
+          echo "::endgroup::"
+
+      - name: Build frontend
+        run: |
+          echo "::group::npm run build"
+          npm run build
+          echo "::endgroup::"
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist-${{ github.sha }}
+          path: apps/web/dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  backend-lint-typecheck:
+    name: Backend - lint and typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+
+      - name: Sync backend dependencies
+        run: |
+          echo "::group::uv sync"
+          uv sync --frozen
+          echo "::endgroup::"
+
+      - name: Ruff
+        run: |
+          echo "::group::ruff"
+          uv run ruff check src tests scripts
+          echo "::endgroup::"
+
+      - name: Mypy warning pass
+        continue-on-error: true
+        run: |
+          echo "::group::mypy"
+          uv run mypy src || {
+            echo "::warning::mypy reported issues; non-blocking until backend type cleanup is complete"
+            exit 1
+          }
+          echo "::endgroup::"
+
+  backend-unit:
+    name: Backend - unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+
+      - name: Sync backend dependencies
+        run: uv sync --frozen
+
+      - name: Run unit tests
+        run: |
+          echo "::group::pytest unit"
+          uv run pytest -m unit tests/unit
+          echo "::endgroup::"
+
+  backend-integration-postgres:
+    name: Backend - integration (Postgres)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: campfire
+          POSTGRES_PASSWORD: campfire
+          POSTGRES_DB: campfire
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      DATABASE_URL: postgresql+asyncpg://campfire:campfire@localhost:5432/campfire
+      TEST_DATABASE_URL: postgresql+asyncpg://campfire:campfire@localhost:5432/campfire
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+
+      - name: Sync backend dependencies
+        run: uv sync --frozen
+
+      - name: Apply migrations
+        run: |
+          echo "::group::alembic upgrade"
+          uv run alembic upgrade head
+          echo "::endgroup::"
+
+      - name: Run integration tests
+        run: |
+          echo "::group::pytest integration"
+          uv run pytest -m integration tests/integration
+          echo "::endgroup::"
+
+  migrations-contracts:
+    name: Backend - migrations and contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: campfire
+          POSTGRES_PASSWORD: campfire
+          POSTGRES_DB: campfire
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      DATABASE_URL: postgresql+asyncpg://campfire:campfire@localhost:5432/campfire
+      TEST_DATABASE_URL: postgresql+asyncpg://campfire:campfire@localhost:5432/campfire
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+
+      - name: Sync backend dependencies
+        run: uv sync --frozen
+
+      - name: Validate migrations
+        run: |
+          echo "::group::alembic"
+          uv run alembic upgrade head
+          uv run alembic current
+          uv run alembic check
+          echo "::endgroup::"
+
+      - name: Run contract tests
+        run: |
+          echo "::group::pytest contract"
+          uv run pytest -m contract tests/contract
+          echo "::endgroup::"
+
+  docs-and-repo-hygiene:
+    name: Docs and repo hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Branch policy checks
+        run: |
+          echo "::group::branch policy"
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "main" && "${{ github.head_ref }}" != "staging" ]]; then
+            echo "::error::PRs into main must come from staging"
+            exit 1
+          fi
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "staging" && ! "${{ github.head_ref }}" =~ ^[0-9]{3}-[A-Za-z0-9._-]+$ ]]; then
+            echo "::warning::Feature branch does not match Spec Kit pattern ###-feature-name"
+          fi
+          echo "::endgroup::"
+
+      - name: Validate environment examples
+        run: |
+          echo "::group::.env examples"
+          test -f apps/api/.env.example
+          test -f apps/web/.env.local.example
+          if grep -RE '(sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|https://api\.render\.com/deploy/srv-)' apps/api/.env.example apps/web/.env.local.example; then
+            echo "::error::.env example contains a value that looks secret"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Validate docs navigation
+        run: |
+          echo "::group::docs navigation"
+          node <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+          const docs = JSON.parse(fs.readFileSync("docs/docs.json", "utf8"));
+          const missing = [];
+          function visit(value) {
+            if (Array.isArray(value)) {
+              value.forEach(visit);
+              return;
+            }
+            if (value && typeof value === "object") {
+              if (value.root) visit(value.root);
+              if (value.pages) visit(value.pages);
+              return;
+            }
+            if (typeof value === "string") {
+              const file = path.join("docs", `${value}.mdx`);
+              if (!fs.existsSync(file)) missing.push(file);
+            }
+          }
+          visit(docs.navigation?.tabs ?? []);
+          if (missing.length) {
+            console.error(`::error::Missing docs nav targets:\n${missing.join("\n")}`);
+            process.exit(1);
+          }
+          NODE
+          echo "::endgroup::"
+
+      - name: Validate constitution
+        run: |
+          echo "::group::constitution"
+          test -s .specify/memory/constitution.md
+          echo "::endgroup::"
+
+      - name: Diff-based secrets scan
+        run: |
+          echo "::group::secrets scan"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          fi
+          if [[ -n "$base" ]]; then
+            git diff --unified=0 "$base"...HEAD > /tmp/campfire.diff || git diff --unified=0 "$base" HEAD > /tmp/campfire.diff
+            if grep -E '(^\+.*AKIA[0-9A-Z]{16}|^\+.*AIza[0-9A-Za-z_-]{20,}|^\+.*https://api\.render\.com/deploy/srv-)' /tmp/campfire.diff; then
+              echo "::error::Diff contains a high-confidence secret pattern"
+              exit 1
+            fi
+          fi
+          echo "::endgroup::"
+
+  ci-status:
+    name: CI status (aggregate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    needs:
+      - frontend-checks
+      - backend-lint-typecheck
+      - backend-unit
+      - backend-integration-postgres
+      - migrations-contracts
+      - docs-and-repo-hygiene
+    if: always()
+    steps:
+      - name: Require all CI jobs
+        run: |
+          results='${{ toJson(needs) }}'
+          echo "$results"
+          RESULTS="$results" node <<'NODE'
+          const needs = JSON.parse(process.env.RESULTS);
+          const bad = Object.entries(needs).filter(([, job]) => job.result !== "success");
+          if (bad.length) {
+            for (const [name, job] of bad) {
+              console.error(`::error::${name} finished with ${job.result}`);
+            }
+            process.exit(1);
+          }
+          console.log("All CI jobs succeeded.");
+          NODE
