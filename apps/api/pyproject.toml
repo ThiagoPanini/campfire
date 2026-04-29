@@ -62,6 +62,7 @@ ignore = ["B008"]
 "httpx".msg = "httpx is restricted to the Deezer catalog adapter only."
 
 [tool.ruff.lint.per-file-ignores]
+"src/campfire_api/shared/persistence/**.py" = ["TID251"]
 "src/campfire_api/contexts/identity/adapters/http/**.py" = ["TID251"]
 "src/campfire_api/contexts/identity/adapters/persistence/**.py" = ["TID251"]
 "src/campfire_api/contexts/identity/adapters/security/**.py" = ["TID251"]

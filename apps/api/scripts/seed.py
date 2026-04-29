@@ -1,9 +1,10 @@
-import subprocess
+from __future__ import annotations
+
+from dev_seed import main as dev_seed_main
 
 
 def main() -> None:
-    subprocess.run(["uv", "run", "alembic", "upgrade", "head"], check=True)
-    print("Seed migration applied")
+    dev_seed_main()
 
 
 if __name__ == "__main__":
