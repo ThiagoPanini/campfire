@@ -1,0 +1,23 @@
+---
+title: "ADR-0010 — Render as deployment platform"
+description: "Accepted decision to host Campfire on Render (Static Site + Web Service + PostgreSQL) for the MVP and the foreseeable post-MVP period."
+icon: "rocket"
+sidebarTitle: "0010 · Render platform"
+---
+
+<p className="cf-kicker">ADR · ACCEPTED</p>
+
+Campfire ships on Render. The production topology is a Render Static Site
+for `apps/web`, a Render Web Service for `apps/api`, and a Render
+PostgreSQL database. This is not framed as an MVP-only shortcut: Render
+is the chosen platform until a future ADR says otherwise.
+
+Application code stays platform-agnostic. Render-specific concerns (DSN
+normalization, port binding, build commands) live in adapters, never in
+`domain/` or `application/`.
+
+The trigger to revisit this decision is the maintainer's stated desire to
+learn the AWS-native infrastructure path end-to-end — not any application
+or scale metric.
+
+Related: [ADR-0011](/sdd/adrs/0011-aws-terraform-localstack-deprioritized), [ADR-0012](/sdd/adrs/0012-render-postgresql-as-production-database).

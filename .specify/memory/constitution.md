@@ -1,41 +1,42 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.1 → 1.1.0
+- Version change: 1.1.0 → 1.2.0
 - Modified principles:
-  * III. Boring, Proven Stack — wording unchanged; the architectural
-    invariants previously implied by "Clean Architecture + Hexagonal + DDD,
-    applied pragmatically" are now made explicit in a new subsection of
-    "Technical Direction & Constraints" (see below). No principle was
-    removed, inverted, or narrowed.
+  * II. Incremental Delivery — the build sequence no longer hard-codes
+    LocalStack, AWS, and Terraform as the only path. The principle now
+    states the general order (frontend → backend → managed-platform
+    deployment) and leaves platform specifics to ADRs. Intent (thin,
+    demonstrable slices; no big-bang integration) is unchanged.
+  * III. Boring, Proven Stack — the fixed-stack list now names a managed
+    platform (Render) for hosting and Postgres-via-Docker for local
+    validation. The AWS-native + Terraform + LocalStack stack is now
+    explicitly framed as a possible future evolution, with no commitment
+    to a timeline. Architectural invariants (Clean / Hex / DDD; domain
+    layer free of frameworks) are unchanged.
 - Added sections:
-  * Technical Direction & Constraints → "Backend Architecture Invariants"
-    subsection. It captures the durable rules that emerged from slice
-    002-backend-auth-slice and a comparative review against the reference
-    architecture: bounded-context slicing, layer purity enforced by an
-    automated test, cross-context references by identifier value objects,
-    and HTTP translation of application errors at the adapter boundary.
-- Removed sections: N/A
-- Companion artifacts (non-normative; produced alongside this amendment):
-  * ADR-0006 — "Backend Hexagonal + DDD Architecture Pattern"
-    (specs/002-backend-auth-slice/adr/0006-backend-hexagonal-ddd-pattern.md)
-  * Backend architecture playbook
-    (docs/backend/architecture.mdx)
-  * Comparative architecture review
-    (specs/002-backend-auth-slice/analysis/architecture-review.md)
+  * Principle III gains a short note labelling the AWS / Terraform /
+    LocalStack track as an optional future evolution, governed by ADRs.
+- Removed sections: N/A (no principle removed; wording broadened).
+- Companion artifacts:
+  * ADR-0010 — "Render selected as the deployment platform"
+    (specs/004-app-home-redesign/adr/0010-render-as-deployment-platform.md)
+  * ADR-0011 — "AWS, Terraform, and LocalStack deprioritized indefinitely"
+    (specs/004-app-home-redesign/adr/0011-aws-terraform-localstack-deprioritized.md)
+    — supersedes ADR-0003.
+  * ADR-0012 — "Render PostgreSQL as production database"
+    (specs/004-app-home-redesign/adr/0012-render-postgresql-as-production-database.md)
 - Templates requiring updates:
-  * ✅ .specify/templates/plan-template.md — Constitution Check gate is
-    generic; new invariants are testable through the existing AST guard
-    test. No template edit required.
+  * ✅ .specify/templates/plan-template.md — Constitution Check is generic;
+    no edit required.
   * ✅ .specify/templates/spec-template.md — no principle-level coupling.
   * ✅ .specify/templates/tasks-template.md — lean stance still matches.
 - Mirror requiring updates:
-  * ✅ docs/sdd/methodology/constitution.mdx — updated in the same change
-    set (version block + new "Backend Architecture Invariants" callout).
+  * ✅ docs/sdd/methodology/constitution.mdx — updated in the same
+    change set (version block, Principles II and III, Hard Constraints).
 - Follow-up TODOs:
-  * Re-evaluate the invariants when a second backend bounded context lands
-    (e.g. repertoire). Trigger: any cross-context import beyond identifier
-    value objects, or any new transactional flow that cannot express its
-    boundary through the current `session_scope`.
+  * If the maintainer ever decides to pursue the AWS / Terraform learning
+    track, open a new ADR superseding ADR-0011 before any infrastructure
+    code lands.
 -->
 
 # Campfire Constitution
@@ -60,14 +61,17 @@ A hard perimeter lets AI-assisted work stay coherent and shippable.
 
 ### II. Incremental Delivery
 
-Work MUST ship in thin, demonstrable slices that follow this build order:
-frontend → backend → LocalStack-based local validation → Terraform-managed
-AWS infrastructure → GitHub Actions deployment pipeline. Earlier stages MUST
-be usable (even with mocked data) before later stages begin. No stage blocks
-on a later stage being "ready."
+Work MUST ship in thin, demonstrable slices. The general build order is
+frontend → backend → deployment on a managed platform. Earlier stages MUST
+be usable (even with mocked data) before later stages begin, and no stage
+blocks on a later stage being "ready." The specific platform and the
+sequencing of any post-deployment infrastructure work are decided by ADR,
+not by this principle.
 
 **Rationale**: Each slice produces something the user can see or run, which
-keeps feedback loops short and avoids big-bang integration risk.
+keeps feedback loops short and avoids big-bang integration risk. Pinning a
+specific platform inside the principle proved brittle; ADRs are the right
+home for that choice.
 
 ### III. Boring, Proven Stack
 
@@ -76,16 +80,25 @@ The long-term stack is fixed and MUST NOT be re-litigated per feature:
 - Backend: Python managed with `uv`, FastAPI, relational database.
 - Backend architecture: Clean Architecture + Hexagonal + DDD, applied
   pragmatically — layers exist to serve the domain, not the other way around.
-- Infrastructure: AWS-native, defined in Terraform.
-- Local validation: Docker + LocalStack.
-- CI/CD: GitHub Actions.
+- Hosting: managed platform (currently Render) for the static frontend, the
+  API, and the PostgreSQL database.
+- Local validation: Docker for PostgreSQL and other local dependencies.
+- CI/CD: GitHub Actions when a CI need actually justifies it.
 - Docs: Mintlify, docs-as-code, updated alongside the code that changes.
 
-Introducing a new language, framework, or cloud provider requires an
+An AWS-native infrastructure track managed with Terraform, complemented by
+LocalStack for local cloud parity, is recognized as a **possible future
+evolution with no committed timeline**. Adopting it requires a new ADR that
+supersedes the relevant deployment ADRs; until then, no feature, plan, or
+template MAY assume it.
+
+Introducing a new language, framework, or hosting platform requires an
 amendment (see Governance).
 
 **Rationale**: A stable stack removes decision fatigue and lets AI tooling
-generate consistent code.
+generate consistent code. Treating cloud-native infrastructure as an
+optional evolution — rather than a fixed milestone — keeps the project
+honest about what is actually load-bearing today.
 
 ### IV. Proportional Rigor
 
@@ -111,20 +124,26 @@ current from day one is cheap; catching up after the fact is not.
 
 ## Technical Direction & Constraints
 
-- **Build sequence (short-term, non-negotiable order)**:
+- **Build sequence (current)**:
   1. Frontend (with mocked data where the backend does not yet exist).
-  2. Backend (Python, `uv`, FastAPI, relational DB, Clean/Hex/DDD).
-  3. LocalStack-based local testing and debug scripts.
-  4. AWS infrastructure via Terraform.
-  5. GitHub Actions deployment pipeline.
+  2. Backend (Python, `uv`, FastAPI, relational DB, Clean / Hex / DDD).
+  3. Deployment on the managed platform (Render): static site, web service,
+     managed PostgreSQL.
+  4. CI automation (GitHub Actions) once a real CI need justifies it.
+  Any move toward AWS / Terraform / LocalStack is a separate, ADR-gated
+  decision, not an implicit next step.
 - **Data**: relational by default; no NoSQL, queues, or caches unless a
   specific feature demonstrably requires them.
-- **Environments**: local-first via Docker + LocalStack; cloud parity is a
+- **Environments**: local-first via Docker; production-like parity is a
   goal, not a gate.
 - **Secrets and credentials**: never committed; local via `.env` files
-  excluded by `.gitignore`, cloud via AWS-native secret stores.
+  excluded by `.gitignore`, cloud via the deployment platform's secret
+  store (Render environment groups today).
 - **Architecture discipline**: the domain layer MUST NOT import frameworks,
-  ORMs, or AWS SDKs. Adapters live at the edges.
+  ORMs, or cloud SDKs. Adapters live at the edges. Application code MUST
+  remain free of platform-specific assumptions (Render-specific or
+  otherwise) so that a future platform migration is an adapter-level
+  change, not a domain change.
 
 ### Backend Architecture Invariants
 
@@ -183,8 +202,8 @@ those companion documents fix the *how*.
 - **Branches and commits**: feature branches off `main`; small, focused
   commits; conventional-style messages encouraged but not enforced.
 - **Definition of done for an MVP slice**: the slice runs locally, its
-  Mintlify docs are updated, and — where applicable — its LocalStack / CI
-  paths are green.
+  Mintlify docs are updated, and — where applicable — its deployment path
+  on the managed platform is green.
 - **Tests**: write tests where Principle IV justifies them. Absence of tests
   is acceptable for throwaway or exploratory code; presence of tests is
   required once behavior is depended on by another slice.
@@ -210,4 +229,4 @@ those companion documents fix the *how*.
   whenever a feature feels like it is fighting the rules; that is the
   trigger to either comply or amend.
 
-**Version**: 1.1.0 | **Ratified**: 2026-04-24 | **Last Amended**: 2026-04-26
+**Version**: 1.2.0 | **Ratified**: 2026-04-24 | **Last Amended**: 2026-04-29

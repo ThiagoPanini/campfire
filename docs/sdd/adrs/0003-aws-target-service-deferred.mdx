@@ -1,15 +1,20 @@
 ---
 title: "ADR-0003 — AWS target deferred"
-description: "Accepted decision to target AWS while deferring the exact managed database service."
+description: "Superseded decision that originally targeted AWS while deferring the exact managed database service."
 icon: "cloud"
 sidebarTitle: "0003 · AWS target"
 ---
 
-<p className="cf-kicker">ADR · ACCEPTED</p>
+<p className="cf-kicker">ADR · SUPERSEDED BY [ADR-0011](/sdd/adrs/0011-aws-terraform-localstack-deprioritized)</p>
 
-AWS is the production target, but the exact managed service is deferred to a
-later infrastructure slice. The backend keeps an Aurora-ready Postgres posture
-without baking a managed-service choice into application code.
+This ADR originally named AWS as the production target while deferring the
+exact managed service. As of 2026-04-29 it is **superseded** by ADR-0011:
+the deployment platform is now Render (see ADR-0010), and the AWS /
+Terraform track has been deprioritized indefinitely.
 
-Related: [Infrastructure](/get-started/architecture/infrastructure), [Roadmap](/get-started/introduction/roadmap).
+The *application-level* constraints from this ADR — Postgres-only,
+`asyncpg`, DSN via `SettingsProvider`, no session-scoped Postgres state,
+allowlisted extensions only, `timestamptz` UTC — remain in force because
+they preserve portability between any Postgres host.
 
+Related: [ADR-0010](/sdd/adrs/0010-render-as-deployment-platform), [ADR-0011](/sdd/adrs/0011-aws-terraform-localstack-deprioritized), [ADR-0012](/sdd/adrs/0012-render-postgresql-as-production-database).

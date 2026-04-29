@@ -1,0 +1,23 @@
+---
+title: "ADR-0011 — AWS / Terraform / LocalStack deprioritized"
+description: "Accepted decision deprioritizing the AWS-native, Terraform-managed, LocalStack-validated infrastructure track indefinitely. Supersedes ADR-0003."
+icon: "pause"
+sidebarTitle: "0011 · AWS deprioritized"
+---
+
+<p className="cf-kicker">ADR · ACCEPTED · SUPERSEDES [ADR-0003](/sdd/adrs/0003-aws-target-service-deferred)</p>
+
+The AWS-native + Terraform + LocalStack track is deprioritized
+indefinitely. There is no application, scale, cost, or compliance trigger
+that forces the migration. The only realistic motivation on record is the
+maintainer's desire to learn the AWS-native path end-to-end. Until a new
+ADR adopts that work, no feature, plan, or template may assume AWS,
+Terraform, or LocalStack is on the roadmap.
+
+The application-level portability constraints from [ADR-0003](/sdd/adrs/0003-aws-target-service-deferred)
+(Postgres-only, `asyncpg`, DSN via `SettingsProvider`, no session-scoped
+Postgres state, no non-allowlisted extensions, `timestamptz` UTC) remain
+in force, because they protect host portability between any Postgres
+backend.
+
+Related: [ADR-0010](/sdd/adrs/0010-render-as-deployment-platform), [ADR-0012](/sdd/adrs/0012-render-postgresql-as-production-database), [ADR-0005](/sdd/adrs/0005-localstack-deferred).
