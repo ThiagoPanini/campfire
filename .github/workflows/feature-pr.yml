@@ -1,0 +1,65 @@
+name: Feature PR
+
+on:
+  push:
+    branches:
+      - "[0-9][0-9][0-9]-*"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: feature-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  feature-pr:
+    name: Create or update feature PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event.deleted == false
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Evaluate branch
+        id: guard
+        env:
+          HEAD_BRANCH: ${{ github.ref_name }}
+        run: |
+          echo "::group::feature branch guard"
+          if [[ "$HEAD_BRANCH" == "main" || "$HEAD_BRANCH" == "staging" ]]; then
+            echo "create_pr=false" >> "$GITHUB_OUTPUT"
+            echo "Protected branch ignored."
+            exit 0
+          fi
+          if [[ ! "$HEAD_BRANCH" =~ ^[0-9]{3}-[A-Za-z0-9._-]+$ ]]; then
+            echo "create_pr=false" >> "$GITHUB_OUTPUT"
+            echo "Branch does not match Spec Kit pattern; ignored."
+            exit 0
+          fi
+          git fetch origin staging --depth=1
+          if git diff --quiet origin/staging...HEAD; then
+            echo "create_pr=false" >> "$GITHUB_OUTPUT"
+            echo "No diff against staging; ignored."
+            exit 0
+          fi
+          echo "create_pr=true" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: Create or update PR
+        if: steps.guard.outputs.create_pr == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: staging
+          HEAD_BRANCH: ${{ github.ref_name }}
+          PR_TITLE: "feat: ${{ github.ref_name }}"
+          PR_BODY_FILE: /tmp/feature-pr-body.md
+          PR_LABELS: "feature,automated"
+        run: |
+          scripts/ci/feature-pr-body.sh > "$PR_BODY_FILE"
+          scripts/ci/ensure-pr.sh

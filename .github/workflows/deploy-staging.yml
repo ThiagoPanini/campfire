@@ -1,0 +1,160 @@
+name: Deploy Staging
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - staging
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  branch-guard:
+    name: Staging branch guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      deploy_sha: ${{ steps.guard.outputs.deploy_sha }}
+    steps:
+      - name: Guard staging ref and CI result
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion || '' }}
+          WORKFLOW_BRANCH: ${{ github.event.workflow_run.head_branch || '' }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha || '' }}
+          GITHUB_REF_NAME_VALUE: ${{ github.ref_name }}
+        run: |
+          echo "::group::staging guard"
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            if [[ "$WORKFLOW_CONCLUSION" != "success" ]]; then
+              echo "::error::Staging deploy requires successful CI"
+              exit 1
+            fi
+            if [[ "$WORKFLOW_BRANCH" != "staging" ]]; then
+              echo "::error::Staging deploy requires staging branch"
+              exit 1
+            fi
+            current_sha="$(
+              curl --silent --fail \
+                --header "Authorization: Bearer ${GH_TOKEN}" \
+                --header "Accept: application/vnd.github+json" \
+                "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/git/ref/heads/staging" |
+              node -e 'let s = ""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const ref = JSON.parse(s); console.log(ref.object.sha); });'
+            )"
+            if [[ "$current_sha" != "$WORKFLOW_SHA" ]]; then
+              echo "::error::Successful CI SHA is not the current staging tip"
+              exit 1
+            fi
+            echo "deploy_sha=$WORKFLOW_SHA" >> "$GITHUB_OUTPUT"
+          else
+            if [[ "$GITHUB_REF_NAME_VALUE" != "staging" ]]; then
+              echo "::error::Deploys to staging are only allowed from staging"
+              exit 1
+            fi
+            echo "deploy_sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          fi
+          echo "::endgroup::"
+
+  deploy-api:
+    name: Deploy staging API
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: branch-guard
+    environment: staging
+    steps:
+      - name: Checkout deploy scripts
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
+
+      - name: Trigger Render API deploy
+        env:
+          HOOK_URL: ${{ secrets.RENDER_STAGING_API_DEPLOY_HOOK }}
+        run: scripts/ci/render-deploy.sh staging api
+
+  deploy-web:
+    name: Deploy staging Web
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - branch-guard
+      - deploy-api
+    environment: staging
+    steps:
+      - name: Checkout deploy scripts
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
+
+      - name: Trigger Render Web deploy
+        env:
+          HOOK_URL: ${{ secrets.RENDER_STAGING_WEB_DEPLOY_HOOK }}
+        run: scripts/ci/render-deploy.sh staging web
+
+  probe:
+    name: Probe staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - branch-guard
+      - deploy-web
+    environment: staging
+    steps:
+      - name: Checkout probe script
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
+
+      - name: Probe staging URLs
+        env:
+          STAGING_API_URL: ${{ vars.STAGING_API_URL }}
+          STAGING_WEB_URL: ${{ vars.STAGING_WEB_URL }}
+        run: |
+          api="${STAGING_API_URL%/}"
+          web="${STAGING_WEB_URL%/}"
+          scripts/ci/probe-url.sh "${api}/healthz" "staging api /healthz"
+          scripts/ci/probe-url.sh "${api}/readyz" "staging api /readyz"
+          scripts/ci/probe-url.sh "${web}/" "staging web"
+
+  promotion-pr:
+    name: Promote staging to main PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - branch-guard
+      - probe
+    if: needs.probe.result == 'success'
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout staging
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0
+
+      - name: Create or update promotion PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_SHA: ${{ needs['branch-guard'].outputs.deploy_sha }}
+          BASE_BRANCH: main
+          HEAD_BRANCH: staging
+          PR_TITLE: "chore(release): promote staging to main (${{ needs['branch-guard'].outputs.deploy_sha }})"
+          PR_BODY_FILE: /tmp/promotion-pr-body.md
+          PR_LABELS: "release-candidate,automated"
+        run: |
+          scripts/ci/promotion-pr-body.sh > "$PR_BODY_FILE"
+          scripts/ci/ensure-pr.sh
