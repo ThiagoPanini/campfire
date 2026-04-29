@@ -9,7 +9,6 @@ migration or SQLAlchemy models.
 Context tables:
 - users: main registration record.
 - credentials: local credentials, 1:1 with users.
-- preferences: musical preferences, 1:1 with users.
 - sessions: access token sessions.
 - refresh_tokens: renewal tokens linked to sessions and users.
 
@@ -29,7 +28,6 @@ WHERE c.table_schema = 'public'
   AND c.table_name IN (
     'users',
     'credentials',
-    'preferences',
     'sessions',
     'refresh_tokens'
   )
@@ -37,7 +35,7 @@ ORDER BY c.table_name, c.ordinal_position;
 
 /*
 Constraints and indexes help explain the database guarantees:
-- constraints validate rules such as unique email and allowed experience values.
+- constraints validate rules such as unique email.
 - indexes speed up frequent lookups, such as sessions by user_id or family_id.
 */
 
@@ -50,7 +48,6 @@ WHERE tc.table_schema = 'public'
   AND tc.table_name IN (
     'users',
     'credentials',
-    'preferences',
     'sessions',
     'refresh_tokens'
   )
@@ -65,7 +62,6 @@ WHERE schemaname = 'public'
   AND tablename IN (
     'users',
     'credentials',
-    'preferences',
     'sessions',
     'refresh_tokens'
   )

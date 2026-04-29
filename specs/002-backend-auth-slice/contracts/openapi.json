@@ -237,71 +237,13 @@
           "email": {
             "title": "Email",
             "type": "string"
-          },
-          "firstLogin": {
-            "title": "Firstlogin",
-            "type": "boolean"
-          },
-          "preferences": {
-            "$ref": "#/components/schemas/PreferencesPayload"
           }
         },
         "required": [
           "displayName",
-          "email",
-          "firstLogin",
-          "preferences"
+          "email"
         ],
         "title": "MeResponse",
-        "type": "object"
-      },
-      "PreferencesPayload": {
-        "properties": {
-          "context": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context"
-          },
-          "experience": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Experience"
-          },
-          "genres": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Genres",
-            "type": "array"
-          },
-          "goals": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Goals",
-            "type": "array"
-          },
-          "instruments": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Instruments",
-            "type": "array"
-          }
-        },
-        "title": "PreferencesPayload",
         "type": "object"
       },
       "RegisterRequest": {
@@ -713,52 +655,6 @@
           }
         ],
         "summary": "Me",
-        "tags": [
-          "me"
-        ]
-      }
-    },
-    "/me/preferences": {
-      "patch": {
-        "operationId": "update_preferences_me_preferences_patch",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PreferencesPayload"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MeResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "summary": "Update Preferences",
         "tags": [
           "me"
         ]

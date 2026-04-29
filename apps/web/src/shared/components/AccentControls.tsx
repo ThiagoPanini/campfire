@@ -11,7 +11,7 @@ type Props = {
 
 export function AccentControls({ labels, language, accent, onLanguage, onAccent }: Props) {
   return (
-    <div className="controls" aria-label="Display preferences">
+    <div className="controls" aria-label="Display settings">
       <span className="mono muted">{labels.language}</span>
       <button className="link-button" data-active={language === "en"} onClick={() => onLanguage("en")}>{labels.en}</button>
       <button className="link-button" data-active={language === "pt"} onClick={() => onLanguage("pt")}>{labels.pt}</button>

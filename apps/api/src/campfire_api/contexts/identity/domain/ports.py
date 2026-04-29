@@ -3,13 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Protocol
 
-from campfire_api.contexts.identity.domain.entities import (
-    Credentials,
-    PreferencesProfile,
-    RefreshToken,
-    Session,
-    User,
-)
+from campfire_api.contexts.identity.domain.entities import Credentials, RefreshToken, Session, User
 from campfire_api.contexts.identity.domain.value_objects import Email, UserId
 
 
@@ -23,12 +17,6 @@ class UserRepository(Protocol):
 class CredentialsRepository(Protocol):
     async def get_by_user_id(self, user_id: UserId) -> Credentials | None: ...
     async def add(self, credentials: Credentials) -> None: ...
-
-
-class PreferencesRepository(Protocol):
-    async def get_by_user_id(self, user_id: UserId) -> PreferencesProfile | None: ...
-    async def add(self, preferences: PreferencesProfile) -> None: ...
-    async def replace(self, preferences: PreferencesProfile) -> None: ...
 
 
 class SessionRepository(Protocol):

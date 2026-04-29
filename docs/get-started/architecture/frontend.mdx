@@ -8,7 +8,8 @@ icon: "monitor"
 
 The frontend renders the Campfire MVP screens and preserves the visual system in
 `DESIGN.md`. It began as a mock-backed prototype in Spec 001; Spec 002 replaced
-the auth and preferences boundary with real backend calls.
+the auth boundary with real backend calls, and Spec 004 removed onboarding and
+musical preferences from the active app.
 
 ## Stack
 
@@ -33,7 +34,7 @@ apps/web/
 └── src/
     ├── main.tsx
     ├── app/             # App shell, routes, session store
-    ├── pages/           # Landing, SignIn, SignUp, Onboarding, Home
+    ├── pages/           # Landing, SignIn, SignUp, Home, Repertoire
     ├── features/        # Feature-scoped components and logic
     ├── shared/          # Shared UI primitives (buttons, forms, etc.)
     ├── theme/           # Tokens and accent presets
@@ -51,8 +52,11 @@ apps/web/
 | `/` | Landing | Public |
 | `/signin` | Sign In | Public |
 | `/signup` | Sign Up | Public |
-| `/onboarding` | Onboarding | Session required, else redirect to `/` |
 | `/home` | Home | Session required, else redirect to `/` |
+| `/repertoire` | Repertoire | Session required, else redirect to `/` |
+
+Stale `/onboarding` links are not active routes. Signed-out users are sent to
+`/`; signed-in users are sent to `/home`.
 
 ## Session model
 

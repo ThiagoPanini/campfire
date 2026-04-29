@@ -1,6 +1,6 @@
 from typing import Annotated, Literal
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field
+from pydantic import AfterValidator, BaseModel, Field
 
 from campfire_api.contexts.identity.domain.value_objects import Email
 
@@ -17,16 +17,6 @@ CampfireEmail = Annotated[str, AfterValidator(validate_email)]
 
 class ErrorResponse(BaseModel):
     message: str
-
-
-class PreferencesPayload(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-    instruments: list[str] = Field(default_factory=list)
-    genres: list[str] = Field(default_factory=list)
-    context: str | None = None
-    goals: list[str] = Field(default_factory=list)
-    experience: str | None = None
 
 
 class RegisterRequest(BaseModel):
@@ -48,8 +38,6 @@ class TokenResponse(BaseModel):
 class MeResponse(BaseModel):
     displayName: str
     email: CampfireEmail
-    firstLogin: bool
-    preferences: PreferencesPayload
 
 
 class GoogleStubRequest(BaseModel):

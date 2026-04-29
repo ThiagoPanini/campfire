@@ -8,9 +8,9 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 from testcontainers.postgres import PostgresContainer
 
-from campfire_api.contexts.identity.adapters.persistence.engine import dispose_engine
 from campfire_api.main import create_app
 from campfire_api.settings import get_settings_provider
+from campfire_api.shared.persistence.engine import dispose_engine
 
 COMPOSE_TEST_DATABASE_URL = "postgresql+asyncpg://campfire:campfire@localhost:5432/campfire_test"
 ADA_ID = "018f0000-0000-7000-8000-000000000001"
@@ -56,15 +56,15 @@ async def reset_db(database_url: str) -> AsyncIterator[None]:
     async with engine.begin() as conn:
         await conn.execute(
             text(
-                "TRUNCATE refresh_tokens, sessions, preferences, credentials, users "
+                "TRUNCATE refresh_tokens, sessions, credentials, users "
                 "RESTART IDENTITY CASCADE"
             )
         )
         await conn.execute(
             text(
                 """
-                INSERT INTO users (id, email, display_name, first_login)
-                VALUES (:id, 'ada@campfire.test', 'Ada', false)
+                INSERT INTO users (id, email, display_name)
+                VALUES (:id, 'ada@campfire.test', 'Ada')
                 """
             ),
             {"id": ADA_ID},
@@ -72,22 +72,6 @@ async def reset_db(database_url: str) -> AsyncIterator[None]:
         await conn.execute(
             text("INSERT INTO credentials (user_id, password_hash) VALUES (:id, :password_hash)"),
             {"id": ADA_ID, "password_hash": ADA_HASH},
-        )
-        await conn.execute(
-            text(
-                """
-                INSERT INTO preferences (user_id, instruments, genres, context, goals, experience)
-                VALUES (
-                  :id,
-                  '["Acoustic Guitar","Vocals"]'::jsonb,
-                  '["Rock","MPB","Bossa Nova"]'::jsonb,
-                  'friends',
-                  '["Track my full repertoire","Share my set with the group"]'::jsonb,
-                  'intermediate'
-                )
-                """
-            ),
-            {"id": ADA_ID},
         )
     await engine.dispose()
     yield

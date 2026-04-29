@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campfire — /home redesign</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    html, body { margin: 0; padding: 0; background: #0b0b0b; color: #fff; font-family: 'Space Grotesk', sans-serif; min-height: 100%; }
+    *, *::before, *::after { box-sizing: border-box; }
+    button { cursor: pointer; }
+    .cf-display, .cf-mono { font-feature-settings: "kern"; }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="src/repertoire-shared.jsx"></script>
+  <script type="text/babel" src="src/repertoire-icons.jsx"></script>
+  <script type="text/babel" src="src/home-redesign.jsx"></script>
+  <script type="text/babel" src="src/home-final.jsx"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    function CanvasStyles() {
+      return <style dangerouslySetInnerHTML={{ __html: window.SHARED_CSS }} />;
+    }
+
+    function Frame({ children }) {
+      return (
+        <div className="cf" style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
+          {children}
+        </div>
+      );
+    }
+
+    const W = 1280;
+    const H = 1240;
+    const FINAL_H = 1380;
+
+    function App() {
+      return (
+        <>
+          <CanvasStyles />
+          <DesignCanvas
+            title="CAMPFIRE — /HOME REDESIGN"
+            subtitle="Final direction up top, earlier explorations kept below for reference."
+          >
+            <DCSection
+              id="final"
+              title="★ FINAL · CAMPFIRE CONTROL ROOM"
+              subtitle="Merges the strongest pieces: Mantle's title, Wall's compact status, Console's last-added card and horizontal coming-soon rail. No preferences panel, no fake metrics."
+            >
+              <DCArtboard id="final-populated" label="Populated · 6 songs in repertoire" width={W} height={FINAL_H}>
+                <Frame><HomeFinal /></Frame>
+              </DCArtboard>
+              <DCArtboard id="final-empty" label="Empty state · no songs yet" width={W} height={FINAL_H}>
+                <Frame><HomeFinalEmpty /></Frame>
+              </DCArtboard>
+            </DCSection>
+
+            <DCSection
+              id="rationale"
+              title="00 · DESIGN NOTES"
+              subtitle="Read first. The diagnosis, the system, and the three directions."
+            >
+              <DCArtboard id="notes" label="Design notes" width={W} height={H}>
+                <Frame>
+                  <div style={{ padding: "56px clamp(28px, 5vw, 64px)", color: "#ddd", fontFamily: "'Space Grotesk', sans-serif", maxWidth: 880, margin: "0 auto", lineHeight: 1.65 }}>
+                    <p className="cf-mono" style={{ color: "#E8813A", margin: "0 0 18px", fontSize: 11 }}>CAMPFIRE · /HOME REDESIGN</p>
+                    <h1 className="cf-display" style={{ fontSize: 56, lineHeight: 0.95, margin: "0 0 24px" }}>FROM A WELCOME CARD<br/>TO A CONTROL ROOM.</h1>
+                    <p style={{ color: "#bdbdbd", fontSize: 16, margin: "0 0 28px" }}>
+                      Today's <code style={{ color: "#E8813A" }}>/home</code> is a one-column lane with a heading, a paragraph, an email + preferences readout, and a single "UPDATE PREFERENCES" button. It greets you and stops there. After login, the user wants momentum — what to play, what to add, what's coming.
+                    </p>
+
+                    <h2 className="cf-display" style={{ fontSize: 22, color: "#fff", margin: "32px 0 12px" }}>FIVE INGREDIENTS, USED ACROSS ALL THREE</h2>
+                    <ul style={{ color: "#bdbdbd", fontSize: 14.5, paddingLeft: 18, margin: "0 0 24px" }}>
+                      <li><b style={{ color:"#fff" }}>Personal hero</b> — name, time-of-day, the count of songs in pocket. Primary action lives here: <code style={{color:"#E8813A"}}>ADD SONG</code>.</li>
+                      <li><b style={{ color:"#fff" }}>Music identity strip</b> — instruments, genres, context, experience. Pulled from the existing <code>Preferences</code> object. No new fields.</li>
+                      <li><b style={{ color:"#fff" }}>Repertoire snapshot</b> — Total / Ready / Practicing / Learning counters, plus the last 3–4 songs as a compact peek. Links into the existing repertoire route.</li>
+                      <li><b style={{ color:"#fff" }}>Next move</b> — a single recommendation card derived from the user's own data: oldest learning/practicing song. "Practice this tonight."</li>
+                      <li><b style={{ color:"#fff" }}>Roadmap rail</b> — Jam Sessions, Shared Setlists, Practice Queue, Circle Members. Clearly <code>LOCKED · SOON</code>. Visible, not misleading.</li>
+                    </ul>
+
+                    <h2 className="cf-display" style={{ fontSize: 22, color: "#fff", margin: "32px 0 12px" }}>THREE DIRECTIONS</h2>
+                    <div style={{ display: "grid", gap: 14 }}>
+                      <div style={{ padding: 18, border: "1px solid #1e1e1e", background: "#181818", borderRadius: 8 }}>
+                        <p className="cf-mono" style={{ color: "#E8813A", fontSize: 10, margin: "0 0 6px" }}>VARIANT A</p>
+                        <h3 className="cf-display" style={{ fontSize: 26, margin: "0 0 6px" }}>THE CONSOLE</h3>
+                        <p style={{ color: "#bdbdbd", fontSize: 13.5, margin: 0 }}>One column, top-down. Hero → identity strip → snapshot + next move (2-up) → roadmap rail. The most production-safe direction — fits the spec-003 system as-is.</p>
+                      </div>
+                      <div style={{ padding: 18, border: "1px solid #1e1e1e", background: "#181818", borderRadius: 8 }}>
+                        <p className="cf-mono" style={{ color: "#E8813A", fontSize: 10, margin: "0 0 6px" }}>VARIANT B</p>
+                        <h3 className="cf-display" style={{ fontSize: 26, margin: "0 0 6px" }}>THE MANTLE</h3>
+                        <p style={{ color: "#bdbdbd", fontSize: 13.5, margin: 0 }}>Two columns. Identity card + primary actions on the left, repertoire / next move / roadmap stacked on the right. Feels like sitting at a desk.</p>
+                      </div>
+                      <div style={{ padding: 18, border: "1px solid #1e1e1e", background: "#181818", borderRadius: 8 }}>
+                        <p className="cf-mono" style={{ color: "#E8813A", fontSize: 10, margin: "0 0 6px" }}>VARIANT C</p>
+                        <h3 className="cf-display" style={{ fontSize: 26, margin: "0 0 6px" }}>THE WALL</h3>
+                        <p style={{ color: "#bdbdbd", fontSize: 13.5, margin: 0 }}>Asymmetric panel grid. Big typographic hero, then a 6-col board of cards — counters, last added, next move, identity, future modules. The most "rehearsal-room board" direction.</p>
+                      </div>
+                    </div>
+
+                    <h2 className="cf-display" style={{ fontSize: 22, color: "#fff", margin: "32px 0 12px" }}>WHAT'S NEW vs WHAT TO RE-USE</h2>
+                    <p style={{ color: "#bdbdbd", fontSize: 14.5, margin: "0 0 12px" }}>
+                      Re-uses: <code>Preferences</code>, <code>MockUser</code>, repertoire data, <code>AccentButton</code> / <code>GhostButton</code>, all <code>--cf-*</code> tokens, <code>InstrumentIcon</code>, <code>CoverBlock</code>, <code>ProficiencyDots</code>. New: a small set of layout components (<code>StatTile</code>, <code>NextMoveCard</code>, <code>FutureTile</code>) co-located inside <code>HomePage.tsx</code> or under <code>features/home/</code>.
+                    </p>
+                    <p style={{ color: "#888", fontSize: 13, margin: 0 }}>
+                      Add-Song is wired through the existing <code>/repertoire/add</code> route to avoid a routing/state refactor. The action lives on home, the flow stays where it already works.
+                    </p>
+                  </div>
+                </Frame>
+              </DCArtboard>
+            </DCSection>
+
+            <DCSection id="variants" title="01 · /HOME — THREE CONCEPTS" subtitle="All three obey the spec-003 system. Compare side-by-side and pick a rhythm.">
+              <DCArtboard id="console" label="A · The Console — vertical stack" width={W} height={H}>
+                <Frame><HomeConsole /></Frame>
+              </DCArtboard>
+              <DCArtboard id="mantle" label="B · The Mantle — split column" width={W} height={H}>
+                <Frame><HomeMantle /></Frame>
+              </DCArtboard>
+              <DCArtboard id="wall" label="C · The Wall — panel grid" width={W} height={H}>
+                <Frame><HomeWall /></Frame>
+              </DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

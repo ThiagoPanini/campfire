@@ -16,9 +16,8 @@ The authoritative data model is `specs/002-backend-auth-slice/data-model.md`.
 
 | Table | Purpose |
 | --- | --- |
-| `users` | Persistent identity, normalized email, display name, first-login state. |
+| `users` | Persistent identity, normalized email, display name, and timestamps. |
 | `credentials` | Argon2 password hash for password-based users. |
-| `preferences` | User-owned onboarding selections. |
 | `sessions` | Access-token session records and session-family state. |
 | `refresh_tokens` | Hashed refresh-token fingerprints and rotation state. |
 | `alembic_version` | Alembic migration bookkeeping. |
@@ -44,7 +43,8 @@ Migrations live under `apps/api/alembic/versions/`.
 | --- | --- |
 | `0000_baseline.py` | Empty baseline for Alembic wiring. |
 | `0001_identity_initial.py` | Identity schema. |
-| `0002_seed_ada.py` | Idempotent seeded account and preferences. |
+| `0002_seed_ada.py` | Idempotent seeded account. |
+| `0004_remove_identity_preferences.py` | Removes retired onboarding preference persistence. |
 
 Run migrations with:
 

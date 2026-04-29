@@ -1,4 +1,4 @@
-.PHONY: run test test-unit test-integration test-integration-compose migrate downgrade seed lint format openapi-snapshot db-reset check-aurora-extensions
+.PHONY: run test test-unit test-integration test-integration-compose migrate downgrade migration migration-empty db-current db-history db-heads db-check seed lint format openapi-snapshot db-reset check-aurora-extensions
 
 run:
 	uv run uvicorn campfire_api.main:app --reload --port 8000
@@ -20,6 +20,24 @@ migrate:
 
 downgrade:
 	uv run alembic downgrade -1
+
+migration:
+	uv run alembic revision --autogenerate -m "$(name)"
+
+migration-empty:
+	uv run alembic revision -m "$(name)"
+
+db-current:
+	uv run alembic current
+
+db-history:
+	uv run alembic history
+
+db-heads:
+	uv run alembic heads
+
+db-check:
+	uv run alembic check
 
 seed:
 	uv run python scripts/seed.py

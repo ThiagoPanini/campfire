@@ -8,7 +8,10 @@ async def test_register_happy_path(client) -> None:
         "/auth/register", json={"email": "new@campfire.test", "password": "campfire123"}
     )
     assert response.status_code == 201
-    assert response.json()["firstLogin"] is True
+    body = response.json()
+    assert body["email"] == "new@campfire.test"
+    assert body["displayName"] == "New"
+    assert "firstLogin" not in body
 
 
 async def test_register_duplicate(client) -> None:

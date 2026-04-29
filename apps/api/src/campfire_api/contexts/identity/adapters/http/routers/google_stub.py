@@ -44,7 +44,6 @@ async def google_stub(
     )
     issued = await ContinueWithGoogleStub(
         repos["users"],
-        repos["preferences"],
         authenticator,
         clock,
         await settings.google_stub_enabled(),

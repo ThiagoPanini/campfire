@@ -1,11 +1,8 @@
-import type { Preferences } from "@features/onboarding";
-
 export type MockUser = {
+  id?: string;
   displayName: string;
   email: string;
   password: string;
-  firstLogin: boolean;
-  preferences: Preferences;
+  memberSince?: string;
+  createdAt?: string;
 };
-
-export type AuthMode = "firstLogin" | "returning";

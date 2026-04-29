@@ -7,9 +7,8 @@ This query looks for situations that should not appear in a healthy identity
 database.
 
 Tables covered:
-- users: should have normalized email and one row in preferences.
+- users: should have normalized email.
 - credentials: should exist for users with local password login.
-- preferences: should exist so /me can return the full profile.
 - sessions and refresh_tokens: should preserve the single-use refresh token
   rule.
 
@@ -20,19 +19,9 @@ How to interpret:
 */
 
 SELECT
-  'users_without_preferences' AS check_name,
+  'users_without_local_credentials' AS check_name,
   COUNT(*) AS problem_count,
-  'Every user should have one preferences row so /me can return the full profile.' AS why_it_matters
-FROM users u
-LEFT JOIN preferences p ON p.user_id = u.id
-WHERE p.user_id IS NULL
-
-UNION ALL
-
-SELECT
-  'users_without_local_credentials',
-  COUNT(*),
-  'Password-created users should have local credentials; the local Google stub is a known exception.'
+  'Password-created users should have local credentials; the local Google stub is a known exception.' AS why_it_matters
 FROM users u
 LEFT JOIN credentials c ON c.user_id = u.id
 WHERE c.user_id IS NULL

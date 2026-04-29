@@ -16,7 +16,6 @@ from campfire_api.contexts.identity.adapters.http.deps import (
 from campfire_api.contexts.identity.adapters.http.schemas import (
     LoginRequest,
     MeResponse,
-    PreferencesPayload,
     RegisterRequest,
     TokenResponse,
 )
@@ -85,13 +84,11 @@ async def register(
 ) -> MeResponse:
     await enforce_auth_rate_limit(request, payload, limiter)
     user = await RegisterUser(
-        repos["users"], repos["credentials"], repos["preferences"], hasher, clock
+        repos["users"], repos["credentials"], hasher, clock
     )(str(payload.email), payload.password)
     return MeResponse(
         displayName=user.display_name.value,
         email=user.email.value,
-        firstLogin=user.first_login,
-        preferences=PreferencesPayload(),
     )
 
 

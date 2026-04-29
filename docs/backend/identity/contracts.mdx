@@ -38,9 +38,24 @@ Errors use a compact JSON body:
 ```
 
 Authentication failures return `401` with a generic message. Duplicate
-registration returns `409`. Unknown catalog ids return `422`. Rate-limited login
-and register attempts return `429` plus `Retry-After`. Disabled Google stub
-returns `503`.
+registration returns `409`. Rate-limited login and register attempts return
+`429` plus `Retry-After`. Disabled Google stub returns `503`.
+
+## Identity shape
+
+`GET /me` and `POST /auth/register` now expose only identity fields:
+
+```json
+{
+  "displayName": "Ada",
+  "email": "ada@campfire.test"
+}
+```
+
+The legacy preference surface was removed:
+- `/me/preferences` is not part of OpenAPI.
+- `firstLogin` is not part of `MeResponse`.
+- `PreferencesPayload` is not part of schemas.
 
 ## Environment
 

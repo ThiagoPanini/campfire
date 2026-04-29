@@ -25,7 +25,6 @@ class SqlAlchemyUserRepository:
                 id=user.id.value,
                 email=user.email.value,
                 display_name=user.display_name.value,
-                first_login=user.first_login,
                 created_at=user.created_at,
                 updated_at=user.updated_at,
             )
@@ -38,6 +37,5 @@ class SqlAlchemyUserRepository:
             return
         row.email = user.email.value
         row.display_name = user.display_name.value
-        row.first_login = user.first_login
         row.updated_at = user.updated_at
         await self.session.flush()

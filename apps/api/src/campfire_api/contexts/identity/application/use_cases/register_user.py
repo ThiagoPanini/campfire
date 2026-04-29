@@ -1,17 +1,11 @@
 from dataclasses import dataclass
 
 from campfire_api.contexts.identity.application.errors import EmailAlreadyRegistered
-from campfire_api.contexts.identity.domain.entities import (
-    Credentials,
-    PreferencesProfile,
-    User,
-    display_name_from_email,
-)
+from campfire_api.contexts.identity.domain.entities import Credentials, User, display_name_from_email
 from campfire_api.contexts.identity.domain.ports import (
     Clock,
     CredentialsRepository,
     PasswordHasher,
-    PreferencesRepository,
     UserRepository,
 )
 from campfire_api.contexts.identity.domain.value_objects import Email, HashedPassword, UserId
@@ -21,7 +15,6 @@ from campfire_api.contexts.identity.domain.value_objects import Email, HashedPas
 class RegisterUser:
     users: UserRepository
     credentials: CredentialsRepository
-    preferences: PreferencesRepository
     hasher: PasswordHasher
     clock: Clock
 
@@ -36,14 +29,10 @@ class RegisterUser:
             id=UserId.new(),
             email=normalized,
             display_name=display_name_from_email(normalized),
-            first_login=True,
             created_at=now,
             updated_at=now,
         )
         password_hash = HashedPassword(await self.hasher.hash(password))
         await self.users.add(user)
-        await self.credentials.add(
-            Credentials.from_plaintext(user.id, password, password_hash, now)
-        )
-        await self.preferences.add(PreferencesProfile(user_id=user.id, updated_at=now))
+        await self.credentials.add(Credentials.from_plaintext(user.id, password, password_hash, now))
         return user

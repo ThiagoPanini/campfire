@@ -1,4 +1,3 @@
-from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import UTC
 
@@ -11,16 +10,12 @@ from campfire_api.contexts.identity.adapters.clock.system_clock import SystemClo
 from campfire_api.contexts.identity.adapters.persistence.credentials_repository import (
     SqlAlchemyCredentialsRepository,
 )
-from campfire_api.contexts.identity.adapters.persistence.preferences_repository import (
-    SqlAlchemyPreferencesRepository,
-)
 from campfire_api.contexts.identity.adapters.persistence.refresh_token_repository import (
     SqlAlchemyRefreshTokenRepository,
 )
 from campfire_api.contexts.identity.adapters.persistence.session_repository import (
     SqlAlchemySessionRepository,
 )
-from campfire_api.contexts.identity.adapters.persistence.unit_of_work import session_scope
 from campfire_api.contexts.identity.adapters.persistence.user_repository import (
     SqlAlchemyUserRepository,
 )
@@ -34,6 +29,7 @@ from campfire_api.contexts.identity.application.errors import (
     SessionRevokedError,
 )
 from campfire_api.settings import SettingsProvider
+from campfire_api.shared.persistence.deps import get_db_session, get_settings
 
 bearer = HTTPBearer(auto_error=False)
 
@@ -45,17 +41,6 @@ class AuthContext:
     family_id: object
 
 
-async def get_settings(request: Request) -> SettingsProvider:
-    return request.app.state.settings_provider
-
-
-async def get_db_session(
-    settings: SettingsProvider = Depends(get_settings),
-) -> AsyncIterator[AsyncSession]:
-    async for session in session_scope(settings):
-        yield session
-
-
 async def ping_database(session: AsyncSession) -> None:
     await session.execute(text("SELECT 1"))
 
@@ -64,7 +49,6 @@ async def get_repositories(session: AsyncSession = Depends(get_db_session)):
     return {
         "users": SqlAlchemyUserRepository(session),
         "credentials": SqlAlchemyCredentialsRepository(session),
-        "preferences": SqlAlchemyPreferencesRepository(session),
         "sessions": SqlAlchemySessionRepository(session),
         "refresh_tokens": SqlAlchemyRefreshTokenRepository(session),
     }

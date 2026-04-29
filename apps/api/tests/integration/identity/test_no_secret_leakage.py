@@ -19,9 +19,6 @@ async def test_documented_endpoints_do_not_leak_secrets(client, caplog) -> None:
             "/auth/register", json={"email": "new@campfire.test", "password": "campfire123"}
         ),
         await client.get("/me", headers={"Authorization": f"Bearer {access}"}),
-        await client.patch(
-            "/me/preferences", headers=headers, json={"instruments": [], "genres": [], "goals": []}
-        ),
         await client.get("/healthz"),
         await client.get("/readyz"),
         await client.post("/auth/logout", headers=headers),

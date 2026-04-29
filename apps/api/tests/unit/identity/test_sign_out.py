@@ -6,7 +6,6 @@ from campfire_api.contexts.identity.application.use_cases.sign_out import Revoke
 from tests.unit.identity.fakes import (
     FakeCredentials,
     FakeHasher,
-    FakePreferences,
     FakeRefreshTokens,
     FakeSessions,
     FakeTokenIssuer,
@@ -19,8 +18,8 @@ pytestmark = pytest.mark.unit
 
 async def test_sign_out_revokes_session_and_refresh_family_idempotently() -> None:
     clock = FrozenClock()
-    users, credentials, preferences = FakeUsers(), FakeCredentials(), FakePreferences()
-    await RegisterUser(users, credentials, preferences, FakeHasher(), clock)(
+    users, credentials = FakeUsers(), FakeCredentials()
+    await RegisterUser(users, credentials, FakeHasher(), clock)(
         "ada@campfire.test", "campfire123"
     )
     sessions, refresh_tokens = FakeSessions(), FakeRefreshTokens()

@@ -11,17 +11,12 @@ from uuid import UUID, uuid4
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from campfire_api.contexts.identity.adapters.clock.system_clock import SystemClock
-from campfire_api.contexts.identity.adapters.http.routers.me import to_me_response
 from campfire_api.contexts.identity.adapters.http.schemas import (
     MeResponse,
-    PreferencesPayload,
     TokenResponse,
 )
 from campfire_api.contexts.identity.adapters.persistence.credentials_repository import (
     SqlAlchemyCredentialsRepository,
-)
-from campfire_api.contexts.identity.adapters.persistence.preferences_repository import (
-    SqlAlchemyPreferencesRepository,
 )
 from campfire_api.contexts.identity.adapters.persistence.refresh_token_repository import (
     SqlAlchemyRefreshTokenRepository,
@@ -58,9 +53,6 @@ from campfire_api.contexts.identity.application.use_cases.session_tokens import 
 )
 from campfire_api.contexts.identity.application.use_cases.sign_out import (
     RevokeSession,
-)
-from campfire_api.contexts.identity.application.use_cases.update_preferences import (
-    UpdatePreferences,
 )
 from campfire_api.contexts.repertoire.adapters.caching.ttl_search_cache import (
     TtlSearchCache,
@@ -154,7 +146,6 @@ class Runtime:
 class Repositories:
     users: SqlAlchemyUserRepository
     credentials: SqlAlchemyCredentialsRepository
-    preferences: SqlAlchemyPreferencesRepository
     sessions: SqlAlchemySessionRepository
     refresh_tokens: SqlAlchemyRefreshTokenRepository
     repertoire_entries: SqlAlchemyRepertoireEntryRepository
@@ -164,7 +155,6 @@ def build_repositories(session: AsyncSession) -> Repositories:
     return Repositories(
         users=SqlAlchemyUserRepository(session),
         credentials=SqlAlchemyCredentialsRepository(session),
-        preferences=SqlAlchemyPreferencesRepository(session),
         sessions=SqlAlchemySessionRepository(session),
         refresh_tokens=SqlAlchemyRefreshTokenRepository(session),
         repertoire_entries=SqlAlchemyRepertoireEntryRepository(session),
@@ -323,7 +313,6 @@ async def register_user_flow(
         user = await RegisterUser(
             repos.users,
             repos.credentials,
-            repos.preferences,
             runtime.hasher,
             runtime.clock,
         )(email, password)
@@ -331,8 +320,6 @@ async def register_user_flow(
         return MeResponse(
             displayName=user.display_name.value,
             email=user.email.value,
-            firstLogin=user.first_login,
-            preferences=PreferencesPayload(),
         )
 
     return await run_in_unit_of_work(runtime, operation)
@@ -382,51 +369,12 @@ async def get_me_flow(
         context = await resolve_auth_context(runtime, repos, access_token)
         current = await GetCurrentUser(
             repos.users,
-            repos.preferences,
         )(context.user_id)
 
-        return to_me_response(current)
-
-    return await run_in_unit_of_work(runtime, operation)
-
-
-async def update_preferences_flow(
-    runtime: Runtime,
-    access_token: str,
-) -> MeResponse:
-    preferences_payload = PreferencesPayload(
-        instruments=[INSTRUMENT],
-        genres=["Rock", "MPB"],
-        context="friends",
-        goals=[
-            "Learn new songs faster",
-            "Track my full repertoire",
-        ],
-        experience="intermediate",
-    )
-
-    async def operation(repos: Repositories) -> MeResponse:
-        context = await resolve_auth_context(runtime, repos, access_token)
-
-        await UpdatePreferences(
-            repos.users,
-            repos.preferences,
-            runtime.clock,
-        )(
-            context.user_id,
-            preferences_payload.instruments,
-            preferences_payload.genres,
-            preferences_payload.context,
-            preferences_payload.goals,
-            preferences_payload.experience,
+        return MeResponse(
+            displayName=current.display_name.value,
+            email=current.email.value,
         )
-
-        current = await GetCurrentUser(
-            repos.users,
-            repos.preferences,
-        )(context.user_id)
-
-        return to_me_response(current)
 
     return await run_in_unit_of_work(runtime, operation)
 
@@ -641,19 +589,8 @@ async def main() -> int:
             lambda: get_me_flow(runtime, access_token),
         )
 
-        await run_step(
-            "4. Update preferences via UpdatePreferences use case",
-            {
-                "instrument": INSTRUMENT,
-                "genres": ["Rock", "MPB"],
-                "context": "friends",
-                "experience": "intermediate",
-            },
-            lambda: update_preferences_flow(runtime, access_token),
-        )
-
         refreshed = await run_step(
-            "5. Refresh session via RefreshSession use case",
+            "4. Refresh session via RefreshSession use case",
             {"refreshToken": mask_token(refresh_token)},
             lambda: refresh_session_flow(runtime, refresh_token),
         )
@@ -664,7 +601,7 @@ async def main() -> int:
 
         if RUN_SEARCH_FLOW:
             search_response = await run_step(
-                "6. Search songs via SearchSongs use case",
+                "5. Search songs via SearchSongs use case",
                 {"query": SEARCH_QUERY, "catalog": "FakeSongCatalog"},
                 lambda: search_songs_flow(runtime, access_token, SEARCH_QUERY),
             )
@@ -672,7 +609,7 @@ async def main() -> int:
         entry_payload = build_entry_payload(search_response)
 
         created = await run_step(
-            "7. Add repertoire entry via AddOrUpdateEntry use case",
+            "6. Add repertoire entry via AddOrUpdateEntry use case",
             entry_payload,
             lambda: add_or_update_entry_flow(
                 runtime,
@@ -685,13 +622,13 @@ async def main() -> int:
         entry_id = entry_response.id
 
         await run_step(
-            "8. List repertoire entries via ListMyEntries use case",
+            "7. List repertoire entries via ListMyEntries use case",
             None,
             lambda: list_entries_flow(runtime, access_token),
         )
 
         await run_step(
-            "9. Update entry proficiency via UpdateProficiency use case",
+            "8. Update entry proficiency via UpdateProficiency use case",
             {"entryId": str(entry_id), "proficiency": "practicing"},
             lambda: update_entry_proficiency_flow(
                 runtime,
@@ -701,32 +638,32 @@ async def main() -> int:
         )
 
         await run_step(
-            "10. List repertoire entries after update",
+            "9. List repertoire entries after update",
             None,
             lambda: list_entries_flow(runtime, access_token),
         )
 
         await run_step(
-            "11. Remove repertoire entry via RemoveEntry use case",
+            "10. Remove repertoire entry via RemoveEntry use case",
             {"entryId": str(entry_id)},
             lambda: remove_entry_flow(runtime, access_token, entry_id),
         )
 
         await run_step(
-            "12. List repertoire entries after removal",
+            "11. List repertoire entries after removal",
             None,
             lambda: list_entries_flow(runtime, access_token),
         )
 
         await run_step(
-            "13. Sign out via RevokeSession use case",
+            "12. Sign out via RevokeSession use case",
             {"accessToken": mask_token(access_token)},
             lambda: logout_flow(runtime, access_token),
         )
 
         try:
             await run_step(
-                "14. Try to resolve current user after logout",
+                "13. Try to resolve current user after logout",
                 {"accessToken": mask_token(access_token)},
                 lambda: get_me_flow(runtime, access_token),
             )

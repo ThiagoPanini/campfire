@@ -7,7 +7,6 @@ from campfire_api.contexts.identity.application.use_cases.register_user import R
 from tests.unit.identity.fakes import (
     FakeCredentials,
     FakeHasher,
-    FakePreferences,
     FakeRefreshTokens,
     FakeSessions,
     FakeTokenIssuer,
@@ -20,8 +19,8 @@ pytestmark = pytest.mark.unit
 
 async def setup_refresh():
     clock = FrozenClock()
-    users, credentials, preferences = FakeUsers(), FakeCredentials(), FakePreferences()
-    await RegisterUser(users, credentials, preferences, FakeHasher(), clock)(
+    users, credentials = FakeUsers(), FakeCredentials()
+    await RegisterUser(users, credentials, FakeHasher(), clock)(
         "ada@campfire.test", "campfire123"
     )
     sessions, refresh_tokens, issuer = FakeSessions(), FakeRefreshTokens(), FakeTokenIssuer(clock)

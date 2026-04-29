@@ -3,18 +3,21 @@ from __future__ import annotations
 import asyncio
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from campfire_api.contexts.identity.adapters.persistence.models import Base
+from alembic import context
 from campfire_api.settings import EnvSettingsProvider
+from campfire_api.shared.persistence import models as _all_models  # noqa: F401
+from campfire_api.shared.persistence.base import Base
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# shared/persistence/models.py imports every ORM model module so all tables are
+# registered with Base.metadata before Alembic reads it for autogenerate.
 target_metadata = Base.metadata
 
 
@@ -24,7 +27,12 @@ async def database_url() -> str:
 
 def run_migrations_offline() -> None:
     url = asyncio.run(database_url())
-    context.configure(url=url, target_metadata=target_metadata, literal_binds=True, dialect_opts={"paramstyle": "named"})
+    context.configure(
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+    )
     with context.begin_transaction():
         context.run_migrations()
 

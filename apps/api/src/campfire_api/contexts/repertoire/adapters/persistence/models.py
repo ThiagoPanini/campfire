@@ -3,12 +3,12 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, UniqueConstraint
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
-from campfire_api.contexts.identity.adapters.persistence.models import Base
+from campfire_api.shared.persistence.base import Base
 
 
 class RepertoireEntryRow(Base):
@@ -42,13 +42,14 @@ class RepertoireEntryRow(Base):
             "proficiency IN ('learning','practicing','ready')",
             name="ck_repertoire_entries_proficiency",
         ),
-        UniqueConstraint(
+        Index(
+            "ux_repertoire_entries_user_song_instrument",
             "user_id",
             "song_external_id",
             "instrument",
-            name="ux_repertoire_entries_user_song_instrument",
+            unique=True,
         ),
-        Index("ix_repertoire_entries_user_recent", "user_id", "created_at"),
+        Index("ix_repertoire_entries_user_recent", "user_id", text("created_at DESC")),
     )
 
     id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)

@@ -240,27 +240,6 @@ def main() -> int:
                 token=access_token,
             )
 
-            preferences_payload = {
-                "instruments": [INSTRUMENT],
-                "genres": ["rock", "mpb"],
-                "context": "Local API debugging flow",
-                "goals": [
-                    "understand backend behavior",
-                    "exercise main endpo"
-                    "ints",
-                ],
-                "experience": "intermediate",
-            }
-
-            call(
-                client,
-                "PATCH",
-                "/me/preferences",
-                expected=200,
-                payload=preferences_payload,
-                token=access_token,
-            )
-
             refreshed = call(
                 client,
                 "POST",

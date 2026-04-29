@@ -1,19 +1,7 @@
-import type { Preferences } from "@features/onboarding";
-
-export const seededPreferences: Preferences = {
-  instruments: ["Acoustic Guitar", "Vocals"],
-  genres: ["Rock", "MPB", "Bossa Nova"],
-  context: "friends",
-  goals: ["Track my full repertoire", "Share my set with the group"],
-  experience: "intermediate",
-};
-
 export const seededUser = {
   displayName: "Ada",
   email: "ada@campfire.test",
   password: "campfire123",
-  firstLogin: false,
-  preferences: seededPreferences,
 };
 
 export function displayNameFromEmail(email: string) {
