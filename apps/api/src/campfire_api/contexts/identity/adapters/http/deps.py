@@ -1,4 +1,3 @@
-from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import UTC
 
@@ -17,7 +16,6 @@ from campfire_api.contexts.identity.adapters.persistence.refresh_token_repositor
 from campfire_api.contexts.identity.adapters.persistence.session_repository import (
     SqlAlchemySessionRepository,
 )
-from campfire_api.contexts.identity.adapters.persistence.unit_of_work import session_scope
 from campfire_api.contexts.identity.adapters.persistence.user_repository import (
     SqlAlchemyUserRepository,
 )
@@ -31,6 +29,7 @@ from campfire_api.contexts.identity.application.errors import (
     SessionRevokedError,
 )
 from campfire_api.settings import SettingsProvider
+from campfire_api.shared.persistence.deps import get_db_session, get_settings
 
 bearer = HTTPBearer(auto_error=False)
 
@@ -40,17 +39,6 @@ class AuthContext:
     user_id: object
     session_id: object
     family_id: object
-
-
-async def get_settings(request: Request) -> SettingsProvider:
-    return request.app.state.settings_provider
-
-
-async def get_db_session(
-    settings: SettingsProvider = Depends(get_settings),
-) -> AsyncIterator[AsyncSession]:
-    async for session in session_scope(settings):
-        yield session
 
 
 async def ping_database(session: AsyncSession) -> None:

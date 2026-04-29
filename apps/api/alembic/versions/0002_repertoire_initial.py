@@ -1,18 +1,19 @@
 """repertoire initial
 
-Revision ID: 0003_repertoire_initial
-Revises: 0002_seed_ada
+Revision ID: 0002_repertoire_initial
+Revises: 0001_identity_initial
 Create Date: 2026-04-27
 """
 
 from collections.abc import Sequence
 
 import sqlalchemy as sa
-from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision: str = "0003_repertoire_initial"
-down_revision: str | None = "0002_seed_ada"
+from alembic import op
+
+revision: str = "0002_repertoire_initial"
+down_revision: str | None = "0001_identity_initial"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

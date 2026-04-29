@@ -6,12 +6,10 @@ from uuid import UUID
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import BYTEA
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
-
-class Base(DeclarativeBase):
-    pass
+from campfire_api.shared.persistence.base import Base
 
 
 class UserRow(Base):

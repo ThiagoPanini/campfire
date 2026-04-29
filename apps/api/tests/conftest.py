@@ -8,9 +8,9 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 from testcontainers.postgres import PostgresContainer
 
-from campfire_api.contexts.identity.adapters.persistence.engine import dispose_engine
 from campfire_api.main import create_app
 from campfire_api.settings import get_settings_provider
+from campfire_api.shared.persistence.engine import dispose_engine
 
 COMPOSE_TEST_DATABASE_URL = "postgresql+asyncpg://campfire:campfire@localhost:5432/campfire_test"
 ADA_ID = "018f0000-0000-7000-8000-000000000001"
