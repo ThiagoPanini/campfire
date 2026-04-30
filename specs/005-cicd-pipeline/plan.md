@@ -7,17 +7,17 @@
 
 Wire GitHub Actions as the sole orchestrator of validation and deployment for
 Campfire on Render, using a `feature → develop → main` branch promotion flow.
-A lightweight feature-PR workflow observes pushes to `###-feature-name`
-branches and creates, updates, or intentionally ignores a PR into `develop`
+The CI workflow observes pushes to `###-feature-name` branches and creates,
+updates, or intentionally ignores a PR into `develop` after validation passes,
 without changing application files. CI runs on PRs into `develop`/`main` and
 on pushes to those branches, with parallel jobs for frontend, backend
 (lint/typecheck, unit, integration with PostgreSQL), migrations/contracts, and
 docs/security; an aggregate `ci-status` job exposes a single required check for
 branch protection while preserving named job-level diagnostics. Deployment is
-performed by triggering Render Deploy Hooks from environment-scoped jobs only
-after the CI run for the branch tip has completed successfully: `develop`
-deploys after green CI for the `develop` tip and opens/updates a `develop →
-main` promotion PR; `production` deploys after green CI for the `main` tip
+performed by triggering Render Deploy Hooks from environment-scoped CI jobs only
+after the validation jobs for the branch tip have completed successfully:
+`develop` deploys after green CI for the `develop` tip and opens/updates a
+`develop → main` promotion PR; `production` deploys after green CI for the `main` tip
 behind a GitHub Environment approval gate, with a pre-flight check that fails
 closed when production secrets are absent. All deployments are followed by
 bounded post-deploy probes against `/healthz`, `/readyz`, and the public
@@ -76,10 +76,9 @@ specs/005-cicd-pipeline/
 ```text
 .github/
 ├── workflows/
-│   ├── feature-pr.yml                # push to ###-feature-name → create/update/ignore PR into develop
-│   ├── ci.yml                       # PR + push validation; jobs run in parallel; aggregate ci-status job
-│   ├── deploy-develop.yml           # green CI for develop tip → Render hooks → probes → promotion PR
-│   ├── deploy-production.yml       # green CI for main tip → environment gate → preflight → hooks → probes
+│   ├── ci.yml                       # validation + post-green auto PR/deploy jobs
+│   ├── deploy-develop.yml           # manual develop redeploy escape hatch
+│   ├── deploy-production.yml       # manual production redeploy escape hatch
 │   └── release-candidate.yml       # OPTIONAL — extracted promotion-PR job if deploy-develop.yml grows too large
 ├── pull_request_template.md        # Validation + promotion checklist
 └── dependabot.yml                  # npm, github-actions, pip (uv-compatible) ecosystems
@@ -123,8 +122,8 @@ cover.
    behaviour: trigger scope, ignore rules, idempotency, permissions, labels,
    and duplicate prevention.
 2. Change CD trigger semantics from "raw push starts deploy" to "successful
-   CI for the branch tip starts deploy" using `workflow_run` or an equivalent
-   explicit `ci-status` lookup for the exact SHA.
+   validation jobs for the branch tip start deploy" by placing deployment jobs
+   after `ci-status` inside `ci.yml`.
 3. Add a CI policy check that rejects PRs into `main` unless `head_ref` is
    `develop`, because GitHub settings alone may not express this safely across
    plans.

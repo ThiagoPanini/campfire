@@ -18,5 +18,5 @@ cat <<BODY
 
 - CI will run after this PR opens or updates.
 - Merge only after \`ci-status\` is green.
-- This PR was created or refreshed by \`.github/workflows/feature-pr.yml\`.
+- This PR was created or refreshed by the final automation job in \`.github/workflows/ci.yml\`.
 BODY

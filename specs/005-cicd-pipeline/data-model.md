@@ -68,10 +68,9 @@ below appears verbatim in workflow YAML. **Names are stable contract.**
 
 | Workflow | File | Triggers | Environment | Purpose |
 |---|---|---|---|---|
-| CI | `.github/workflows/ci.yml` | `pull_request` (target: `develop`, `main`); `push` (refs: `develop`, `main`); `workflow_dispatch` | none | Validation matrix; produces the `ci-status` aggregate check (FR-010..FR-023). |
-| Deploy Develop | `.github/workflows/deploy-develop.yml` | `push` (ref: `develop`); `workflow_dispatch` (ref: `develop` only) | `develop` | Deploy → probe → open/update promotion PR (FR-030..FR-036). |
-| Deploy Production | `.github/workflows/deploy-production.yml` | `push` (ref: `main`); `workflow_dispatch` (ref: `main` only) | `production` | Pre-flight → environment gate → deploy → probe → step summary (FR-040..FR-047). |
-| Release Candidate (optional) | `.github/workflows/release-candidate.yml` | `workflow_run` (deploy-develop completed) | none | Extracted promotion-PR job if `deploy-develop.yml` outgrows its scope. |
+| CI | `.github/workflows/ci.yml` | `pull_request` (target: `develop`, `main`); `push` (refs: `develop`, `main`, `###-*`); `workflow_dispatch` | `develop`/`production` only on post-validation deploy jobs | Validation matrix; produces the `ci-status` aggregate check; opens feature PRs; deploys develop/production after green validation (FR-010..FR-047). |
+| Manual Deploy Develop | `.github/workflows/deploy-develop.yml` | `workflow_dispatch` (ref: `develop` only) | `develop` | Manual redeploy → probe → open/update promotion PR (FR-030..FR-036, FR-060). |
+| Manual Deploy Production | `.github/workflows/deploy-production.yml` | `workflow_dispatch` (ref: `main` only) | `production` | Manual pre-flight → environment gate → deploy → probe → step summary (FR-040..FR-047, FR-060). |
 
 **State transitions** (CI):
 
@@ -80,6 +79,10 @@ queued → running → (per job) success | failure | cancelled
                             ↓
                       ci-status: success ⇔ all required jobs success
                                           else failure
+                                          ↓
+        feature push: create/update PR into develop
+        develop push: deploy Develop → promotion PR
+        main push: deploy Production
 ```
 
 **State transitions** (Deploy Develop):
@@ -105,7 +108,7 @@ queued → branch-guard (refuse if ref != main) → preflight-secrets
 ```
 
 **Concurrency**:
-- CI: `group: ci-${{ github.ref }}`, `cancel-in-progress: true`.
+- CI: `group: ci-${{ github.ref }}`, `cancel-in-progress` only for non-`develop`/`main` refs so branch deploys are queued, not cancelled mid-flight.
 - Deploy Develop: `group: deploy-develop`, `cancel-in-progress: false`.
 - Deploy Production: `group: deploy-production`, `cancel-in-progress: false`.
 
@@ -122,6 +125,11 @@ queued → branch-guard (refuse if ref != main) → preflight-secrets
 | `migrations-contracts` | — | Postgres 16 service → `alembic upgrade head` → `alembic current` → `alembic check` → `pytest -m contract tests/contract`. | yes |
 | `docs-and-repo-hygiene` | — | `.env.example` integrity; diff-based secrets scan; `docs/docs.json` parses; constitution file readable. | yes |
 | `ci-status` | all above | `if: always()` aggregator that fails iff any dependency failed. | **this is the single required check in branch protection** |
+| `create-feature-pr` | `ci-status` | Create/update feature PR into `develop` on green feature-branch pushes. | no |
+| `deploy-develop` | `ci-status` | Deploy and probe Develop on green `develop` pushes. | no |
+| `promotion-pr` | `deploy-develop` | Create/update `develop → main` PR after green Develop probes. | no |
+| `deploy-production` | `ci-status` | Deploy and probe Production on green `main` pushes behind Environment approval. | no |
+| `production-summary` | `deploy-production` | Record Production deployment result. | no |
 
 **Validation rules**:
 - Each job MUST set an explicit `timeout-minutes` (recommended 10 for build/test jobs, 5 for hygiene).
@@ -184,7 +192,7 @@ absent  ── successful develop deploy ──▶ open (created)
 open    ── subsequent successful develop deploy ──▶ open (updated in place)
 open    ── manually closed by maintainer ──▶ closed
 closed  ── next successful develop deploy ──▶ open (fresh PR; not reopened)
-open    ── merged into main ──▶ merged (triggers deploy-production.yml)
+open    ── merged into main ──▶ merged (triggers Production deploy job in ci.yml)
 ```
 
 ---

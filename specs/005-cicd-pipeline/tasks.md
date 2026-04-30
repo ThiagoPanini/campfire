@@ -105,11 +105,11 @@
 
 ### Implementation for User Story 1A
 
-- [X] T032 [US1A] Create feature PR workflow skeleton with push trigger, minimal permissions, and branch exclusions in `.github/workflows/feature-pr.yml`
-- [X] T033 [US1A] Add Spec-Kit branch pattern, deleted-ref, protected-branch, and no-diff guards in `.github/workflows/feature-pr.yml`
-- [X] T034 [US1A] Wire `scripts/ci/feature-pr-body.sh` and `scripts/ci/ensure-pr.sh` into `.github/workflows/feature-pr.yml`
-- [X] T035 [US1A] Add idempotent labels, title, body refresh, and duplicate prevention behavior in `.github/workflows/feature-pr.yml`
-- [X] T036 [US1A] Verify ignored branch, no-diff branch, first push, and repeated push behavior in `.github/workflows/feature-pr.yml`
+- [X] T032 [US1A] Create feature PR job with push trigger, minimal permissions, and branch exclusions in `.github/workflows/ci.yml`
+- [X] T033 [US1A] Add Spec-Kit branch pattern, deleted-ref, protected-branch, and no-diff guards in `.github/workflows/ci.yml`
+- [X] T034 [US1A] Wire `scripts/ci/feature-pr-body.sh` and `scripts/ci/ensure-pr.sh` into `.github/workflows/ci.yml`
+- [X] T035 [US1A] Add idempotent labels, title, body refresh, and duplicate prevention behavior in `.github/workflows/ci.yml`
+- [X] T036 [US1A] Verify ignored branch, no-diff branch, first push, and repeated push behavior in `.github/workflows/ci.yml`
 
 **Checkpoint**: User Story 1A can run independently from a pushed feature branch without changing application files.
 
@@ -189,7 +189,7 @@
 **Purpose**: Validate the full CI/CD package and align generated docs with the final implementation.
 
 - [X] T054 [P] Run shell syntax validation and fix issues in `scripts/ci/probe-url.sh`, `scripts/ci/render-deploy.sh`, `scripts/ci/preflight-secrets.sh`, `scripts/ci/feature-pr-body.sh`, `scripts/ci/promotion-pr-body.sh`, and `scripts/ci/ensure-pr.sh`
-- [X] T055 Run GitHub workflow static validation and fix issues in `.github/workflows/feature-pr.yml`, `.github/workflows/ci.yml`, `.github/workflows/deploy-develop.yml`, and `.github/workflows/deploy-production.yml`
+- [X] T055 Run GitHub workflow static validation and fix issues in `.github/workflows/ci.yml`, `.github/workflows/deploy-develop.yml`, and `.github/workflows/deploy-production.yml`
 - [X] T056 [P] Validate the quickstart against the final workflow and runbook paths in `specs/005-cicd-pipeline/quickstart.md`
 - [X] T057 [P] Reconcile final secrets and variables inventory in `docs/backend/ops/cicd.mdx`
 - [X] T058 Record any blocked external GitHub or Render configuration steps in `docs/backend/ops/cicd.mdx`

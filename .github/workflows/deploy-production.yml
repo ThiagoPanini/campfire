@@ -1,13 +1,6 @@
 name: Deploy Production
 
 on:
-  workflow_run:
-    workflows:
-      - CI
-    branches:
-      - main
-    types:
-      - completed
   workflow_dispatch:
 
 permissions:
@@ -28,51 +21,21 @@ jobs:
     steps:
       - name: Checkout guard scripts
         uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Guard main ref and CI result
         id: guard
         env:
           GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
-          WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion || '' }}
-          WORKFLOW_BRANCH: ${{ github.event.workflow_run.head_branch || '' }}
-          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha || '' }}
           GITHUB_REF_NAME_VALUE: ${{ github.ref_name }}
           GITHUB_SHA_VALUE: ${{ github.sha }}
         run: |
           echo "::group::production guard"
-          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
-            if [[ "$WORKFLOW_CONCLUSION" != "success" ]]; then
-              echo "::error::Production deploy requires successful CI"
-              exit 1
-            fi
-            if [[ "$WORKFLOW_BRANCH" != "main" ]]; then
-              echo "::error::Production deploy requires main branch"
-              exit 1
-            fi
-            current_sha="$(
-              curl --silent --fail \
-                --header "Authorization: Bearer ${GH_TOKEN}" \
-                --header "Accept: application/vnd.github+json" \
-                "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" |
-              node -e 'let s = ""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const ref = JSON.parse(s); console.log(ref.object.sha); });'
-            )"
-            if [[ "$current_sha" != "$WORKFLOW_SHA" ]]; then
-              echo "::error::Successful CI SHA is not the current main tip"
-              exit 1
-            fi
-            scripts/ci/require-ci-status.sh "$WORKFLOW_SHA" main
-            echo "deploy_sha=$WORKFLOW_SHA" >> "$GITHUB_OUTPUT"
-          else
-            if [[ "$GITHUB_REF_NAME_VALUE" != "main" ]]; then
-              echo "::error::Deploys to production are only allowed from main"
-              exit 1
-            fi
-            scripts/ci/require-ci-status.sh "$GITHUB_SHA_VALUE" main
-            echo "deploy_sha=${GITHUB_SHA_VALUE}" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF_NAME_VALUE" != "main" ]]; then
+            echo "::error::Deploys to production are only allowed from main"
+            exit 1
           fi
+          scripts/ci/require-ci-status.sh "$GITHUB_SHA_VALUE" main
+          echo "deploy_sha=${GITHUB_SHA_VALUE}" >> "$GITHUB_OUTPUT"
           echo "::endgroup::"
 
   deploy-production:

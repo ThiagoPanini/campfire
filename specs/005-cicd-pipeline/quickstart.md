@@ -112,9 +112,9 @@ first PR into `develop` should:
 
 1. Pass CI (the six jobs + `ci-status`). If it does not, the failure messages
    will name the failing area.
-2. Be merged. The merge triggers `deploy-develop.yml`:
-   - `branch-guard` (passes — we're on `develop`).
-   - `deploy-api`, `deploy-web` (Render hooks fire).
+2. Be merged. The merge triggers `CI` on `develop`; after `ci-status` passes,
+   the same workflow runs:
+   - `deploy-develop` (Render hooks fire).
    - `probe` (verifies `/healthz`, `/readyz`, frontend root).
    - `promotion-pr` (opens PR `develop → main`).
 
@@ -122,7 +122,7 @@ If any step fails, fix it before continuing. Common first-run failures:
 - Probe times out → the Render service is still building; re-run the
   `probe` job after Render reports "live", or increase `PROBE_MAX_ATTEMPTS`.
 - Promotion PR step says "no permissions" → confirm the job's
-  `permissions: { contents: write, pull-requests: write }` is in place.
+  `permissions: { contents: read, pull-requests: write, issues: write }` is in place.
 
 ---
 
@@ -142,9 +142,9 @@ When you are ready:
    - `RENDER_PROD_WEB_DEPLOY_HOOK`
 4. Add to the `production` GitHub Environment as **secrets**.
 5. Add `PROD_API_URL` and `PROD_WEB_URL` as environment **variables**.
-6. Merge the next `develop → main` promotion PR. The production workflow
+6. Merge the next `develop → main` promotion PR. The `CI` workflow
    will:
-   - Pass `branch-guard` and `preflight`.
+   - Pass validation and `preflight`.
    - Wait for your approval (Environment protection rule).
    - Deploy and probe.
 
@@ -158,9 +158,9 @@ Until step 4–5 are done, every merge into `main` produces a clean failure at
 | User Story | How to verify |
 |---|---|
 | US-1 — PR validation | Open a PR with a deliberate `tsc` error → CI fails on `frontend-checks`; PR is unmergeable. |
-| US-2 — Develop auto-deploy | Merge a trivial change into `develop` → `deploy-develop` runs end-to-end; probes green; promotion PR opened. |
-| US-4 — Gated production deploy | After production is provisioned, merge the promotion PR → `deploy-production` runs, waits at the environment gate, succeeds after approval. |
-| US-5 — Production not provisioned | Before step 6, merge a PR into `main` → `deploy-production` fails at `preflight` with a list of missing names; no Render hook is contacted. |
+| US-2 — Develop auto-deploy | Merge a trivial change into `develop` → CI validates, `deploy-develop` job runs end-to-end, probes green, promotion PR opened. |
+| US-4 — Gated production deploy | After production is provisioned, merge the promotion PR → CI validates, `deploy-production` job waits at the environment gate, succeeds after approval. |
+| US-5 — Production not provisioned | Before step 6, merge a PR into `main` → `deploy-production` job fails at `preflight` with a list of missing names; no Render hook is contacted. |
 
 ---
 

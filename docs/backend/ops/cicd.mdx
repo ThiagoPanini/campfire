@@ -11,22 +11,21 @@ Campfire deploys through GitHub Actions only. Render auto-deploy must stay disab
 feature branch -> develop -> main
 ```
 
-- Feature branches named `###-feature-name` run CI first; after CI completes, trusted automation opens or updates one PR into `develop`.
+- Feature branches named `###-feature-name` run CI first; after `ci-status` passes, the final CI automation job opens or updates one PR into `develop`.
 - PRs into `develop` and `main`, plus pushes to those branches, run `CI`.
 - `ci-status` is the only required branch-protection check.
-- Successful CI for the current `develop` tip triggers `Deploy Develop`.
+- Successful CI for the current `develop` tip deploys Develop in the same CI run.
 - Successful develop deploy and probes create or update one `develop -> main` PR.
-- Successful CI for the current `main` tip triggers `Deploy Production`.
+- Successful CI for the current `main` tip deploys Production in the same CI run.
 - Production uses the protected `production` GitHub Environment before secrets are read or hooks are called.
 
 ## Workflow Inventory
 
 | Workflow | File | Trigger | Required result |
 | --- | --- | --- | --- |
-| Feature PR | `.github/workflows/feature-pr.yml` | Completed `CI` `workflow_run` for `###-feature-name` after a push | PR into `develop` exists or branch is ignored with success. |
-| CI | `.github/workflows/ci.yml` | PR/push for `develop` and `main` | `ci-status` succeeds only when every required job succeeds. |
-| Deploy Develop | `.github/workflows/deploy-develop.yml` | Successful CI for current `develop` tip or manual dispatch from `develop` with green `ci-status` for the selected SHA | Preflight, API deploy, Web deploy, probes, promotion PR. |
-| Deploy Production | `.github/workflows/deploy-production.yml` | Successful CI for current `main` tip or manual dispatch from `main` with green `ci-status` for the selected SHA | Environment approval, preflight, API deploy, Web deploy, probes. |
+| CI | `.github/workflows/ci.yml` | PR/push for `develop`, `main`, and `###-*` feature branches | `ci-status` succeeds only when every required validation job succeeds. Feature pushes open/update `develop` PRs; `develop` pushes deploy Develop and open/update promotion PRs; `main` pushes deploy Production. |
+| Manual Deploy Develop | `.github/workflows/deploy-develop.yml` | Manual dispatch from `develop` with green `ci-status` for the selected SHA | Preflight, API deploy, Web deploy, probes, promotion PR. |
+| Manual Deploy Production | `.github/workflows/deploy-production.yml` | Manual dispatch from `main` with green `ci-status` for the selected SHA | Environment approval, preflight, API deploy, Web deploy, probes. |
 
 ## GitHub Secrets And Variables
 
@@ -193,7 +192,7 @@ To enable production:
 
 ## Manual Redeploy
 
-Use manual redeploy only for a known-good commit already on the target branch. Manual dispatch also verifies that the selected commit has a successful `CI status (aggregate)` check before any Environment job starts.
+Use manual redeploy only for a known-good commit already on the target branch. Manual dispatch also verifies that the selected commit has a successful `CI status (aggregate)` check before any Environment job starts. Normal automatic deployments happen inside `.github/workflows/ci.yml`.
 
 ### Develop
 
