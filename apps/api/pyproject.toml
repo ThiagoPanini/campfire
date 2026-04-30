@@ -74,7 +74,7 @@ ignore = ["B008"]
 "src/campfire_api/main.py" = ["TID251"]
 "alembic/**.py" = ["TID251"]
 "scripts/**.py" = ["TID251"]
-"tests/**.py" = ["TID251"]
+"tests/**.py" = ["TID251", "UP047"]
 
 [tool.mypy]
 python_version = "3.12"
