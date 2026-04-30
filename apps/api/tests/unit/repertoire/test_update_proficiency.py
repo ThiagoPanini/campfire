@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
@@ -13,7 +13,7 @@ from campfire_api.contexts.repertoire.domain.errors import EntryNotFound, Profic
 
 pytestmark = pytest.mark.unit
 
-_BASE_TS = datetime(2026, 1, 1, tzinfo=timezone.utc)
+_BASE_TS = datetime(2026, 1, 1, tzinfo=UTC)
 _UPDATED_TS = _BASE_TS + timedelta(hours=1)
 
 

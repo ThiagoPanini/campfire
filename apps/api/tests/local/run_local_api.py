@@ -8,7 +8,6 @@ from uuid import uuid4
 
 import httpx
 
-
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000").rstrip("/")
 TIMEOUT_SECONDS = float(os.getenv("LOCAL_TEST_TIMEOUT_SECONDS", "15"))
 
