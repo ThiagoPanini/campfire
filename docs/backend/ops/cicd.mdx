@@ -8,14 +8,14 @@ description: GitHub Actions, Render deploy hooks, branch promotion, secrets, pro
 Campfire deploys through GitHub Actions only. Render auto-deploy must stay disabled on every API and Web service. Branch flow is:
 
 ```text
-feature branch -> staging -> main
+feature branch -> develop -> main
 ```
 
-- Feature branches named `###-feature-name` open or update one PR into `staging`.
-- PRs into `staging` and `main`, plus pushes to those branches, run `CI`.
+- Feature branches named `###-feature-name` run CI first; after CI completes, trusted automation opens or updates one PR into `develop`.
+- PRs into `develop` and `main`, plus pushes to those branches, run `CI`.
 - `ci-status` is the only required branch-protection check.
-- Successful CI for the current `staging` tip triggers `Deploy Staging`.
-- Successful staging deploy and probes create or update one `staging -> main` PR.
+- Successful CI for the current `develop` tip triggers `Deploy Develop`.
+- Successful develop deploy and probes create or update one `develop -> main` PR.
 - Successful CI for the current `main` tip triggers `Deploy Production`.
 - Production uses the protected `production` GitHub Environment before secrets are read or hooks are called.
 
@@ -23,23 +23,23 @@ feature branch -> staging -> main
 
 | Workflow | File | Trigger | Required result |
 | --- | --- | --- | --- |
-| Feature PR | `.github/workflows/feature-pr.yml` | Push to `###-feature-name` | PR into `staging` exists or branch is ignored with success. |
-| CI | `.github/workflows/ci.yml` | PR/push for `staging` and `main` | `ci-status` succeeds only when every required job succeeds. |
-| Deploy Staging | `.github/workflows/deploy-staging.yml` | Successful CI for current `staging` tip or manual dispatch from `staging` | API deploy, Web deploy, probes, promotion PR. |
-| Deploy Production | `.github/workflows/deploy-production.yml` | Successful CI for current `main` tip or manual dispatch from `main` | Preflight, environment approval, API deploy, Web deploy, probes. |
+| Feature PR | `.github/workflows/feature-pr.yml` | Completed `CI` `workflow_run` for `###-feature-name` after a push | PR into `develop` exists or branch is ignored with success. |
+| CI | `.github/workflows/ci.yml` | PR/push for `develop` and `main` | `ci-status` succeeds only when every required job succeeds. |
+| Deploy Develop | `.github/workflows/deploy-develop.yml` | Successful CI for current `develop` tip or manual dispatch from `develop` with green `ci-status` for the selected SHA | Preflight, API deploy, Web deploy, probes, promotion PR. |
+| Deploy Production | `.github/workflows/deploy-production.yml` | Successful CI for current `main` tip or manual dispatch from `main` with green `ci-status` for the selected SHA | Environment approval, preflight, API deploy, Web deploy, probes. |
 
 ## GitHub Secrets And Variables
 
 Set deploy hooks as Environment secrets. Set public URLs as Environment variables.
 
-### `staging` Environment
+### `develop` Environment
 
 | Name | Kind | Required | Purpose |
 | --- | --- | --- | --- |
-| `RENDER_STAGING_API_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for staging API. |
-| `RENDER_STAGING_WEB_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for staging Web. |
-| `STAGING_API_URL` | variable | yes | Base API URL, without path. |
-| `STAGING_WEB_URL` | variable | yes | Frontend URL, without path. |
+| `RENDER_DEVELOP_API_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for develop API. |
+| `RENDER_DEVELOP_WEB_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for develop Web. |
+| `DEVELOP_API_URL` | variable | yes | Base API URL, without path. |
+| `DEVELOP_WEB_URL` | variable | yes | Frontend URL, without path. |
 
 ### `production` Environment
 
@@ -56,12 +56,12 @@ Set deploy hooks as Environment secrets. Set public URLs as Environment variable
 
 Create two environments in GitHub repository settings.
 
-### `staging`
+### `develop`
 
-- Deployment branches: selected branches, `staging` only.
+- Deployment branches: selected branches, `develop` only.
 - Required reviewers: none.
-- Secrets: `RENDER_STAGING_API_DEPLOY_HOOK`, `RENDER_STAGING_WEB_DEPLOY_HOOK`.
-- Variables: `STAGING_API_URL`, `STAGING_WEB_URL`.
+- Secrets: `RENDER_DEVELOP_API_DEPLOY_HOOK`, `RENDER_DEVELOP_WEB_DEPLOY_HOOK`.
+- Variables: `DEVELOP_API_URL`, `DEVELOP_WEB_URL`.
 
 ### `production`
 
@@ -73,9 +73,11 @@ Create two environments in GitHub repository settings.
 
 GitHub may request production approval before the preflight job can show missing production values, because Environment secrets and variables are readable only after the environment gate opens.
 
+The deployment workflows keep Environment access in a single deploy-and-probe job per environment. This avoids repeated approval prompts and keeps Environment-scoped secrets available only where hooks and public probe URLs are used.
+
 ## Branch Protection
 
-### `staging`
+### `develop`
 
 - Require a pull request before merging.
 - Require status checks to pass.
@@ -83,7 +85,7 @@ GitHub may request production approval before the preflight job can show missing
 - Block direct pushes.
 - Block force pushes.
 - Block branch deletion.
-- No approval required for solo-maintainer staging merges.
+- No approval required for solo-maintainer develop merges.
 
 ### `main`
 
@@ -92,38 +94,60 @@ GitHub may request production approval before the preflight job can show missing
 - Required check: `ci-status`.
 - Require at least one approval.
 - Require branch up to date before merge.
-- Restrict PR source branch to `staging` when repository plan supports it.
+- Restrict PR source branch to `develop` when repository plan supports it.
 - Block direct pushes.
 - Block force pushes.
 - Block branch deletion.
 
-The CI workflow also fails PRs into `main` when the source branch is not `staging`.
+The CI workflow also fails PRs into `main` when the source branch is not `develop`.
 
 ## Render Setup
 
-Create or verify these services.
+Prefer creating these services from the root `render.yaml` Blueprint. In Render,
+open Blueprints, connect this repository, and select `render.yaml`. The
+Blueprint creates the `Campfire` project with `Develop` and `Production`
+environments, API/Web services, and Postgres databases.
 
-### Staging
+`autoDeployTrigger: off` is set for every service, so Render does not deploy on
+Git pushes by itself. GitHub Actions remains the deploy gate and uses Deploy
+Hooks after CI passes.
 
-- API service: `campfire-api-staging`.
+### Develop
+
+- API service: `campfire-api-dev`.
+- Linked branch: `develop`.
 - Root directory: `apps/api`.
-- Start command: `uv run uvicorn campfire_api.main:app --host 0.0.0.0 --port $PORT`.
-- Web service/static site: `campfire-web-staging`.
+- Plan: `free`.
+- Build command: `uv sync --frozen --no-dev`.
+- Start command: `uv run alembic upgrade head && uv run uvicorn campfire_api.main:app --host 0.0.0.0 --port $PORT`.
+- Cookie settings: `REFRESH_COOKIE_SECURE=true`, `REFRESH_COOKIE_SAMESITE=none`.
+- Web service/static site: `campfire-dev`.
+- Linked branch: `develop`.
+- Root directory: repository root.
 - Build command: `npm ci && npm run build`.
 - Publish directory: `apps/web/dist`.
-- PostgreSQL: `campfire-db-staging`.
+- PostgreSQL: `campfire-db-dev`.
+- PostgreSQL major version: `16`.
+- API health check path: `/readyz`.
 
 ### Production
 
 - API service: `campfire-api-prod`.
-- Web service/static site: `campfire-web-prod`.
+- Web service/static site: `campfire-prod`.
 - PostgreSQL: `campfire-db-prod`.
-- Same root, build, start, and publish settings as staging.
+- Linked branch: `main`.
+- API build command: `uv sync --frozen --no-dev`.
+- API pre-deploy command: `uv run alembic upgrade head`.
+- API start command: `uv run uvicorn campfire_api.main:app --host 0.0.0.0 --port $PORT`.
+- API health check path: `/readyz`.
+- Web build command: `npm ci && npm run build`.
+- Web publish directory: `apps/web/dist`.
+- PostgreSQL major version: `16`.
 
-For every Render API and Web service:
+After the Blueprint sync, for every Render API and Web service:
 
-1. Disable Auto-Deploy.
-2. Create a Deploy Hook.
+1. Confirm Auto-Deploy is disabled.
+2. Create a Deploy Hook. Deploy Hook URLs are generated by Render and are not stored in `render.yaml`.
 3. Store the hook URL only in the matching GitHub Environment secret.
 4. Put the public service URL in the matching GitHub Environment variable.
 
@@ -136,11 +160,15 @@ CI validates migrations against ephemeral PostgreSQL:
 
 For live Render databases:
 
-- Paid API service: use Render Pre-Deploy Command `uv run alembic upgrade head`.
-- Free-tier staging API: Render Pre-Deploy Command may be unavailable. Run migrations manually from a trusted local shell against staging DB before expecting probes to pass.
-- Production: prefer Render Pre-Deploy Command. If unavailable, approve a separate migration runbook before exposing production database credentials to GitHub Actions.
+- Develop API stays on Render's free web service plan, so it does not use
+  Render Pre-Deploy Command. Instead, its start command runs
+  `uv run alembic upgrade head` before `uvicorn`. This is acceptable for
+  Develop because the service has a single free instance and migrations fail
+  the deploy before `/readyz` can pass.
+- Production uses Render Pre-Deploy Command `uv run alembic upgrade head`.
 
-Staging PostgreSQL may be disposable on free-tier plans. Treat staging data as temporary and recreate within Render plan limits when needed.
+Develop PostgreSQL should use a paid `basic-256mb` instance if it is expected
+to persist. Render free PostgreSQL is useful only for disposable experiments.
 
 ## Provisioning Production
 
@@ -161,20 +189,20 @@ To enable production:
 4. Add hook URLs as production Environment secrets.
 5. Add public URLs as production Environment variables.
 6. Confirm production Environment reviewers are configured.
-7. Merge a green `staging -> main` PR.
+7. Merge a green `develop -> main` PR.
 
 ## Manual Redeploy
 
-Use manual redeploy only for a known-good commit already on the target branch.
+Use manual redeploy only for a known-good commit already on the target branch. Manual dispatch also verifies that the selected commit has a successful `CI status (aggregate)` check before any Environment job starts.
 
-### Staging
+### Develop
 
-1. Open `Deploy Staging`.
+1. Open `Deploy Develop`.
 2. Select `Run workflow`.
-3. Choose branch `staging`.
+3. Choose branch `develop`.
 4. Confirm API deploy, Web deploy, and all probes pass.
 
-Dispatching from any other branch fails at `Staging branch guard`.
+Dispatching from any other branch fails at `Develop branch guard`.
 
 ### Production
 
@@ -190,10 +218,10 @@ Dispatching from any other branch fails at `Production branch guard`.
 
 Preferred rollback is Git revert plus normal promotion:
 
-1. Revert the bad commit on `staging`.
+1. Revert the bad commit on `develop`.
 2. Let CI run.
-3. Deploy staging and verify probes.
-4. Merge the generated `staging -> main` PR.
+3. Deploy develop and verify probes.
+4. Merge the generated `develop -> main` PR.
 5. Approve production deploy.
 
 Emergency rollback:
@@ -214,9 +242,10 @@ Emergency rollback:
 | Integration failed | PostgreSQL service job. | Check migration, DB URL, test marker, and async fixtures. |
 | Migration check failed | `migrations-contracts`. | Create or fix Alembic revision before merge. |
 | Deploy hook failed | Deploy job summary shows service and status code. | Confirm Render service exists and hook secret is current. |
-| Probe failed | Probe summary shows first unhealthy URL. | Check Render logs, cold start, migrations, and `*_API_URL`/`*_WEB_URL`. |
+| Manual deploy stopped in branch guard | Branch guard could not find green `CI status (aggregate)` for the selected SHA. | Run or rerun `CI` on the target branch, then dispatch deploy again. |
+| Probe failed | Probe summary shows first unhealthy URL. | Check Render logs, cold start, migrations, and `*_API_URL`/`*_WEB_URL`. Probes retry for up to 45 attempts with 10-second sleeps. |
 | Production preflight failed | Missing names listed. | Add missing production Environment secrets/variables. |
-| Promotion PR duplicated | Open PR filters. | Keep source `staging`, target `main`; close stale duplicate manually. |
+| Promotion PR duplicated | Open PR filters. | Keep source `develop`, target `main`; close stale duplicate manually. |
 
 ## Operational Health Checklist
 
@@ -224,7 +253,7 @@ Emergency rollback:
 - [ ] GitHub Environments restrict deployment branches.
 - [ ] Production Environment has required reviewer.
 - [ ] Branch protection requires only `ci-status`.
-- [ ] `staging` and `main` block direct pushes and force pushes.
+- [ ] `develop` and `main` block direct pushes and force pushes.
 - [ ] Production values are either fully configured or expected to fail preflight.
 - [ ] Rollback path has been reviewed before production merge.
 
@@ -232,9 +261,9 @@ Emergency rollback:
 
 These settings cannot be committed to the repository and must be confirmed in GitHub or Render:
 
-- GitHub branches `staging` and `main` exist on the remote.
+- GitHub branches `develop` and `main` exist on the remote.
 - GitHub branch protection or rulesets match this runbook.
 - GitHub Environments and Environment secrets/variables exist.
 - Render API/Web/PostgreSQL services exist for each enabled environment.
 - Render Auto-Deploy is disabled on API and Web services.
-- Render Pre-Deploy Command is configured for migrations when the API service plan supports it.
+- Develop API start command includes `alembic upgrade head`; Production API uses Render Pre-Deploy Command for migrations.
