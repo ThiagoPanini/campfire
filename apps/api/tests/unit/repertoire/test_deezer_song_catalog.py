@@ -91,8 +91,6 @@ class TestDeezerSongCatalogUnit:
         # Patch AsyncClient to use our transport
         import httpx as _httpx
 
-        original = _httpx.AsyncClient
-
         class PatchedClient(_httpx.AsyncClient):
             def __init__(self, **kwargs):
                 kwargs["transport"] = Transport()

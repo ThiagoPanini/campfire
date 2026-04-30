@@ -46,6 +46,7 @@ def set_refresh_cookie(
     name: str,
     token: str,
     secure: bool,
+    samesite: str,
     domain: str | None,
     max_age: int,
 ) -> None:
@@ -55,7 +56,7 @@ def set_refresh_cookie(
         token,
         httponly=True,
         secure=secure,
-        samesite="lax",
+        samesite=samesite,
         path="/auth/refresh",
         domain=domain,
         max_age=max_age,
@@ -67,7 +68,8 @@ async def apply_refresh_cookie(response: Response, settings: SettingsProvider, t
         response,
         await settings.refresh_cookie_name(),
         token,
-        secure=(await settings.env()) == "prod",
+        secure=await settings.refresh_cookie_secure(),
+        samesite=await settings.refresh_cookie_samesite(),
         domain=await settings.refresh_cookie_domain(),
         max_age=await settings.refresh_token_ttl_seconds(),
     )

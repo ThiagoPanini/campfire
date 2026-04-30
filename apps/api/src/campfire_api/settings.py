@@ -9,6 +9,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 def normalize_database_url(database_url: str) -> str:
     if database_url.startswith("postgresql://"):
         return database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    if database_url.startswith("postgres://"):
+        return database_url.replace("postgres://", "postgresql+asyncpg://", 1)
     return database_url
 
 
@@ -25,6 +27,8 @@ class SettingsProvider(Protocol):
     async def env(self) -> str: ...
     async def refresh_cookie_name(self) -> str: ...
     async def refresh_cookie_domain(self) -> str | None: ...
+    async def refresh_cookie_secure(self) -> bool: ...
+    async def refresh_cookie_samesite(self) -> str: ...
     async def deezer_base_url(self) -> str: ...
     async def search_cache_ttl_seconds(self) -> int: ...
     async def search_cache_max_entries(self) -> int: ...
@@ -61,6 +65,12 @@ class EnvSettings(BaseSettings):
     refresh_cookie_domain_value: str | None = Field(
         default=None, validation_alias="REFRESH_COOKIE_DOMAIN"
     )
+    refresh_cookie_secure_value: bool | None = Field(
+        default=None, validation_alias="REFRESH_COOKIE_SECURE"
+    )
+    refresh_cookie_samesite_value: str = Field(
+        default="lax", validation_alias="REFRESH_COOKIE_SAMESITE"
+    )
     deezer_base_url_value: str = Field(
         default="https://api.deezer.com", validation_alias="DEEZER_BASE_URL"
     )
@@ -82,6 +92,16 @@ class EnvSettings(BaseSettings):
     def empty_domain_is_none(cls, value: object) -> object:
         return None if value == "" else value
 
+    @field_validator("refresh_cookie_samesite_value", mode="before")
+    @classmethod
+    def normalize_cookie_samesite(cls, value: object) -> object:
+        if not isinstance(value, str):
+            return value
+        normalized = value.strip().lower()
+        if normalized not in {"lax", "strict", "none"}:
+            raise ValueError("REFRESH_COOKIE_SAMESITE must be lax, strict, or none")
+        return normalized
+
     def parsed_cors_origins(self) -> list[str]:
         origins = [
             origin.strip() for origin in self.cors_origins_value.split(",") if origin.strip()
@@ -91,6 +111,11 @@ class EnvSettings(BaseSettings):
         if self.env_value == "prod" and not origins:
             return []
         return origins
+
+    def resolved_refresh_cookie_secure(self) -> bool:
+        if self.refresh_cookie_secure_value is not None:
+            return self.refresh_cookie_secure_value
+        return self.env_value == "prod"
 
 
 class EnvSettingsProvider:
@@ -132,6 +157,12 @@ class EnvSettingsProvider:
 
     async def refresh_cookie_domain(self) -> str | None:
         return self._settings.refresh_cookie_domain_value
+
+    async def refresh_cookie_secure(self) -> bool:
+        return self._settings.resolved_refresh_cookie_secure()
+
+    async def refresh_cookie_samesite(self) -> str:
+        return self._settings.refresh_cookie_samesite_value
 
     async def deezer_base_url(self) -> str:
         return self._settings.deezer_base_url_value

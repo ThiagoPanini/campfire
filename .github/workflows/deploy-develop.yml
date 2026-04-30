@@ -1,0 +1,121 @@
+name: Deploy Develop
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: read
+
+concurrency:
+  group: deploy-develop
+  cancel-in-progress: false
+
+jobs:
+  branch-guard:
+    name: Develop branch guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      deploy_sha: ${{ steps.guard.outputs.deploy_sha }}
+    steps:
+      - name: Checkout guard scripts
+        uses: actions/checkout@v6
+
+      - name: Guard develop ref and CI result
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REF_NAME_VALUE: ${{ github.ref_name }}
+          GITHUB_SHA_VALUE: ${{ github.sha }}
+        run: |
+          echo "::group::develop guard"
+          if [[ "$GITHUB_REF_NAME_VALUE" != "develop" ]]; then
+            echo "::error::Deploys to develop are only allowed from develop"
+            exit 1
+          fi
+          scripts/ci/require-ci-status.sh "$GITHUB_SHA_VALUE" develop
+          echo "deploy_sha=${GITHUB_SHA_VALUE}" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+  deploy-develop:
+    name: Deploy and probe develop
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: branch-guard
+    environment: develop
+    steps:
+      - name: Checkout deploy scripts
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
+
+      - name: Verify develop values
+        env:
+          RENDER_DEVELOP_API_DEPLOY_HOOK: ${{ secrets.RENDER_DEVELOP_API_DEPLOY_HOOK }}
+          RENDER_DEVELOP_WEB_DEPLOY_HOOK: ${{ secrets.RENDER_DEVELOP_WEB_DEPLOY_HOOK }}
+          DEVELOP_API_URL: ${{ vars.DEVELOP_API_URL }}
+          DEVELOP_WEB_URL: ${{ vars.DEVELOP_WEB_URL }}
+          PREFLIGHT_ENVIRONMENT: develop
+        run: |
+          scripts/ci/preflight-secrets.sh \
+            RENDER_DEVELOP_API_DEPLOY_HOOK \
+            RENDER_DEVELOP_WEB_DEPLOY_HOOK \
+            DEVELOP_API_URL \
+            DEVELOP_WEB_URL
+
+      - name: Trigger Render API deploy
+        env:
+          HOOK_URL: ${{ secrets.RENDER_DEVELOP_API_DEPLOY_HOOK }}
+        run: scripts/ci/render-deploy.sh develop api
+
+      - name: Trigger Render Web deploy
+        env:
+          HOOK_URL: ${{ secrets.RENDER_DEVELOP_WEB_DEPLOY_HOOK }}
+        run: scripts/ci/render-deploy.sh develop web
+
+      - name: Probe develop URLs
+        env:
+          DEVELOP_API_URL: ${{ vars.DEVELOP_API_URL }}
+          DEVELOP_WEB_URL: ${{ vars.DEVELOP_WEB_URL }}
+          PROBE_MAX_ATTEMPTS: 45
+          PROBE_SLEEP_SECONDS: 10
+          PROBE_REQUEST_TIMEOUT: 10
+        run: |
+          api="${DEVELOP_API_URL%/}"
+          web="${DEVELOP_WEB_URL%/}"
+          scripts/ci/probe-url.sh "${api}/healthz" "develop api /healthz"
+          scripts/ci/probe-url.sh "${api}/readyz" "develop api /readyz"
+          scripts/ci/probe-url.sh "${web}/" "develop web"
+
+  promotion-pr:
+    name: Promote develop to main PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - branch-guard
+      - deploy-develop
+    if: needs['deploy-develop'].result == 'success'
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v6
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Create or update promotion PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_SHA: ${{ needs['branch-guard'].outputs.deploy_sha }}
+          BASE_BRANCH: main
+          HEAD_BRANCH: develop
+          PR_TITLE: "chore(release): promote develop to main (${{ needs['branch-guard'].outputs.deploy_sha }})"
+          PR_BODY_FILE: /tmp/promotion-pr-body.md
+          PR_LABELS: "release-candidate,automated"
+        run: |
+          scripts/ci/promotion-pr-body.sh > "$PR_BODY_FILE"
+          scripts/ci/ensure-pr.sh

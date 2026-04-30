@@ -19,7 +19,7 @@ def test_repertoire_paths_in_live_openapi() -> None:
 
     for path, path_item in snapshot.get("paths", {}).items():
         assert path in live["paths"], f"path {path!r} missing from live OpenAPI"
-        for method, operation in path_item.items():
+        for method, _ in path_item.items():
             assert method in live["paths"][path], (
                 f"method {method.upper()} for {path!r} missing from live OpenAPI"
             )

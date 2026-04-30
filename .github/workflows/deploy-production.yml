@@ -1,0 +1,113 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  branch-guard:
+    name: Production branch guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      deploy_sha: ${{ steps.guard.outputs.deploy_sha }}
+    steps:
+      - name: Checkout guard scripts
+        uses: actions/checkout@v6
+
+      - name: Guard main ref and CI result
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REF_NAME_VALUE: ${{ github.ref_name }}
+          GITHUB_SHA_VALUE: ${{ github.sha }}
+        run: |
+          echo "::group::production guard"
+          if [[ "$GITHUB_REF_NAME_VALUE" != "main" ]]; then
+            echo "::error::Deploys to production are only allowed from main"
+            exit 1
+          fi
+          scripts/ci/require-ci-status.sh "$GITHUB_SHA_VALUE" main
+          echo "deploy_sha=${GITHUB_SHA_VALUE}" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+  deploy-production:
+    name: Deploy and probe production
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: branch-guard
+    environment: production
+    steps:
+      - name: Checkout deploy scripts
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
+
+      - name: Verify production values
+        env:
+          RENDER_PROD_API_DEPLOY_HOOK: ${{ secrets.RENDER_PROD_API_DEPLOY_HOOK }}
+          RENDER_PROD_WEB_DEPLOY_HOOK: ${{ secrets.RENDER_PROD_WEB_DEPLOY_HOOK }}
+          PROD_API_URL: ${{ vars.PROD_API_URL }}
+          PROD_WEB_URL: ${{ vars.PROD_WEB_URL }}
+          PREFLIGHT_ENVIRONMENT: production
+          PREFLIGHT_DOCS_LINK: docs/backend/ops/cicd.mdx#provisioning-production
+        run: |
+          scripts/ci/preflight-secrets.sh \
+            RENDER_PROD_API_DEPLOY_HOOK \
+            RENDER_PROD_WEB_DEPLOY_HOOK \
+            PROD_API_URL \
+            PROD_WEB_URL
+
+      - name: Trigger Render API deploy
+        env:
+          HOOK_URL: ${{ secrets.RENDER_PROD_API_DEPLOY_HOOK }}
+        run: scripts/ci/render-deploy.sh production api
+
+      - name: Trigger Render Web deploy
+        env:
+          HOOK_URL: ${{ secrets.RENDER_PROD_WEB_DEPLOY_HOOK }}
+        run: scripts/ci/render-deploy.sh production web
+
+      - name: Probe production URLs
+        env:
+          PROD_API_URL: ${{ vars.PROD_API_URL }}
+          PROD_WEB_URL: ${{ vars.PROD_WEB_URL }}
+          PROBE_MAX_ATTEMPTS: 45
+          PROBE_SLEEP_SECONDS: 10
+          PROBE_REQUEST_TIMEOUT: 10
+        run: |
+          api="${PROD_API_URL%/}"
+          web="${PROD_WEB_URL%/}"
+          scripts/ci/probe-url.sh "${api}/healthz" "production api /healthz"
+          scripts/ci/probe-url.sh "${api}/readyz" "production api /readyz"
+          scripts/ci/probe-url.sh "${web}/" "production web"
+
+  summary:
+    name: Production deployment summary
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs:
+      - branch-guard
+      - deploy-production
+    if: always()
+    steps:
+      - name: Summarize production deployment
+        run: |
+          {
+            echo "## Production Deployment"
+            echo ""
+            echo "- Commit: \`${{ needs['branch-guard'].outputs.deploy_sha || github.sha }}\`"
+            echo "- Branch guard: \`${{ needs['branch-guard'].result }}\`"
+            echo "- Deploy and probes: \`${{ needs['deploy-production'].result }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ "${{ needs['branch-guard'].result }}" != "success" || "${{ needs['deploy-production'].result }}" != "success" ]]; then
+            exit 1
+          fi

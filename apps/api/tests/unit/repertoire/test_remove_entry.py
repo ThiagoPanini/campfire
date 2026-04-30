@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 import pytest
@@ -17,7 +17,7 @@ pytestmark = pytest.mark.unit
 
 class FakeClock:
     def now(self) -> datetime:
-        return datetime(2026, 1, 1, tzinfo=timezone.utc)
+        return datetime(2026, 1, 1, tzinfo=UTC)
 
 
 class FakeRepo:

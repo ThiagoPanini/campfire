@@ -3,9 +3,10 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-from dataclasses import dataclass, is_dataclass, asdict
+from collections.abc import Awaitable, Callable
+from dataclasses import asdict, dataclass, is_dataclass
 from datetime import UTC
-from typing import Any, Awaitable, Callable, TypeVar
+from typing import Any, TypeVar
 from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -93,7 +94,6 @@ from campfire_api.contexts.repertoire.application.use_cases.update_proficiency i
     UpdateProficiency,
 )
 from campfire_api.settings import EnvSettingsProvider
-
 
 T = TypeVar("T")
 
