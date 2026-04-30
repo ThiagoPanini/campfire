@@ -11,7 +11,9 @@ pytestmark = pytest.mark.unit
 
 async def test_get_me_returns_user() -> None:
     users, credentials, clock = (FakeUsers(), FakeCredentials(), FrozenClock())
-    user = await RegisterUser(users, credentials, FakeHasher(), clock)("ada@campfire.test", "campfire123")
+    user = await RegisterUser(users, credentials, FakeHasher(), clock)(
+        "ada@campfire.test", "campfire123"
+    )
     current = await GetCurrentUser(users)(user.id)
     assert current.email.value == "ada@campfire.test"
 

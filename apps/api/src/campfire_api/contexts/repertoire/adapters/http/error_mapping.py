@@ -17,12 +17,11 @@ from campfire_api.contexts.repertoire.domain.errors import (
 
 
 def repertoire_error_response(exc: RepertoireError) -> JSONResponse:
-    headers: dict[str, str] = {}
-    if isinstance(exc, (InstrumentUnknown, ProficiencyUnknown, SearchQueryTooShort)):
+    if isinstance(exc, InstrumentUnknown | ProficiencyUnknown | SearchQueryTooShort):
         return JSONResponse(status_code=422, content={"message": str(exc)})
-    if isinstance(exc, (EntryNotFound, EntryForbidden)):
+    if isinstance(exc, EntryNotFound | EntryForbidden):
         return JSONResponse(status_code=404, content={"message": "not found"})
-    if isinstance(exc, (SearchRateLimited, SongCatalogRateLimited)):
+    if isinstance(exc, SearchRateLimited | SongCatalogRateLimited):
         retry_after = getattr(exc, "retry_after", 60)
         return JSONResponse(
             status_code=429,
