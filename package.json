@@ -11,7 +11,7 @@
     "docs:dev": "cd docs && mint dev"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^5.1.1",
+    "@vitejs/plugin-react": "^6.0.1",
     "vite": "^8.0.0",
     "typescript": "^5.9.3",
     "react": "^19.2.0",
