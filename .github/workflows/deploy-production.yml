@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  checks: read
 
 concurrency:
   group: deploy-production
@@ -25,6 +26,11 @@ jobs:
     outputs:
       deploy_sha: ${{ steps.guard.outputs.deploy_sha }}
     steps:
+      - name: Checkout guard scripts
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
       - name: Guard main ref and CI result
         id: guard
         env:
@@ -34,6 +40,7 @@ jobs:
           WORKFLOW_BRANCH: ${{ github.event.workflow_run.head_branch || '' }}
           WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha || '' }}
           GITHUB_REF_NAME_VALUE: ${{ github.ref_name }}
+          GITHUB_SHA_VALUE: ${{ github.sha }}
         run: |
           echo "::group::production guard"
           if [[ "$EVENT_NAME" == "workflow_run" ]]; then
@@ -56,25 +63,27 @@ jobs:
               echo "::error::Successful CI SHA is not the current main tip"
               exit 1
             fi
+            scripts/ci/require-ci-status.sh "$WORKFLOW_SHA" main
             echo "deploy_sha=$WORKFLOW_SHA" >> "$GITHUB_OUTPUT"
           else
             if [[ "$GITHUB_REF_NAME_VALUE" != "main" ]]; then
               echo "::error::Deploys to production are only allowed from main"
               exit 1
             fi
-            echo "deploy_sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+            scripts/ci/require-ci-status.sh "$GITHUB_SHA_VALUE" main
+            echo "deploy_sha=${GITHUB_SHA_VALUE}" >> "$GITHUB_OUTPUT"
           fi
           echo "::endgroup::"
 
-  preflight:
-    name: Production preflight
+  deploy-production:
+    name: Deploy and probe production
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 45
     needs: branch-guard
     environment: production
     steps:
-      - name: Checkout preflight script
-        uses: actions/checkout@v4
+      - name: Checkout deploy scripts
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
 
@@ -93,62 +102,23 @@ jobs:
             PROD_API_URL \
             PROD_WEB_URL
 
-  deploy-api:
-    name: Deploy production API
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs:
-      - branch-guard
-      - preflight
-    environment: production
-    steps:
-      - name: Checkout deploy script
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
-
       - name: Trigger Render API deploy
         env:
           HOOK_URL: ${{ secrets.RENDER_PROD_API_DEPLOY_HOOK }}
         run: scripts/ci/render-deploy.sh production api
-
-  deploy-web:
-    name: Deploy production Web
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs:
-      - branch-guard
-      - deploy-api
-    environment: production
-    steps:
-      - name: Checkout deploy script
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
 
       - name: Trigger Render Web deploy
         env:
           HOOK_URL: ${{ secrets.RENDER_PROD_WEB_DEPLOY_HOOK }}
         run: scripts/ci/render-deploy.sh production web
 
-  probe:
-    name: Probe production
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs:
-      - branch-guard
-      - deploy-web
-    environment: production
-    steps:
-      - name: Checkout probe script
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
-
       - name: Probe production URLs
         env:
           PROD_API_URL: ${{ vars.PROD_API_URL }}
           PROD_WEB_URL: ${{ vars.PROD_WEB_URL }}
+          PROBE_MAX_ATTEMPTS: 45
+          PROBE_SLEEP_SECONDS: 10
+          PROBE_REQUEST_TIMEOUT: 10
         run: |
           api="${PROD_API_URL%/}"
           web="${PROD_WEB_URL%/}"
@@ -162,10 +132,7 @@ jobs:
     timeout-minutes: 5
     needs:
       - branch-guard
-      - preflight
-      - deploy-api
-      - deploy-web
-      - probe
+      - deploy-production
     if: always()
     steps:
       - name: Summarize production deployment
@@ -175,12 +142,9 @@ jobs:
             echo ""
             echo "- Commit: \`${{ needs['branch-guard'].outputs.deploy_sha || github.sha }}\`"
             echo "- Branch guard: \`${{ needs['branch-guard'].result }}\`"
-            echo "- Preflight: \`${{ needs.preflight.result }}\`"
-            echo "- API deploy: \`${{ needs['deploy-api'].result }}\`"
-            echo "- Web deploy: \`${{ needs['deploy-web'].result }}\`"
-            echo "- Probes: \`${{ needs.probe.result }}\`"
+            echo "- Deploy and probes: \`${{ needs['deploy-production'].result }}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
-          if [[ "${{ needs['branch-guard'].result }}" != "success" || "${{ needs.preflight.result }}" != "success" || "${{ needs['deploy-api'].result }}" != "success" || "${{ needs['deploy-web'].result }}" != "success" || "${{ needs.probe.result }}" != "success" ]]; then
+          if [[ "${{ needs['branch-guard'].result }}" != "success" || "${{ needs['deploy-production'].result }}" != "success" ]]; then
             exit 1
           fi

@@ -1,9 +1,13 @@
 name: Feature PR
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - CI
     branches:
       - "[0-9][0-9][0-9]-*"
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -11,7 +15,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: feature-pr-${{ github.ref }}
+  group: feature-pr-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 jobs:
@@ -19,20 +23,22 @@ jobs:
     name: Create or update feature PR
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: github.event.deleted == false
+    if: github.event.workflow_run.event == 'push'
     steps:
-      - name: Checkout feature branch
-        uses: actions/checkout@v4
+      - name: Checkout trusted automation
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Evaluate branch
         id: guard
         env:
-          HEAD_BRANCH: ${{ github.ref_name }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
         run: |
           echo "::group::feature branch guard"
-          if [[ "$HEAD_BRANCH" == "main" || "$HEAD_BRANCH" == "staging" ]]; then
+          if [[ "$HEAD_BRANCH" == "main" || "$HEAD_BRANCH" == "develop" ]]; then
             echo "create_pr=false" >> "$GITHUB_OUTPUT"
             echo "Protected branch ignored."
             exit 0
@@ -42,10 +48,12 @@ jobs:
             echo "Branch does not match Spec Kit pattern; ignored."
             exit 0
           fi
-          git fetch origin staging --depth=1
-          if git diff --quiet origin/staging...HEAD; then
+          git fetch --no-tags --depth=50 origin \
+            "refs/heads/develop:refs/remotes/origin/develop" \
+            "refs/heads/${HEAD_BRANCH}:refs/remotes/origin/${HEAD_BRANCH}"
+          if git diff --quiet "origin/develop...origin/${HEAD_BRANCH}"; then
             echo "create_pr=false" >> "$GITHUB_OUTPUT"
-            echo "No diff against staging; ignored."
+            echo "No diff against develop; ignored."
             exit 0
           fi
           echo "create_pr=true" >> "$GITHUB_OUTPUT"
@@ -55,9 +63,11 @@ jobs:
         if: steps.guard.outputs.create_pr == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          BASE_BRANCH: staging
-          HEAD_BRANCH: ${{ github.ref_name }}
-          PR_TITLE: "feat: ${{ github.ref_name }}"
+          BASE_BRANCH: develop
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          CI_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          PR_TITLE: "feat: ${{ github.event.workflow_run.head_branch }}"
           PR_BODY_FILE: /tmp/feature-pr-body.md
           PR_LABELS: "feature,automated"
         run: |

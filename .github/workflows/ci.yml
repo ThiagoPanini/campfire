@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
     branches:
-      - staging
+      - develop
       - main
     types:
       - opened
@@ -12,7 +12,7 @@ on:
       - ready_for_review
   push:
     branches:
-      - staging
+      - develop
       - main
       - "[0-9][0-9][0-9]-*"
   workflow_dispatch:
@@ -31,10 +31,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -59,7 +59,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Upload frontend artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-dist-${{ github.sha }}
           path: apps/web/dist/
@@ -75,15 +75,15 @@ jobs:
         working-directory: apps/api
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
           cache-dependency-glob: apps/api/uv.lock
@@ -119,15 +119,15 @@ jobs:
         working-directory: apps/api
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
           cache-dependency-glob: apps/api/uv.lock
@@ -167,15 +167,15 @@ jobs:
       TEST_DATABASE_URL: postgresql+asyncpg://campfire:campfire@localhost:5432/campfire
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
           cache-dependency-glob: apps/api/uv.lock
@@ -221,15 +221,15 @@ jobs:
       TEST_DATABASE_URL: postgresql+asyncpg://campfire:campfire@localhost:5432/campfire
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
           cache-dependency-glob: apps/api/uv.lock
@@ -257,18 +257,18 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Branch policy checks
         run: |
           echo "::group::branch policy"
-          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "main" && "${{ github.head_ref }}" != "staging" ]]; then
-            echo "::error::PRs into main must come from staging"
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "main" && "${{ github.head_ref }}" != "develop" ]]; then
+            echo "::error::PRs into main must come from develop"
             exit 1
           fi
-          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "staging" && ! "${{ github.head_ref }}" =~ ^[0-9]{3}-[A-Za-z0-9._-]+$ ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "develop" && ! "${{ github.head_ref }}" =~ ^[0-9]{3}-[A-Za-z0-9._-]+$ ]]; then
             echo "::warning::Feature branch does not match Spec Kit pattern ###-feature-name"
           fi
           echo "::endgroup::"
