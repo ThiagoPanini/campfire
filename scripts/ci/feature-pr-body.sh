@@ -2,15 +2,17 @@
 set -euo pipefail
 
 branch="${HEAD_BRANCH:-${GITHUB_REF_NAME:-unknown}}"
-sha="${GITHUB_SHA:-$(git rev-parse HEAD)}"
+sha="${HEAD_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}"
 short_sha="${sha:0:12}"
+ci_conclusion="${CI_CONCLUSION:-unknown}"
 
 cat <<BODY
 ## Feature Branch
 
 - Source: \`${branch}\`
-- Target: \`staging\`
+- Target: \`develop\`
 - Commit: \`${short_sha}\`
+- Last feature CI result: \`${ci_conclusion}\`
 
 ## Validation
 

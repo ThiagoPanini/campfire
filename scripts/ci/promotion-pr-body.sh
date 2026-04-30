@@ -2,7 +2,7 @@
 set -euo pipefail
 
 base="${BASE_BRANCH:-main}"
-head="${HEAD_BRANCH:-staging}"
+head="${HEAD_BRANCH:-develop}"
 sha="${GITHUB_SHA:-$(git rev-parse HEAD)}"
 short_sha="${sha:0:12}"
 
@@ -18,7 +18,7 @@ cat <<BODY
 
 - Source: \`${head}\`
 - Target: \`${base}\`
-- Staging commit: \`${short_sha}\`
+- Develop commit: \`${short_sha}\`
 
 ## Commits Since \`${base}\`
 
@@ -26,7 +26,7 @@ ${commit_list}
 
 ## Production Readiness
 
-- [ ] Staging deploy succeeded.
+- [ ] Develop deploy succeeded.
 - [ ] API \`/healthz\` probe is green.
 - [ ] API \`/readyz\` probe is green.
 - [ ] Frontend root probe is green.
