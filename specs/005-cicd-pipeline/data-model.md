@@ -15,10 +15,10 @@ and the workflow YAML.
 
 | Field | Type | Notes |
 |---|---|---|
-| `name` | enum(`staging`, `production`) | Used as `environment:` in deploy jobs. |
-| `deployment_branches` | string | `staging` env → only `staging`. `production` env → only `main`. |
-| `required_reviewers` | int | `staging` = 0. `production` ≥ 1 (the maintainer). |
-| `wait_timer_minutes` | int | `staging` = 0. `production` = 0 by default; documented as optional. |
+| `name` | enum(`develop`, `production`) | Used as `environment:` in deploy jobs. |
+| `deployment_branches` | string | `develop` env → only `develop`. `production` env → only `main`. |
+| `required_reviewers` | int | `develop` = 0. `production` ≥ 1 (the maintainer). |
+| `wait_timer_minutes` | int | `develop` = 0. `production` = 0 by default; documented as optional. |
 | `secrets` | map<string,string> | See **Secrets Inventory** below; scoped per env. |
 | `variables` | map<string,string> | Public URLs (`*_API_URL`, `*_WEB_URL`) recorded as variables, not secrets. |
 
@@ -33,14 +33,14 @@ and the workflow YAML.
 This is the single source of truth referenced by FR-051 and SC-008. Every name
 below appears verbatim in workflow YAML. **Names are stable contract.**
 
-### Staging environment
+### Develop environment
 
 | Name | Kind | Required | Purpose |
 |---|---|---|---|
-| `RENDER_STAGING_API_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for the staging API service. |
-| `RENDER_STAGING_WEB_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for the staging Web (Static Site) service. |
-| `STAGING_API_URL` | variable | yes | Base URL of the staging API, e.g. `https://campfire-api-staging.onrender.com`. Used to build `/healthz` and `/readyz` probe URLs. |
-| `STAGING_WEB_URL` | variable | yes | Public URL of the staging frontend, e.g. `https://campfire-web-staging.onrender.com`. Probed for HTTP 200. |
+| `RENDER_DEVELOP_API_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for the develop API service. |
+| `RENDER_DEVELOP_WEB_DEPLOY_HOOK` | secret | yes | Render Deploy Hook URL for the develop Web (Static Site) service. |
+| `DEVELOP_API_URL` | variable | yes | Base URL of the develop API, e.g. `https://campfire-api-dev.onrender.com`. Used to build `/healthz` and `/readyz` probe URLs. |
+| `DEVELOP_WEB_URL` | variable | yes | Public URL of the develop frontend, e.g. `https://campfire-dev.onrender.com`. Probed for HTTP 200. |
 
 ### Production environment
 
@@ -68,10 +68,10 @@ below appears verbatim in workflow YAML. **Names are stable contract.**
 
 | Workflow | File | Triggers | Environment | Purpose |
 |---|---|---|---|---|
-| CI | `.github/workflows/ci.yml` | `pull_request` (target: `staging`, `main`); `push` (refs: `staging`, `main`); `workflow_dispatch` | none | Validation matrix; produces the `ci-status` aggregate check (FR-010..FR-023). |
-| Deploy Staging | `.github/workflows/deploy-staging.yml` | `push` (ref: `staging`); `workflow_dispatch` (ref: `staging` only) | `staging` | Deploy → probe → open/update promotion PR (FR-030..FR-036). |
+| CI | `.github/workflows/ci.yml` | `pull_request` (target: `develop`, `main`); `push` (refs: `develop`, `main`); `workflow_dispatch` | none | Validation matrix; produces the `ci-status` aggregate check (FR-010..FR-023). |
+| Deploy Develop | `.github/workflows/deploy-develop.yml` | `push` (ref: `develop`); `workflow_dispatch` (ref: `develop` only) | `develop` | Deploy → probe → open/update promotion PR (FR-030..FR-036). |
 | Deploy Production | `.github/workflows/deploy-production.yml` | `push` (ref: `main`); `workflow_dispatch` (ref: `main` only) | `production` | Pre-flight → environment gate → deploy → probe → step summary (FR-040..FR-047). |
-| Release Candidate (optional) | `.github/workflows/release-candidate.yml` | `workflow_run` (deploy-staging completed) | none | Extracted promotion-PR job if `deploy-staging.yml` outgrows its scope. |
+| Release Candidate (optional) | `.github/workflows/release-candidate.yml` | `workflow_run` (deploy-develop completed) | none | Extracted promotion-PR job if `deploy-develop.yml` outgrows its scope. |
 
 **State transitions** (CI):
 
@@ -82,14 +82,14 @@ queued → running → (per job) success | failure | cancelled
                                           else failure
 ```
 
-**State transitions** (Deploy Staging):
+**State transitions** (Deploy Develop):
 
 ```
 queued → running
-  → preflight (none required for staging)
+  → preflight (none required for develop)
   → render-deploy-api (POST hook) → render-deploy-web (POST hook)
   → wait-and-probe (/healthz, /readyz, web URL, bounded retries)
-  → promotion-pr (create-or-update staging→main)
+  → promotion-pr (create-or-update develop→main)
   → success | failure
 ```
 
@@ -106,7 +106,7 @@ queued → branch-guard (refuse if ref != main) → preflight-secrets
 
 **Concurrency**:
 - CI: `group: ci-${{ github.ref }}`, `cancel-in-progress: true`.
-- Deploy Staging: `group: deploy-staging`, `cancel-in-progress: false`.
+- Deploy Develop: `group: deploy-develop`, `cancel-in-progress: false`.
 - Deploy Production: `group: deploy-production`, `cancel-in-progress: false`.
 
 ---
@@ -133,14 +133,14 @@ queued → branch-guard (refuse if ref != main) → preflight-secrets
 
 | Field | Type | Notes |
 |---|---|---|
-| `service_name` | string | e.g. `campfire-api-staging`. |
+| `service_name` | string | e.g. `campfire-api-dev`. |
 | `service_kind` | enum(`web_service`, `static_site`) | API = web_service; Web = static_site. |
-| `environment` | enum(`staging`, `production`) | Maps to GitHub Environment 1:1. |
+| `environment` | enum(`develop`, `production`) | Maps to GitHub Environment 1:1. |
 | `deploy_hook_url` | string (secret) | Stored in `RENDER_<ENV>_<KIND>_DEPLOY_HOOK`. |
 | `auto_deploy_enabled` | bool | **MUST be `false`** on every service (Render-side setting; FR-002 enforcement). |
 | `root_dir` | string | API: `apps/api`. Web: repo root (build emits to `apps/web/dist/`). |
-| `start_command` (api only) | string | `uv run uvicorn campfire_api.main:app --host 0.0.0.0 --port $PORT`. |
-| `pre_deploy_command` (api, paid plans only) | string | `uv run alembic upgrade head`. |
+| `start_command` (api only) | string | Develop free API: `uv run alembic upgrade head && uv run uvicorn ...`; Production: `uv run uvicorn ...`. |
+| `pre_deploy_command` (api, paid plans only) | string | Production: `uv run alembic upgrade head`. |
 | `publish_dir` (web only) | string | `apps/web/dist`. |
 
 **Validation rules**:
@@ -171,19 +171,19 @@ queued → branch-guard (refuse if ref != main) → preflight-secrets
 
 | Field | Type | Notes |
 |---|---|---|
-| `source_branch` | const | `staging`. |
+| `source_branch` | const | `develop`. |
 | `target_branch` | const | `main`. |
-| `title` | string | Generated, e.g. `chore(release): promote staging → main (<short-sha>)`. |
+| `title` | string | Generated, e.g. `chore(release): promote develop → main (<short-sha>)`. |
 | `body` | string | Built by `scripts/ci/promotion-pr-body.sh`: commit list since last merge into `main` + production-readiness checklist. |
 | `idempotency_key` | const branch | The action targets a fixed head ref; existing PR is updated, not duplicated. |
-| `created_when` | rule | Only after **all** post-deploy probes for staging are healthy (FR-036, US-3 acceptance #2). |
+| `created_when` | rule | Only after **all** post-deploy probes for develop are healthy (FR-036, US-3 acceptance #2). |
 
 **State transitions**:
 ```
-absent  ── successful staging deploy ──▶ open (created)
-open    ── subsequent successful staging deploy ──▶ open (updated in place)
+absent  ── successful develop deploy ──▶ open (created)
+open    ── subsequent successful develop deploy ──▶ open (updated in place)
 open    ── manually closed by maintainer ──▶ closed
-closed  ── next successful staging deploy ──▶ open (fresh PR; not reopened)
+closed  ── next successful develop deploy ──▶ open (fresh PR; not reopened)
 open    ── merged into main ──▶ merged (triggers deploy-production.yml)
 ```
 
@@ -193,16 +193,16 @@ open    ── merged into main ──▶ merged (triggers deploy-production.yml
 
 | Branch | Rule | Value |
 |---|---|---|
-| `staging` | Require PR | yes |
-| `staging` | Required status checks | `ci-status` |
-| `staging` | Allow force-push | no |
-| `staging` | Allow direct push | no |
-| `staging` | Required approvals | 0 |
+| `develop` | Require PR | yes |
+| `develop` | Required status checks | `ci-status` |
+| `develop` | Allow force-push | no |
+| `develop` | Allow direct push | no |
+| `develop` | Required approvals | 0 |
 | `main` | Require PR | yes |
 | `main` | Required status checks | `ci-status` |
 | `main` | Required approvals | ≥ 1 |
 | `main` | Require branch up-to-date | yes |
-| `main` | Restrict source branches | `staging` only |
+| `main` | Restrict source branches | `develop` only |
 | `main` | Allow force-push | no |
 | `main` | Allow direct push | no |
 

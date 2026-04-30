@@ -12,9 +12,9 @@ verify that the deployed service is actually healthy.
 
 | Service | URL template | Expected | Source of base URL |
 |---|---|---|---|
-| API liveness | `${BASE_API_URL}/healthz` | HTTP 2xx, body content irrelevant | `STAGING_API_URL` / `PROD_API_URL` |
-| API readiness | `${BASE_API_URL}/readyz` | HTTP 2xx, body content irrelevant | `STAGING_API_URL` / `PROD_API_URL` |
-| Frontend root | `${BASE_WEB_URL}/` | HTTP 2xx | `STAGING_WEB_URL` / `PROD_WEB_URL` |
+| API liveness | `${BASE_API_URL}/healthz` | HTTP 2xx, body content irrelevant | `DEVELOP_API_URL` / `PROD_API_URL` |
+| API readiness | `${BASE_API_URL}/readyz` | HTTP 2xx, body content irrelevant | `DEVELOP_API_URL` / `PROD_API_URL` |
+| Frontend root | `${BASE_WEB_URL}/` | HTTP 2xx | `DEVELOP_WEB_URL` / `PROD_WEB_URL` |
 
 The API endpoints are FastAPI handlers that already exist in `apps/api`. The
 frontend root is a Render Static Site URL.

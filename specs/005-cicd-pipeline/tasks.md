@@ -28,8 +28,8 @@
 - [X] T004 [P] Implement bounded HTTP probing in `scripts/ci/probe-url.sh`
 - [X] T005 [P] Implement secret-safe Render deploy hook invocation in `scripts/ci/render-deploy.sh`
 - [X] T006 [P] Implement missing-name-only environment validation in `scripts/ci/preflight-secrets.sh`
-- [X] T007 [P] Implement feature-to-staging PR body generation in `scripts/ci/feature-pr-body.sh`
-- [X] T008 [P] Implement staging-to-main promotion PR body generation in `scripts/ci/promotion-pr-body.sh`
+- [X] T007 [P] Implement feature-to-develop PR body generation in `scripts/ci/feature-pr-body.sh`
+- [X] T008 [P] Implement develop-to-main promotion PR body generation in `scripts/ci/promotion-pr-body.sh`
 - [X] T009 Implement idempotent GitHub PR create/update helper in `scripts/ci/ensure-pr.sh`
 - [X] T010 Set executable permissions on `scripts/ci/probe-url.sh`, `scripts/ci/render-deploy.sh`, `scripts/ci/preflight-secrets.sh`, `scripts/ci/feature-pr-body.sh`, `scripts/ci/promotion-pr-body.sh`, and `scripts/ci/ensure-pr.sh`
 
@@ -37,11 +37,11 @@
 
 ---
 
-## Phase 3: User Story 1 - Validated pull request into `staging` (Priority: P1)
+## Phase 3: User Story 1 - Validated pull request into `develop` (Priority: P1)
 
-**Goal**: Pull requests into `staging` and `main`, plus pushes to those branches, run named validation jobs and expose a single required `ci-status` check.
+**Goal**: Pull requests into `develop` and `main`, plus pushes to those branches, run named validation jobs and expose a single required `ci-status` check.
 
-**Independent Test**: Open or update a PR into `staging` with a deliberate TypeScript or Alembic failure; confirm the failing named job is clear and `ci-status` blocks merge until fixed.
+**Independent Test**: Open or update a PR into `develop` with a deliberate TypeScript or Alembic failure; confirm the failing named job is clear and `ci-status` blocks merge until fixed.
 
 ### Implementation for User Story 1
 
@@ -56,25 +56,25 @@
 - [X] T019 [US1] Add `ci-status` aggregate job that fails on any failed, cancelled, or skipped dependency in `.github/workflows/ci.yml`
 - [X] T020 [US1] Verify CI workflow names, summaries, timeouts, and required-check semantics in `.github/workflows/ci.yml`
 
-**Checkpoint**: User Story 1 is independently verifiable with a failing and then fixed PR into `staging`.
+**Checkpoint**: User Story 1 is independently verifiable with a failing and then fixed PR into `develop`.
 
 ---
 
-## Phase 4: User Story 2 - Automatic staging deployment on merge into `staging` (Priority: P1)
+## Phase 4: User Story 2 - Automatic develop deployment on merge into `develop` (Priority: P1)
 
-**Goal**: A green `staging` branch tip deploys API and Web to Render staging, then probes `/healthz`, `/readyz`, and the public frontend URL.
+**Goal**: A green `develop` branch tip deploys API and Web to Render develop, then probes `/healthz`, `/readyz`, and the public frontend URL.
 
-**Independent Test**: Merge a trivial change into `staging`; confirm the staging workflow runs once, calls both staging deploy hooks, probes all three URLs, and identifies the deployed commit.
+**Independent Test**: Merge a trivial change into `develop`; confirm the develop workflow runs once, calls both develop deploy hooks, probes all three URLs, and identifies the deployed commit.
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Create staging deploy workflow skeleton with exact-SHA successful CI gating, triggers, permissions, concurrency, environment, and branch guard in `.github/workflows/deploy-staging.yml`
-- [X] T022 [US2] Add staging API Render deploy job using `scripts/ci/render-deploy.sh` in `.github/workflows/deploy-staging.yml`
-- [X] T023 [US2] Add staging Web Render deploy job using `scripts/ci/render-deploy.sh` in `.github/workflows/deploy-staging.yml`
-- [X] T024 [US2] Add staging post-deploy probe job for `STAGING_API_URL` and `STAGING_WEB_URL` using `scripts/ci/probe-url.sh` in `.github/workflows/deploy-staging.yml`
-- [X] T025 [US2] Verify staging deploy summaries, bounded probe behavior, and secret-safe hook logging in `.github/workflows/deploy-staging.yml`
+- [X] T021 [US2] Create develop deploy workflow skeleton with exact-SHA successful CI gating, triggers, permissions, concurrency, environment, and branch guard in `.github/workflows/deploy-develop.yml`
+- [X] T022 [US2] Add develop API Render deploy job using `scripts/ci/render-deploy.sh` in `.github/workflows/deploy-develop.yml`
+- [X] T023 [US2] Add develop Web Render deploy job using `scripts/ci/render-deploy.sh` in `.github/workflows/deploy-develop.yml`
+- [X] T024 [US2] Add develop post-deploy probe job for `DEVELOP_API_URL` and `DEVELOP_WEB_URL` using `scripts/ci/probe-url.sh` in `.github/workflows/deploy-develop.yml`
+- [X] T025 [US2] Verify develop deploy summaries, bounded probe behavior, and secret-safe hook logging in `.github/workflows/deploy-develop.yml`
 
-**Checkpoint**: User Story 2 can deploy staging independently after a green `staging` branch run.
+**Checkpoint**: User Story 2 can deploy develop independently after a green `develop` branch run.
 
 ---
 
@@ -82,7 +82,7 @@
 
 **Goal**: A green `main` branch tip deploys production only through the protected GitHub Environment, with production-scoped secrets and post-deploy probes.
 
-**Independent Test**: Attempt production deployment from a non-`main` ref and confirm it is refused; then merge an approved `staging -> main` PR and confirm production deploy waits for the Environment gate before hooks run.
+**Independent Test**: Attempt production deployment from a non-`main` ref and confirm it is refused; then merge an approved `develop -> main` PR and confirm production deploy waits for the Environment gate before hooks run.
 
 ### Implementation for User Story 4
 
@@ -97,11 +97,11 @@
 
 ---
 
-## Phase 6: User Story 1A - Automatic feature branch PR into `staging` (Priority: P2)
+## Phase 6: User Story 1A - Automatic feature branch PR into `develop` (Priority: P2)
 
-**Goal**: Pushes to `###-feature-name` branches create or update exactly one PR into `staging`, while ignored branches and no-diff branches exit successfully.
+**Goal**: Pushes to `###-feature-name` branches create or update exactly one PR into `develop`, while ignored branches and no-diff branches exit successfully.
 
-**Independent Test**: Push `123-sample-feature` with a small change and confirm one PR opens into `staging`; push again and confirm the same PR is updated; push `scratch-test` and confirm no PR opens.
+**Independent Test**: Push `123-sample-feature` with a small change and confirm one PR opens into `develop`; push again and confirm the same PR is updated; push `scratch-test` and confirm no PR opens.
 
 ### Implementation for User Story 1A
 
@@ -115,20 +115,20 @@
 
 ---
 
-## Phase 7: User Story 3 - Automatic `staging -> main` promotion PR (Priority: P2)
+## Phase 7: User Story 3 - Automatic `develop -> main` promotion PR (Priority: P2)
 
-**Goal**: A successful staging deployment creates or updates a single promotion PR from `staging` into `main` with commit context and production-readiness checks.
+**Goal**: A successful develop deployment creates or updates a single promotion PR from `develop` into `main` with commit context and production-readiness checks.
 
-**Independent Test**: Complete a successful staging deploy; confirm a `staging -> main` PR exists and is updated, not duplicated, after the next successful staging deploy.
+**Independent Test**: Complete a successful develop deploy; confirm a `develop -> main` PR exists and is updated, not duplicated, after the next successful develop deploy.
 
 ### Implementation for User Story 3
 
 - [X] T037 [US3] Finalize commit-list and production-readiness checklist content in `scripts/ci/promotion-pr-body.sh`
-- [X] T038 [US3] Add promotion PR job using `scripts/ci/ensure-pr.sh` and `scripts/ci/promotion-pr-body.sh` in `.github/workflows/deploy-staging.yml`
-- [X] T039 [US3] Gate the promotion PR job on successful staging probes only in `.github/workflows/deploy-staging.yml`
-- [X] T040 [US3] Verify closed-PR, existing-open-PR, and failed-probe behavior in `.github/workflows/deploy-staging.yml`
+- [X] T038 [US3] Add promotion PR job using `scripts/ci/ensure-pr.sh` and `scripts/ci/promotion-pr-body.sh` in `.github/workflows/deploy-develop.yml`
+- [X] T039 [US3] Gate the promotion PR job on successful develop probes only in `.github/workflows/deploy-develop.yml`
+- [X] T040 [US3] Verify closed-PR, existing-open-PR, and failed-probe behavior in `.github/workflows/deploy-develop.yml`
 
-**Checkpoint**: User Story 3 is independently verifiable after any green staging deployment.
+**Checkpoint**: User Story 3 is independently verifiable after any green develop deployment.
 
 ---
 
@@ -157,12 +157,12 @@
 ### Implementation for User Story 7
 
 - [X] T044 [US7] Create the CI/CD operations runbook entry point in `docs/backend/ops/cicd.mdx`
-- [X] T045 [US7] Add complete GitHub secrets and variables inventory for staging and production in `docs/backend/ops/cicd.mdx`
-- [X] T046 [US7] Add GitHub Environments and branch protection setup for `staging` and `main` in `docs/backend/ops/cicd.mdx`
-- [X] T047 [US7] Add Render service setup, deploy hook setup, disabled auto-deploy requirements, and staging migration procedure in `docs/backend/ops/cicd.mdx`
-- [X] T048 [US7] Add staging PostgreSQL 20-day recreation note, disposable data guidance, production approval-before-preflight nuance, rollback procedure, and troubleshooting guide in `docs/backend/ops/cicd.mdx`
+- [X] T045 [US7] Add complete GitHub secrets and variables inventory for develop and production in `docs/backend/ops/cicd.mdx`
+- [X] T046 [US7] Add GitHub Environments and branch protection setup for `develop` and `main` in `docs/backend/ops/cicd.mdx`
+- [X] T047 [US7] Add Render service setup, deploy hook setup, disabled auto-deploy requirements, and develop migration procedure in `docs/backend/ops/cicd.mdx`
+- [X] T048 [US7] Add develop migration start-command guidance, disposable free-database fallback, production approval-before-preflight nuance, rollback procedure, and troubleshooting guide in `docs/backend/ops/cicd.mdx`
 - [X] T049 [US7] Add the CI/CD operations runbook to Mintlify navigation in `docs/docs.json`
-- [X] T050 [US7] Verify the runbook inventory matches `.github/workflows/ci.yml`, `.github/workflows/deploy-staging.yml`, and `.github/workflows/deploy-production.yml`
+- [X] T050 [US7] Verify the runbook inventory matches `.github/workflows/ci.yml`, `.github/workflows/deploy-develop.yml`, and `.github/workflows/deploy-production.yml`
 
 **Checkpoint**: User Story 7 is independently verifiable through documentation review and setup rehearsal.
 
@@ -170,13 +170,13 @@
 
 ## Phase 10: User Story 6 - Manual redeploy escape hatch (Priority: P3)
 
-**Goal**: The maintainer can manually redeploy a known-good `staging` or `main` commit through `workflow_dispatch` with the same branch guards, environment gates, concurrency, and probes as automatic deploys.
+**Goal**: The maintainer can manually redeploy a known-good `develop` or `main` commit through `workflow_dispatch` with the same branch guards, environment gates, concurrency, and probes as automatic deploys.
 
-**Independent Test**: Dispatch staging on `staging` and production on `main`; confirm both run the standard deploy and probe paths, while dispatching from any other branch exits with a clear refusal.
+**Independent Test**: Dispatch develop on `develop` and production on `main`; confirm both run the standard deploy and probe paths, while dispatching from any other branch exits with a clear refusal.
 
 ### Implementation for User Story 6
 
-- [X] T051 [US6] Harden `workflow_dispatch` handling and branch-ref refusal for manual staging redeploys in `.github/workflows/deploy-staging.yml`
+- [X] T051 [US6] Harden `workflow_dispatch` handling and branch-ref refusal for manual develop redeploys in `.github/workflows/deploy-develop.yml`
 - [X] T052 [US6] Harden `workflow_dispatch` handling, production environment approval, and branch-ref refusal for manual production redeploys in `.github/workflows/deploy-production.yml`
 - [X] T053 [US6] Document manual redeploy steps and failure interpretation in `docs/backend/ops/cicd.mdx`
 
@@ -189,7 +189,7 @@
 **Purpose**: Validate the full CI/CD package and align generated docs with the final implementation.
 
 - [X] T054 [P] Run shell syntax validation and fix issues in `scripts/ci/probe-url.sh`, `scripts/ci/render-deploy.sh`, `scripts/ci/preflight-secrets.sh`, `scripts/ci/feature-pr-body.sh`, `scripts/ci/promotion-pr-body.sh`, and `scripts/ci/ensure-pr.sh`
-- [X] T055 Run GitHub workflow static validation and fix issues in `.github/workflows/feature-pr.yml`, `.github/workflows/ci.yml`, `.github/workflows/deploy-staging.yml`, and `.github/workflows/deploy-production.yml`
+- [X] T055 Run GitHub workflow static validation and fix issues in `.github/workflows/feature-pr.yml`, `.github/workflows/ci.yml`, `.github/workflows/deploy-develop.yml`, and `.github/workflows/deploy-production.yml`
 - [X] T056 [P] Validate the quickstart against the final workflow and runbook paths in `specs/005-cicd-pipeline/quickstart.md`
 - [X] T057 [P] Reconcile final secrets and variables inventory in `docs/backend/ops/cicd.mdx`
 - [X] T058 Record any blocked external GitHub or Render configuration steps in `docs/backend/ops/cicd.mdx`
@@ -204,7 +204,7 @@
 - **Foundational (Phase 2)**: Depends on Setup; blocks all workflow stories.
 - **P1 User Stories (Phases 3-5)**: Depend on Foundational; implement in order US1 -> US2 -> US4 for the safest MVP path.
 - **P2 User Stories (Phases 6-9)**: Depend on Foundational and the relevant workflow file from P1.
-- **P3 User Story (Phase 10)**: Depends on the staging and production deploy workflows.
+- **P3 User Story (Phase 10)**: Depends on the develop and production deploy workflows.
 - **Polish (Phase 11)**: Depends on the desired user stories being complete.
 
 ### User Story Dependencies
@@ -213,7 +213,7 @@
 - **US2 (P1)**: Starts after Foundational; deployment value is strongest after US1 is green.
 - **US4 (P1)**: Starts after Foundational; production deployment is independently testable with preflight and branch guards.
 - **US1A (P2)**: Starts after Foundational; benefits from US1 because created PRs need CI checks.
-- **US3 (P2)**: Depends on US2 because promotion PRs are created only after successful staging probes.
+- **US3 (P2)**: Depends on US2 because promotion PRs are created only after successful develop probes.
 - **US5 (P2)**: Depends on US4 because it refines production preflight failure behavior.
 - **US7 (P2)**: Can start after Foundational, but final verification depends on US1, US2, US3, US4, and US5.
 - **US6 (P3)**: Depends on US2 and US4 because it reuses their deploy paths.
@@ -234,8 +234,8 @@
 Task: "Implement bounded HTTP probing in scripts/ci/probe-url.sh"
 Task: "Implement secret-safe Render deploy hook invocation in scripts/ci/render-deploy.sh"
 Task: "Implement missing-name-only environment validation in scripts/ci/preflight-secrets.sh"
-Task: "Implement feature-to-staging PR body generation in scripts/ci/feature-pr-body.sh"
-Task: "Implement staging-to-main promotion PR body generation in scripts/ci/promotion-pr-body.sh"
+Task: "Implement feature-to-develop PR body generation in scripts/ci/feature-pr-body.sh"
+Task: "Implement develop-to-main promotion PR body generation in scripts/ci/promotion-pr-body.sh"
 ```
 
 ## Parallel Example: Documentation With Workflow Work
@@ -243,7 +243,7 @@ Task: "Implement staging-to-main promotion PR body generation in scripts/ci/prom
 ```bash
 Task: "Create the CI/CD operations runbook entry point in docs/backend/ops/cicd.mdx"
 Task: "Create CI workflow skeleton with triggers, permissions, concurrency, and job ordering in .github/workflows/ci.yml"
-Task: "Create staging deploy workflow skeleton with triggers, permissions, concurrency, environment, and branch guard in .github/workflows/deploy-staging.yml"
+Task: "Create develop deploy workflow skeleton with triggers, permissions, concurrency, environment, and branch guard in .github/workflows/deploy-develop.yml"
 ```
 
 ---
@@ -253,15 +253,15 @@ Task: "Create staging deploy workflow skeleton with triggers, permissions, concu
 ### MVP First (P1 Scope)
 
 1. Complete Phase 1 and Phase 2.
-2. Complete US1 so every PR into `staging` has reliable CI and `ci-status`.
-3. Complete US2 so green `staging` deploys automatically with probes.
+2. Complete US1 so every PR into `develop` has reliable CI and `ci-status`.
+3. Complete US2 so green `develop` deploys automatically with probes.
 4. Complete US4 so `main` has a protected production deploy path.
 5. Stop and validate P1 end-to-end before adding convenience automation.
 
 ### Incremental Delivery
 
 1. Add US1A to reduce feature-branch PR friction.
-2. Add US3 so every healthy staging deploy produces a promotion PR.
+2. Add US3 so every healthy develop deploy produces a promotion PR.
 3. Add US5 so unprovisioned production fails closed with clear guidance.
 4. Add US7 so setup, rollback, and troubleshooting are reproducible from docs.
 5. Add US6 once the automatic deployment paths are stable.

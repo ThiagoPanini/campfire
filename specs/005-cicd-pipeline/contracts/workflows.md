@@ -15,10 +15,10 @@ the runbook, and external observers (the maintainer, AI agents) depend on.
 
 ### Triggers
 - `pull_request`:
-  - `branches: [staging, main]`
+  - `branches: [develop, main]`
   - `types: [opened, synchronize, reopened, ready_for_review]`
 - `push`:
-  - `branches: [staging, main]`
+  - `branches: [develop, main, ###-*]`
 - `workflow_dispatch`: no inputs.
 
 ### Permissions (workflow-level)
@@ -55,47 +55,49 @@ concurrency:
 
 ---
 
-## 2. `deploy-staging.yml`
+## 2. `deploy-develop.yml`
 
 ### Triggers
-- `push`:
-  - `branches: [staging]`
-- `workflow_dispatch`: no inputs (must be dispatched against the `staging` branch).
+- `workflow_run`:
+  - `workflows: [CI]`
+  - `branches: [develop]`
+  - `types: [completed]`
+- `workflow_dispatch`: no inputs (must be dispatched against the `develop` branch).
 
 ### Permissions (workflow-level)
 ```yaml
 permissions:
   contents: read
+  checks: read
 ```
 The `promotion-pr` job overrides:
 ```yaml
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
+  issues: write
 ```
 
 ### Concurrency
 ```yaml
 concurrency:
-  group: deploy-staging
+  group: deploy-develop
   cancel-in-progress: false
 ```
 
 ### Environment
-- `environment: staging` on every job that consumes a secret or variable from the `staging` env.
+- `environment: develop` on the single deploy-and-probe job that consumes secrets or variables from the `develop` env.
 
 ### Jobs (sequential)
 | Job ID | Purpose | Inputs (env) | Failure semantics |
 |---|---|---|---|
-| `branch-guard` | Refuse if `github.ref != refs/heads/staging`. | — | Exits 1 with `::error::` message; no further jobs run. |
-| `deploy-api` | POST to `RENDER_STAGING_API_DEPLOY_HOOK`. | `RENDER_STAGING_API_DEPLOY_HOOK` | Fails if curl exit ≠ 0 or HTTP status not 2xx; identifies service in summary. |
-| `deploy-web` | POST to `RENDER_STAGING_WEB_DEPLOY_HOOK`. | `RENDER_STAGING_WEB_DEPLOY_HOOK` | Same. |
-| `probe` | Probes `${STAGING_API_URL}/healthz`, `${STAGING_API_URL}/readyz`, `${STAGING_WEB_URL}/`. | `STAGING_API_URL`, `STAGING_WEB_URL` | Bounded retries; each probe reported in step summary. |
-| `promotion-pr` | Create-or-update PR `staging → main`. | `GITHUB_TOKEN` | Runs **only** if `probe` succeeded (`needs.probe.result == 'success'`). |
+| `branch-guard` | Refuse non-develop refs, non-success CI, stale CI SHAs, or manual dispatch without green `CI status (aggregate)`. | `GITHUB_TOKEN` | Exits 1 with `::error::` message; no further jobs run. |
+| `deploy-develop` | Preflight values, POST to API and Web deploy hooks, then probe `${DEVELOP_API_URL}/healthz`, `${DEVELOP_API_URL}/readyz`, `${DEVELOP_WEB_URL}/`. | `RENDER_DEVELOP_API_DEPLOY_HOOK`, `RENDER_DEVELOP_WEB_DEPLOY_HOOK`, `DEVELOP_API_URL`, `DEVELOP_WEB_URL` | Fails before deploy if any value is missing; fails on non-2xx hook response or failed bounded probes. |
+| `promotion-pr` | Create-or-update PR `develop → main`. | `GITHUB_TOKEN` | Runs **only** if `deploy-develop` succeeded. |
 
 ### Outputs
 - Step summary: deploy hook responses (status code only, never URL), per-probe outcomes, link to opened/updated promotion PR.
-- A PR from `staging` into `main` exists after success (idempotent).
+- A PR from `develop` into `main` exists after success (idempotent).
 
 ### Logging contract
 - The deploy hook URL MUST NOT appear in any log line.
@@ -106,14 +108,17 @@ concurrency:
 ## 3. `deploy-production.yml`
 
 ### Triggers
-- `push`:
+- `workflow_run`:
+  - `workflows: [CI]`
   - `branches: [main]`
+  - `types: [completed]`
 - `workflow_dispatch`: no inputs (must be dispatched against the `main` branch).
 
 ### Permissions (workflow-level)
 ```yaml
 permissions:
   contents: read
+  checks: read
 ```
 
 ### Concurrency
@@ -124,16 +129,13 @@ concurrency:
 ```
 
 ### Environment
-- `environment: production` on every job that consumes production secrets/vars. The Environment's protection rules (required reviewers) gate execution at the GitHub side.
+- `environment: production` on the single deploy-and-probe job that consumes production secrets/vars. The Environment's protection rules (required reviewers) gate execution at the GitHub side.
 
 ### Jobs (sequential)
 | Job ID | Purpose | Inputs (env) | Failure semantics |
 |---|---|---|---|
-| `branch-guard` | Refuse if `github.ref != refs/heads/main`. | — | Exits 1; clear message per FR-053. |
-| `preflight` | Verify required production secrets are non-empty (`RENDER_PROD_API_DEPLOY_HOOK`, `RENDER_PROD_WEB_DEPLOY_HOOK`, `PROD_API_URL`, `PROD_WEB_URL`). | env | If any missing: exit 1, list **names only** (FR-042, SC-006). No deploy hook is contacted. |
-| `deploy-api` | POST to `RENDER_PROD_API_DEPLOY_HOOK`. | `RENDER_PROD_API_DEPLOY_HOOK` | Same as staging. |
-| `deploy-web` | POST to `RENDER_PROD_WEB_DEPLOY_HOOK`. | `RENDER_PROD_WEB_DEPLOY_HOOK` | Same. |
-| `probe` | Probes `${PROD_API_URL}/healthz`, `${PROD_API_URL}/readyz`, `${PROD_WEB_URL}/`. | `PROD_API_URL`, `PROD_WEB_URL` | Bounded retries; failures fail the run (SC-007, SC-012). |
+| `branch-guard` | Refuse non-main refs, non-success CI, stale CI SHAs, or manual dispatch without green `CI status (aggregate)`. | `GITHUB_TOKEN` | Exits 1; clear message per FR-053. |
+| `deploy-production` | Environment approval, production preflight, POST to API and Web deploy hooks, then probe `${PROD_API_URL}/healthz`, `${PROD_API_URL}/readyz`, `${PROD_WEB_URL}/`. | `RENDER_PROD_API_DEPLOY_HOOK`, `RENDER_PROD_WEB_DEPLOY_HOOK`, `PROD_API_URL`, `PROD_WEB_URL` | If any required value is missing: exit 1, list **names only** (FR-042, SC-006). No deploy hook is contacted before preflight passes. |
 | `summary` | Append GitHub Step Summary: deploy result, probe results, commit SHA, environment. | — | Always runs (`if: always()`). |
 
 ### Outputs
@@ -152,17 +154,40 @@ concurrency:
 
 ## 4. `release-candidate.yml` (optional)
 
-If `deploy-staging.yml` becomes unwieldy, the `promotion-pr` job is extracted
-into this workflow, triggered by `workflow_run` on `deploy-staging`
+If `deploy-develop.yml` becomes unwieldy, the `promotion-pr` job is extracted
+into this workflow, triggered by `workflow_run` on `deploy-develop`
 completion (`conclusion == success`). The contract stays identical to the
 `promotion-pr` job above. This file is not delivered in the first iteration
-unless the staging workflow exceeds ~150 lines.
+unless the develop workflow exceeds ~150 lines.
 
 ---
 
-## 5. Common contract guarantees
+## 5. `feature-pr.yml`
 
-- **Action versions**: every action is referenced by major-version tag (`@v4`, `@v5`, `@v6`). Pinning to commit SHA is a tracked follow-up.
+### Triggers
+- `workflow_run`:
+  - `workflows: [CI]`
+  - `branches: [###-*]`
+  - `types: [completed]`
+
+### Permissions
+```yaml
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+```
+
+### Contract
+- Runs only when the completed CI run was caused by a `push`.
+- Uses trusted automation checked out by the `workflow_run` workflow, not scripts from the feature branch.
+- Creates or updates a PR from the feature branch into `develop` after the feature branch CI run completes and the branch still has a diff against `develop`.
+
+---
+
+## 6. Common contract guarantees
+
+- **Action versions**: official GitHub actions track the latest stable major. `astral-sh/setup-uv` is pinned to an immutable v8.1.0 commit SHA because that action no longer relies on floating major tags.
 - **Permissions**: workflow-level default is `contents: read`. Any escalation is per-job and explicit.
 - **Secrets**: never echoed; never passed via shell-string interpolation; always via `env:`.
 - **Failure messages**: every fatal step uses `::error::` annotations with the failing area named in plain English (FR-053).

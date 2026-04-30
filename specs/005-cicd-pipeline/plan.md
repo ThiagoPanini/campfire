@@ -6,17 +6,17 @@
 ## Summary
 
 Wire GitHub Actions as the sole orchestrator of validation and deployment for
-Campfire on Render, using a `feature → staging → main` branch promotion flow.
+Campfire on Render, using a `feature → develop → main` branch promotion flow.
 A lightweight feature-PR workflow observes pushes to `###-feature-name`
-branches and creates, updates, or intentionally ignores a PR into `staging`
-without changing application files. CI runs on PRs into `staging`/`main` and
+branches and creates, updates, or intentionally ignores a PR into `develop`
+without changing application files. CI runs on PRs into `develop`/`main` and
 on pushes to those branches, with parallel jobs for frontend, backend
 (lint/typecheck, unit, integration with PostgreSQL), migrations/contracts, and
 docs/security; an aggregate `ci-status` job exposes a single required check for
 branch protection while preserving named job-level diagnostics. Deployment is
 performed by triggering Render Deploy Hooks from environment-scoped jobs only
-after the CI run for the branch tip has completed successfully: `staging`
-deploys after green CI for the `staging` tip and opens/updates a `staging →
+after the CI run for the branch tip has completed successfully: `develop`
+deploys after green CI for the `develop` tip and opens/updates a `develop →
 main` promotion PR; `production` deploys after green CI for the `main` tip
 behind a GitHub Environment approval gate, with a pre-flight check that fails
 closed when production secrets are absent. All deployments are followed by
@@ -36,8 +36,8 @@ troubleshooting, and rollback.
 **Target Platform**: GitHub-hosted Linux runners; Render managed platform (Web Service for the API, Static Site for the frontend, managed PostgreSQL). No self-hosted runners.
 **Project Type**: web — monorepo with `apps/api` (FastAPI/uv) and `apps/web` (Vite/React) plus `docs/` (Mintlify). The CI/CD layer is cross-cutting infra, not a new app.
 **Performance Goals**: No explicit CI wall-clock target in this iteration; keep workflow steps simple and bounded. Deploy probes use fixed retry limits so deployment validation cannot run indefinitely.
-**Constraints**: Render free tier may be in use → no pre-deploy commands assumed available for free services; migrations run as a CI validation job against an ephemeral database, while live Render migrations require an explicit runbook path until the API service can use a Render pre-deploy command or another approved automation. Deploy hook URLs are secrets and MUST never be echoed. Production services do not exist yet → production workflow MUST fail closed with a human-readable list of missing secrets; if GitHub Environment approval is evaluated before environment secrets are readable, the runbook must call out that approval may be requested before the pre-flight failure is shown.
-**Scale/Scope**: Solo maintainer + AI agents; ≤ a few dozen PRs/week; 2 environments (`staging` exists, `production` to be provisioned later) × 2 services each (API + Web) = up to 4 deploy hooks total.
+**Constraints**: Render free tier may be in use → no pre-deploy commands assumed available for free services; migrations run as a CI validation job against an ephemeral database, Develop live migrations run in the free API service start command, and Production uses Render pre-deploy command. Deploy hook URLs are secrets and MUST never be echoed. Production services do not exist yet → production workflow MUST fail closed with a human-readable list of missing secrets; if GitHub Environment approval is evaluated before environment secrets are readable, the runbook must call out that approval may be requested before the pre-flight failure is shown.
+**Scale/Scope**: Solo maintainer + AI agents; ≤ a few dozen PRs/week; 2 environments (`develop` exists, `production` to be provisioned later) × 2 services each (API + Web) = up to 4 deploy hooks total.
 
 ## Constitution Check
 
@@ -46,7 +46,7 @@ troubleshooting, and rollback.
 | Principle | Status | Notes |
 |---|---|---|
 | I. Narrow MVP Scope | ✅ Pass | Pipeline serves the three MVP user jobs by making the existing apps deployable; introduces no product features. |
-| II. Incremental Delivery | ✅ Pass | Delivered as P1 → P2 → P3 user stories; staging-only is independently usable while production stays unprovisioned. |
+| II. Incremental Delivery | ✅ Pass | Delivered as P1 → P2 → P3 user stories; develop-only is independently usable while production stays unprovisioned. |
 | III. Boring, Proven Stack | ✅ Pass | GitHub Actions + Render Deploy Hooks + Postgres service container. No AWS, Terraform, LocalStack, Kubernetes, Redis, queues. No Docker images for app runtime (FR-061). PR creation/update uses the built-in GitHub API/CLI surface rather than introducing a third-party action. |
 | IV. Proportional Rigor | ✅ Pass | Secrets scan is diff-based (gitleaks-lite via shell, no SAST); `mypy` is non-blocking until codebase is clean; constitution check is presence/readability only; OpenAPI snapshot job is a no-op when no snapshot exists. |
 | V. Docs-as-Code | ✅ Pass | Operational runbook delivered in `docs/backend/ops/cicd.mdx` in the same change set as the workflows; secrets inventory is the single source of truth. |
@@ -76,11 +76,11 @@ specs/005-cicd-pipeline/
 ```text
 .github/
 ├── workflows/
-│   ├── feature-pr.yml                # push to ###-feature-name → create/update/ignore PR into staging
+│   ├── feature-pr.yml                # push to ###-feature-name → create/update/ignore PR into develop
 │   ├── ci.yml                       # PR + push validation; jobs run in parallel; aggregate ci-status job
-│   ├── deploy-staging.yml           # green CI for staging tip → Render hooks → probes → promotion PR
+│   ├── deploy-develop.yml           # green CI for develop tip → Render hooks → probes → promotion PR
 │   ├── deploy-production.yml       # green CI for main tip → environment gate → preflight → hooks → probes
-│   └── release-candidate.yml       # OPTIONAL — extracted promotion-PR job if deploy-staging.yml grows too large
+│   └── release-candidate.yml       # OPTIONAL — extracted promotion-PR job if deploy-develop.yml grows too large
 ├── pull_request_template.md        # Validation + promotion checklist
 └── dependabot.yml                  # npm, github-actions, pip (uv-compatible) ecosystems
 
@@ -89,8 +89,8 @@ scripts/
     ├── probe-url.sh                # Bounded-retry HTTP probe (used by both deploy workflows)
     ├── render-deploy.sh            # POST to a Render deploy hook; never echoes the URL
     ├── preflight-secrets.sh        # Asserts required env vars are non-empty without printing values
-    ├── feature-pr-body.sh          # Builds/refreshes feature→staging PR body
-    ├── promotion-pr-body.sh        # Builds the staging→main PR body (commit list + checklist)
+    ├── feature-pr-body.sh          # Builds/refreshes feature→develop PR body
+    ├── promotion-pr-body.sh        # Builds the develop→main PR body (commit list + checklist)
     └── ensure-pr.sh                # Idempotent gh-based create/update helper for both PR flows
 
 docs/
@@ -126,22 +126,21 @@ cover.
    CI for the branch tip starts deploy" using `workflow_run` or an equivalent
    explicit `ci-status` lookup for the exact SHA.
 3. Add a CI policy check that rejects PRs into `main` unless `head_ref` is
-   `staging`, because GitHub settings alone may not express this safely across
+   `develop`, because GitHub settings alone may not express this safely across
    plans.
 4. Replace the planned `peter-evans/create-pull-request` dependency with a
    repository-owned `gh`/GitHub API helper that can create or update both
-   feature-to-staging and staging-to-main PRs without relying on workspace
+   feature-to-develop and develop-to-main PRs without relying on workspace
    file changes.
-5. Make live database migration handling explicit per environment: Render
-   pre-deploy command when available, documented manual path while free-tier
-   staging is accepted, or a separately approved GitHub Actions migration job
-   if the maintainer chooses that trade-off.
+5. Make live database migration handling explicit per environment: Develop
+   free API runs migrations in its start command, while Production uses Render
+   pre-deploy command.
 6. Expand the runbook scope so it inventories both GitHub workflow
    secrets/variables and Render service runtime variables, including
    `VITE_API_URL`, backend database/auth settings, deploy hooks, and public
    probe URLs.
 7. Document GitHub repository foundation setup out-of-band: ensure
-   `main`/`staging`, labels, environments, variables, branch protection or
+   `main`/`develop`, labels, environments, variables, branch protection or
    rulesets, and safe repository options. Record anything blocked by plan or
    permission limitations in the operational runbook.
 

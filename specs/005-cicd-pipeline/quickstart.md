@@ -11,12 +11,12 @@ This is a fast path. The full operational runbook lives at
 
 ## Prerequisites
 
-- Render account with the **staging** services already provisioned:
-  - `campfire-api-staging` (Web Service, root dir `apps/api`)
-  - `campfire-web-staging` (Static Site, build from repo root, publish dir `apps/web/dist`)
-  - `campfire-db-staging` (PostgreSQL)
+- Render account with the **develop** services already provisioned:
+  - `campfire-api-dev` (Web Service, root dir `apps/api`)
+  - `campfire-dev` (Static Site, build from repo root, publish dir `apps/web/dist`)
+  - `campfire-db-dev` (PostgreSQL)
 - GitHub repository admin rights (to configure secrets, environments, and branch protection).
-- Both `staging` and `main` branches exist on the remote.
+- Both `develop` and `main` branches exist on the remote.
 
 Production services do **not** need to exist yet. The production workflow will
 fail closed at the pre-flight step until they do.
@@ -25,7 +25,7 @@ fail closed at the pre-flight step until they do.
 
 ## 1. Disable Render auto-deploy on every service (required)
 
-For each Render service (`campfire-api-staging`, `campfire-web-staging`):
+For each Render service (`campfire-api-dev`, `campfire-dev`):
 
 1. Render dashboard → service → **Settings** → **Build & Deploy**.
 2. **Auto-Deploy**: set to **No**.
@@ -44,8 +44,8 @@ For each service:
    `https://api.render.com/deploy/srv-XXXX?key=YYYY`.
 
 Record:
-- API staging hook → save as GitHub secret `RENDER_STAGING_API_DEPLOY_HOOK`.
-- Web staging hook → save as GitHub secret `RENDER_STAGING_WEB_DEPLOY_HOOK`.
+- API develop hook → save as GitHub secret `RENDER_DEVELOP_API_DEPLOY_HOOK`.
+- Web develop hook → save as GitHub secret `RENDER_DEVELOP_WEB_DEPLOY_HOOK`.
 
 (Production hooks are saved later, when production is provisioned.)
 
@@ -55,16 +55,16 @@ Record:
 
 GitHub repo → **Settings** → **Environments**.
 
-### `staging`
+### `develop`
 
-- **Deployment branches**: Selected branches → only `staging`.
+- **Deployment branches**: Selected branches → only `develop`.
 - **Required reviewers**: 0.
 - **Environment secrets**:
-  - `RENDER_STAGING_API_DEPLOY_HOOK`
-  - `RENDER_STAGING_WEB_DEPLOY_HOOK`
+  - `RENDER_DEVELOP_API_DEPLOY_HOOK`
+  - `RENDER_DEVELOP_WEB_DEPLOY_HOOK`
 - **Environment variables**:
-  - `STAGING_API_URL` (e.g. `https://campfire-api-staging.onrender.com`)
-  - `STAGING_WEB_URL` (e.g. `https://campfire-web-staging.onrender.com`)
+  - `DEVELOP_API_URL` (e.g. `https://campfire-api-dev.onrender.com`)
+  - `DEVELOP_WEB_URL` (e.g. `https://campfire-dev.onrender.com`)
 
 ### `production`
 
@@ -84,7 +84,7 @@ to exist as a target.
 
 GitHub repo → **Settings** → **Branches** → **Add rule**.
 
-### `staging`
+### `develop`
 
 - ✅ Require a pull request before merging
 - ✅ Require status checks to pass before merging
@@ -96,27 +96,27 @@ GitHub repo → **Settings** → **Branches** → **Add rule**.
 
 ### `main`
 
-Everything in `staging`, plus:
+Everything in `develop`, plus:
 
 - ✅ Require approvals: 1
 - ✅ Require branches to be up to date before merging
 - ✅ Require linear history (recommended)
-- ✅ Restrict matching branches in pull request source: select `staging` only.
+- ✅ Restrict matching branches in pull request source: select `develop` only.
 
 ---
 
-## 5. Open the first PR into `staging`
+## 5. Open the first PR into `develop`
 
 The workflows under `.github/workflows/` are already in this branch. The
-first PR into `staging` should:
+first PR into `develop` should:
 
 1. Pass CI (the six jobs + `ci-status`). If it does not, the failure messages
    will name the failing area.
-2. Be merged. The merge triggers `deploy-staging.yml`:
-   - `branch-guard` (passes — we're on `staging`).
+2. Be merged. The merge triggers `deploy-develop.yml`:
+   - `branch-guard` (passes — we're on `develop`).
    - `deploy-api`, `deploy-web` (Render hooks fire).
    - `probe` (verifies `/healthz`, `/readyz`, frontend root).
-   - `promotion-pr` (opens PR `staging → main`).
+   - `promotion-pr` (opens PR `develop → main`).
 
 If any step fails, fix it before continuing. Common first-run failures:
 - Probe times out → the Render service is still building; re-run the
@@ -133,8 +133,8 @@ When you are ready:
 1. Create the Render services:
    - `campfire-api-prod` (Web Service, root dir `apps/api`,
      start command `uv run uvicorn campfire_api.main:app --host 0.0.0.0 --port $PORT`,
-     pre-deploy command `uv run alembic upgrade head` if on a paid plan).
-   - `campfire-web-prod` (Static Site, publish dir `apps/web/dist`).
+     pre-deploy command `uv run alembic upgrade head`).
+   - `campfire-prod` (Static Site, publish dir `apps/web/dist`).
    - `campfire-db-prod` (PostgreSQL).
 2. Disable auto-deploy on both services.
 3. Create deploy hooks; record:
@@ -142,7 +142,7 @@ When you are ready:
    - `RENDER_PROD_WEB_DEPLOY_HOOK`
 4. Add to the `production` GitHub Environment as **secrets**.
 5. Add `PROD_API_URL` and `PROD_WEB_URL` as environment **variables**.
-6. Merge the next `staging → main` promotion PR. The production workflow
+6. Merge the next `develop → main` promotion PR. The production workflow
    will:
    - Pass `branch-guard` and `preflight`.
    - Wait for your approval (Environment protection rule).
@@ -158,7 +158,7 @@ Until step 4–5 are done, every merge into `main` produces a clean failure at
 | User Story | How to verify |
 |---|---|
 | US-1 — PR validation | Open a PR with a deliberate `tsc` error → CI fails on `frontend-checks`; PR is unmergeable. |
-| US-2 — Staging auto-deploy | Merge a trivial change into `staging` → `deploy-staging` runs end-to-end; probes green; promotion PR opened. |
+| US-2 — Develop auto-deploy | Merge a trivial change into `develop` → `deploy-develop` runs end-to-end; probes green; promotion PR opened. |
 | US-4 — Gated production deploy | After production is provisioned, merge the promotion PR → `deploy-production` runs, waits at the environment gate, succeeds after approval. |
 | US-5 — Production not provisioned | Before step 6, merge a PR into `main` → `deploy-production` fails at `preflight` with a list of missing names; no Render hook is contacted. |
 
@@ -168,7 +168,7 @@ Until step 4–5 are done, every merge into `main` produces a clean failure at
 
 - A job failed: read the job's last `::error::` line — it names the failing area (FR-053).
 - A probe failed: the step summary lists which URL and the last HTTP code.
-- A deploy hook failed: the step summary names the service and environment (`Deploy hook for staging api failed (HTTP 502).`).
+- A deploy hook failed: the step summary names the service and environment (`Deploy hook for develop api failed (HTTP 502).`).
 - A secret is missing: `preflight` lists the missing names. Add them in the right GitHub Environment, re-run the workflow.
 - The promotion PR keeps duplicating: confirm only one branch name is used by the create-pull-request action; the existing PR should be updated, not replaced.
 

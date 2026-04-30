@@ -14,7 +14,7 @@ success, and what MUST NOT happen on the wire or in logs.
 |---|---|---|---|
 | `RENDER_<ENV>_<SVC>_DEPLOY_HOOK` | GitHub Environment **secret** | yes | A Render-issued HTTPS URL of the form `https://api.render.com/deploy/srv-XXXX?key=YYYY`. Treated as a secret because the `key` query param authorises the deploy. |
 
-`<ENV>` ∈ {`STAGING`, `PROD`}. `<SVC>` ∈ {`API`, `WEB`}.
+`<ENV>` ∈ {`DEVELOP`, `PROD`}. `<SVC>` ∈ {`API`, `WEB`}.
 
 ---
 
@@ -53,7 +53,7 @@ success, and what MUST NOT happen on the wire or in logs.
 
 ## Idempotency and ordering
 
-- Render deploy hooks are **idempotent in effect**: calling twice in quick succession produces one in-flight deploy and queues another. The workflow's concurrency group (`deploy-staging` / `deploy-production`) is the canonical guard against pile-ups.
+- Render deploy hooks are **idempotent in effect**: calling twice in quick succession produces one in-flight deploy and queues another. The workflow's concurrency group (`deploy-develop` / `deploy-production`) is the canonical guard against pile-ups.
 - The API and Web hooks are called **sequentially** (API first, then Web). Rationale: if the API breaks, the Web deploy still happens — but the probe step will catch the API problem and fail the run before the promotion PR is updated. (We do not currently parallelise to keep job summaries linear and easy to read for a solo maintainer.)
 
 ---
