@@ -19,6 +19,13 @@ def test_normalize_database_url_preserves_asyncpg_scheme() -> None:
     )
 
 
+def test_normalize_database_url_accepts_postgres_shorthand() -> None:
+    assert (
+        normalize_database_url("postgres://user:password@host:5432/campfire")
+        == "postgresql+asyncpg://user:password@host:5432/campfire"
+    )
+
+
 async def test_env_settings_provider_returns_normalized_database_url() -> None:
     provider = EnvSettingsProvider(
         EnvSettings(DATABASE_URL="postgresql://user:password@host:5432/campfire")
