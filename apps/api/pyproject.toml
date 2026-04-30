@@ -5,7 +5,7 @@ description = "Campfire backend API"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-  "alembic>=1.13,<1.14",
+  "alembic>=1.18.4,<1.19",
   "argon2-cffi>=23.1,<24",
   "asyncpg>=0.30,<0.31",
   "email-validator>=2.2,<3",
