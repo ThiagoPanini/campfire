@@ -15,7 +15,9 @@ def test_email_normalization_and_format() -> None:
 
 def test_password_length_floor() -> None:
     with pytest.raises(ValueError):
-        Credentials.from_plaintext(UserId.new(), "short", HashedPassword("hash"), FrozenClock().now())
+        Credentials.from_plaintext(
+            UserId.new(), "short", HashedPassword("hash"), FrozenClock().now()
+        )
 
 
 def test_display_name_from_email() -> None:

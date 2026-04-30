@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, Query, Response
 
 from campfire_api.contexts.identity.adapters.clock.system_clock import SystemClock
 from campfire_api.contexts.identity.adapters.http.deps import AuthContext, get_current_session
-from campfire_api.contexts.repertoire.adapters.catalog.deezer_song_catalog import DeezerSongCatalog
 from campfire_api.contexts.repertoire.adapters.caching.ttl_search_cache import TtlSearchCache
+from campfire_api.contexts.repertoire.adapters.catalog.deezer_song_catalog import DeezerSongCatalog
 from campfire_api.contexts.repertoire.adapters.http.deps import (
     get_repertoire_repository,
     get_search_cache,

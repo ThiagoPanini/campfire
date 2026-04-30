@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 
 from campfire_api.contexts.identity.application.errors import EmailAlreadyRegistered
-from campfire_api.contexts.identity.domain.entities import Credentials, User, display_name_from_email
+from campfire_api.contexts.identity.domain.entities import (
+    Credentials,
+    User,
+    display_name_from_email,
+)
 from campfire_api.contexts.identity.domain.ports import (
     Clock,
     CredentialsRepository,
@@ -34,5 +38,7 @@ class RegisterUser:
         )
         password_hash = HashedPassword(await self.hasher.hash(password))
         await self.users.add(user)
-        await self.credentials.add(Credentials.from_plaintext(user.id, password, password_hash, now))
+        await self.credentials.add(
+            Credentials.from_plaintext(user.id, password, password_hash, now)
+        )
         return user

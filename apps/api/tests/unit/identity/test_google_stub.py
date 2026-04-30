@@ -2,7 +2,9 @@ import pytest
 
 from campfire_api.contexts.identity.application.errors import GoogleStubDisabled
 from campfire_api.contexts.identity.application.use_cases.authenticate_user import AuthenticateUser
-from campfire_api.contexts.identity.application.use_cases.google_stub_sign_in import ContinueWithGoogleStub
+from campfire_api.contexts.identity.application.use_cases.google_stub_sign_in import (
+    ContinueWithGoogleStub,
+)
 from campfire_api.contexts.identity.application.use_cases.register_user import RegisterUser
 from campfire_api.contexts.identity.domain.value_objects import Email
 from tests.unit.identity.fakes import (
@@ -23,7 +25,9 @@ async def setup_google(enabled=True):
     users, credentials = FakeUsers(), FakeCredentials()
     await RegisterUser(users, credentials, FakeHasher(), clock)("ada@campfire.test", "campfire123")
     sessions, refresh_tokens, issuer = FakeSessions(), FakeRefreshTokens(), FakeTokenIssuer(clock)
-    auth = AuthenticateUser(users, credentials, sessions, refresh_tokens, FakeHasher(), issuer, clock, 900)
+    auth = AuthenticateUser(
+        users, credentials, sessions, refresh_tokens, FakeHasher(), issuer, clock, 900
+    )
     return ContinueWithGoogleStub(users, auth, clock, enabled), users
 
 

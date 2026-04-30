@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -22,8 +22,8 @@ def _entry(**kwargs) -> RepertoireEntry:
         song_cover_art_url="https://cdn.deezer.com/cover.jpg",
         instrument="Acoustic Guitar",
         proficiency="practicing",
-        created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2026, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2026, 1, 1, tzinfo=UTC),
     )
     defaults.update(kwargs)
     return RepertoireEntry(**defaults)
