@@ -7,8 +7,21 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from campfire_api.contexts.identity.adapters.clock.system_clock import SystemClock
+from campfire_api.contexts.identity.adapters.messaging.console_email_sender import (
+    ConsoleEmailSender,
+)
+from campfire_api.contexts.identity.adapters.messaging.http_email_sender import HttpEmailSender
 from campfire_api.contexts.identity.adapters.persistence.credentials_repository import (
     SqlAlchemyCredentialsRepository,
+)
+from campfire_api.contexts.identity.adapters.persistence.email_confirmation_repository import (
+    SqlAlchemyEmailConfirmationRepository,
+)
+from campfire_api.contexts.identity.adapters.persistence.oauth_flow_state_repository import (
+    SqlAlchemyOAuthFlowStateRepository,
+)
+from campfire_api.contexts.identity.adapters.persistence.provider_link_repository import (
+    SqlAlchemyProviderLinkRepository,
 )
 from campfire_api.contexts.identity.adapters.persistence.refresh_token_repository import (
     SqlAlchemyRefreshTokenRepository,
@@ -23,6 +36,9 @@ from campfire_api.contexts.identity.adapters.rate_limiting.in_memory_limiter imp
     InMemoryRateLimiter,
 )
 from campfire_api.contexts.identity.adapters.security.argon2_hasher import Argon2PasswordHasher
+from campfire_api.contexts.identity.adapters.security.hmac_code_hasher import (
+    HmacConfirmationCodeHasher,
+)
 from campfire_api.contexts.identity.adapters.security.opaque_token_issuer import OpaqueTokenIssuer
 from campfire_api.contexts.identity.application.errors import (
     InvalidCredentials,
@@ -51,6 +67,9 @@ async def get_repositories(session: AsyncSession = Depends(get_db_session)):
         "credentials": SqlAlchemyCredentialsRepository(session),
         "sessions": SqlAlchemySessionRepository(session),
         "refresh_tokens": SqlAlchemyRefreshTokenRepository(session),
+        "provider_links": SqlAlchemyProviderLinkRepository(session),
+        "email_confirmations": SqlAlchemyEmailConfirmationRepository(session),
+        "oauth_flow_states": SqlAlchemyOAuthFlowStateRepository(session),
     }
 
 
@@ -60,6 +79,27 @@ async def get_clock() -> SystemClock:
 
 async def get_hasher() -> Argon2PasswordHasher:
     return Argon2PasswordHasher()
+
+
+async def get_code_hasher(
+    settings: SettingsProvider = Depends(get_settings),
+) -> HmacConfirmationCodeHasher:
+    key = await settings.email_confirmation_hmac_key()
+    return HmacConfirmationCodeHasher(key or "dev-email-confirmation-key")
+
+
+async def get_email_sender(settings: SettingsProvider = Depends(get_settings)):
+    backend = (await settings.mail_backend()).lower()
+    if backend == "http":
+        url = await settings.mail_http_url()
+        api_key = await settings.mail_http_api_key()
+        from_email = await settings.mail_from()
+        if not url or not api_key or not from_email:
+            raise RuntimeError(
+                "MAIL_BACKEND=http requires MAIL_HTTP_URL, MAIL_HTTP_API_KEY, MAIL_FROM"
+            )
+        return HttpEmailSender(url, api_key, from_email)
+    return ConsoleEmailSender(await settings.mail_outbox_dir(), await settings.mail_from())
 
 
 async def get_token_issuer(
