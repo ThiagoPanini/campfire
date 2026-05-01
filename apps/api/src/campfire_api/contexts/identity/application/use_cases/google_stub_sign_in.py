@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from campfire_api.contexts.identity.application.errors import GoogleStubDisabled, InvalidCredentials
 from campfire_api.contexts.identity.application.use_cases.authenticate_user import AuthenticateUser
+from campfire_api.contexts.identity.application.use_cases.issue_session import IssueSession
 from campfire_api.contexts.identity.application.use_cases.session_tokens import IssuedSession
 from campfire_api.contexts.identity.domain.entities import User
 from campfire_api.contexts.identity.domain.ports import Clock, UserRepository
@@ -35,4 +36,10 @@ class ContinueWithGoogleStub:
                 updated_at=now,
             )
             await self.users.add(user)
-        return await self.authenticate_user._open_session(user.id)
+        return await IssueSession(
+            sessions=self.authenticate_user.sessions,
+            refresh_tokens=self.authenticate_user.refresh_tokens,
+            token_issuer=self.authenticate_user.token_issuer,
+            clock=self.authenticate_user.clock,
+            access_ttl_seconds=self.authenticate_user.access_ttl_seconds,
+        )(user.id)
