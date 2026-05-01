@@ -1,0 +1,12 @@
+---
+title: Identity Overview
+---
+
+Campfire identity now supports two sign-in paths with the same session model:
+
+- Email and password sign-up creates an unconfirmed user, sends a 6-digit confirmation code, and issues no refresh cookie until confirmation succeeds.
+- Google sign-in uses backend-owned OAuth Authorization Code + PKCE. The API verifies the Google ID token server-side, links by Google subject or verified email, then issues the normal Campfire refresh cookie.
+
+Refresh cookies remain `HttpOnly`, scoped to `/auth/refresh`, and use the configured `Secure` and `SameSite` policy. Access tokens are still short-lived opaque bearer values.
+
+Existing users are backfilled as confirmed during migration with `email_confirmed_at = created_at`, so deploy does not invalidate active sessions or old passwords.
