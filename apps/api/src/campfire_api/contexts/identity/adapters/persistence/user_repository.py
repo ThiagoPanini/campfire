@@ -27,6 +27,7 @@ class SqlAlchemyUserRepository:
                 display_name=user.display_name.value,
                 created_at=user.created_at,
                 updated_at=user.updated_at,
+                email_confirmed_at=user.email_confirmed_at,
             )
         )
         await self.session.flush()
@@ -38,4 +39,5 @@ class SqlAlchemyUserRepository:
         row.email = user.email.value
         row.display_name = user.display_name.value
         row.updated_at = user.updated_at
+        row.email_confirmed_at = user.email_confirmed_at
         await self.session.flush()
