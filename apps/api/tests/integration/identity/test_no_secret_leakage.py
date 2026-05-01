@@ -16,8 +16,13 @@ async def test_documented_endpoints_do_not_leak_secrets(client, caplog) -> None:
     ]
     non_token_responses = [
         await client.post(
-            "/auth/register", json={"email": "new@campfire.test", "password": "campfire123"}
+            "/auth/register", json={"email": "new@campfire.test", "password": "Campfire123!"}
         ),
+        await client.post(
+            "/auth/confirm", json={"email": "new@campfire.test", "code": "000000"}
+        ),
+        await client.post("/auth/confirm/resend", json={"email": "new@campfire.test"}),
+        await client.get("/auth/config"),
         await client.get("/me", headers={"Authorization": f"Bearer {access}"}),
         await client.get("/healthz"),
         await client.get("/readyz"),
@@ -29,6 +34,10 @@ async def test_documented_endpoints_do_not_leak_secrets(client, caplog) -> None:
         record.getMessage() for record in caplog.records
     )
     assert "campfire123" not in all_response_bodies
+    assert "Campfire123!" not in all_response_bodies
+    assert "000000" not in all_response_bodies
+    assert "dev-email-key" not in all_response_bodies
+    assert "dev-oauth-key" not in all_response_bodies
     assert "$argon2id$" not in all_response_bodies
     assert access not in non_token_haystack
     if refresh:

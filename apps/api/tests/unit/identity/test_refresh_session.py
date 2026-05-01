@@ -20,14 +20,12 @@ pytestmark = pytest.mark.unit
 async def setup_refresh():
     clock = FrozenClock()
     users, credentials = FakeUsers(), FakeCredentials()
-    await RegisterUser(users, credentials, FakeHasher(), clock)(
-        "ada@campfire.test", "campfire123"
-    )
+    await RegisterUser(users, credentials, FakeHasher(), clock)("ada@campfire.test", "Campfire123!")
     sessions, refresh_tokens, issuer = FakeSessions(), FakeRefreshTokens(), FakeTokenIssuer(clock)
     auth = AuthenticateUser(
         users, credentials, sessions, refresh_tokens, FakeHasher(), issuer, clock, 900
     )
-    issued = await auth("ada@campfire.test", "campfire123")
+    issued = await auth("ada@campfire.test", "Campfire123!")
     return RefreshSession(sessions, refresh_tokens, issuer, clock, 900), issued, sessions
 
 

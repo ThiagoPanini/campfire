@@ -27,7 +27,7 @@ class TestAuthorization:
 
         _, ada_headers = await login(client)
         bob_headers = await _register_and_login(
-            client, "bob2@campfire.test", "campfire123"
+            client, "bob2@campfire.test", "Campfire123!"
         )
 
         r = await client.post(
@@ -47,7 +47,7 @@ class TestAuthorization:
 
         _, ada_headers = await login(client)
         bob_headers = await _register_and_login(
-            client, "bob3@campfire.test", "campfire123"
+            client, "bob3@campfire.test", "Campfire123!"
         )
 
         r = await client.post(
@@ -69,7 +69,7 @@ class TestAuthorization:
 
         _, ada_headers = await login(client)
         bob_headers = await _register_and_login(
-            client, "bob4@campfire.test", "campfire123"
+            client, "bob4@campfire.test", "Campfire123!"
         )
 
         await client.post(

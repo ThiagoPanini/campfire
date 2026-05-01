@@ -6,7 +6,7 @@ import pytest
 pytestmark = pytest.mark.unit
 
 CONTEXTS_ROOT = Path(__file__).resolve().parents[2] / "src" / "campfire_api" / "contexts"
-BANNED = {"fastapi", "sqlalchemy", "argon2", "jose", "httpx"}
+BANNED = {"fastapi", "sqlalchemy", "argon2", "jose", "httpx", "google"}
 
 
 def imported_roots(path: Path) -> set[str]:

@@ -19,9 +19,7 @@ pytestmark = pytest.mark.unit
 async def setup_auth():
     clock = FrozenClock()
     users, credentials = FakeUsers(), FakeCredentials()
-    await RegisterUser(users, credentials, FakeHasher(), clock)(
-        "ada@campfire.test", "campfire123"
-    )
+    await RegisterUser(users, credentials, FakeHasher(), clock)("ada@campfire.test", "Campfire123!")
     sessions, refresh = FakeSessions(), FakeRefreshTokens()
     return AuthenticateUser(
         users, credentials, sessions, refresh, FakeHasher(), FakeTokenIssuer(clock), clock, 900
@@ -29,7 +27,7 @@ async def setup_auth():
 
 
 async def test_authenticate_user_happy_path() -> None:
-    issued = await (await setup_auth())("ada@campfire.test", "campfire123")
+    issued = await (await setup_auth())("ada@campfire.test", "Campfire123!")
     assert issued.access_token.startswith("access-")
     assert issued.refresh_token.startswith("refresh-")
 
@@ -41,4 +39,4 @@ async def test_authenticate_user_wrong_password_generic() -> None:
 
 async def test_authenticate_user_unknown_email_generic() -> None:
     with pytest.raises(InvalidCredentials):
-        await (await setup_auth())("missing@campfire.test", "campfire123")
+        await (await setup_auth())("missing@campfire.test", "Campfire123!")

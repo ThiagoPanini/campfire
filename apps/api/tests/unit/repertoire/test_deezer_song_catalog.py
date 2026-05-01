@@ -185,6 +185,82 @@ class TestDeezerSongCatalogUnit:
                 await catalog.search("wonderwall", 1)
 
     @pytest.mark.asyncio
+    async def test_non_json_body_raises_unavailable(self) -> None:
+        import unittest.mock as mock
+
+        class Transport(httpx.AsyncBaseTransport):
+            async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+                return httpx.Response(
+                    status_code=200,
+                    content=b"<html><body>Service Down</body></html>",
+                    headers={"content-type": "text/html"},
+                )
+
+        class PatchedClient(httpx.AsyncClient):
+            def __init__(self, **kwargs):
+                kwargs["transport"] = Transport()
+                super().__init__(**kwargs)
+
+        catalog = DeezerSongCatalog()
+        with mock.patch("httpx.AsyncClient", PatchedClient):
+            with pytest.raises(SongCatalogUnavailable):
+                await catalog.search("wonderwall", 1)
+
+    @pytest.mark.asyncio
+    async def test_empty_body_raises_unavailable(self) -> None:
+        import unittest.mock as mock
+
+        class Transport(httpx.AsyncBaseTransport):
+            async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+                return httpx.Response(status_code=200, content=b"")
+
+        class PatchedClient(httpx.AsyncClient):
+            def __init__(self, **kwargs):
+                kwargs["transport"] = Transport()
+                super().__init__(**kwargs)
+
+        catalog = DeezerSongCatalog()
+        with mock.patch("httpx.AsyncClient", PatchedClient):
+            with pytest.raises(SongCatalogUnavailable):
+                await catalog.search("wo", 1)
+
+    @pytest.mark.asyncio
+    async def test_4xx_raises_unavailable(self) -> None:
+        import unittest.mock as mock
+
+        class Transport(httpx.AsyncBaseTransport):
+            async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+                return _mock_response(400, {"error": {"code": 800, "message": "bad"}})
+
+        class PatchedClient(httpx.AsyncClient):
+            def __init__(self, **kwargs):
+                kwargs["transport"] = Transport()
+                super().__init__(**kwargs)
+
+        catalog = DeezerSongCatalog()
+        with mock.patch("httpx.AsyncClient", PatchedClient):
+            with pytest.raises(SongCatalogUnavailable):
+                await catalog.search("wonderwall", 1)
+
+    @pytest.mark.asyncio
+    async def test_error_payload_quota_raises_rate_limited(self) -> None:
+        import unittest.mock as mock
+
+        class Transport(httpx.AsyncBaseTransport):
+            async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+                return _mock_response(200, {"error": {"code": 4, "message": "Quota limit"}})
+
+        class PatchedClient(httpx.AsyncClient):
+            def __init__(self, **kwargs):
+                kwargs["transport"] = Transport()
+                super().__init__(**kwargs)
+
+        catalog = DeezerSongCatalog()
+        with mock.patch("httpx.AsyncClient", PatchedClient):
+            with pytest.raises(SongCatalogRateLimited):
+                await catalog.search("wonderwall", 1)
+
+    @pytest.mark.asyncio
     async def test_transport_error_raises_unavailable(self) -> None:
         import unittest.mock as mock
 
