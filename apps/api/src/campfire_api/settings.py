@@ -21,6 +21,25 @@ class SettingsProvider(Protocol):
     async def cors_origins(self) -> Sequence[str]: ...
     def cors_origins_sync(self) -> Sequence[str]: ...
     async def google_stub_enabled(self) -> bool: ...
+    async def google_oauth_enabled(self) -> bool: ...
+    async def google_oauth_client_id(self) -> str | None: ...
+    async def google_oauth_client_secret(self) -> str | None: ...
+    async def google_oauth_redirect_uri(self) -> str | None: ...
+    async def google_enabled(self) -> bool: ...
+    async def web_base_url(self) -> str: ...
+    async def oauth_flow_hmac_key(self) -> str | None: ...
+    async def oauth_flow_ttl_seconds(self) -> int: ...
+    async def email_confirmation_required(self) -> bool: ...
+    async def email_confirmation_hmac_key(self) -> str | None: ...
+    async def email_confirmation_ttl_seconds(self) -> int: ...
+    async def email_confirmation_max_attempts(self) -> int: ...
+    async def email_confirmation_resend_cooldown_seconds(self) -> int: ...
+    async def email_confirmation_resend_hourly_cap(self) -> int: ...
+    async def mail_backend(self) -> str: ...
+    async def mail_from(self) -> str | None: ...
+    async def mail_outbox_dir(self) -> str: ...
+    async def mail_http_url(self) -> str | None: ...
+    async def mail_http_api_key(self) -> str | None: ...
     async def rate_limit_per_window(self) -> int: ...
     async def rate_limit_window_seconds(self) -> int: ...
     async def log_level(self) -> str: ...
@@ -37,7 +56,9 @@ class SettingsProvider(Protocol):
 
 
 class EnvSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore", populate_by_name=True
+    )
 
     database_url_value: str = Field(
         default="postgresql+asyncpg://campfire:campfire@localhost:5432/campfire",
@@ -52,7 +73,54 @@ class EnvSettings(BaseSettings):
     cors_origins_value: str = Field(
         default="http://localhost:5173", validation_alias="CORS_ORIGINS"
     )
-    google_stub_enabled_value: bool = Field(default=True, validation_alias="GOOGLE_STUB_ENABLED")
+    google_stub_enabled_value: bool = Field(default=False, validation_alias="GOOGLE_STUB_ENABLED")
+    google_oauth_enabled_value: bool = Field(default=False, validation_alias="GOOGLE_OAUTH_ENABLED")
+    google_oauth_client_id_value: str | None = Field(
+        default=None, validation_alias="GOOGLE_OAUTH_CLIENT_ID"
+    )
+    google_oauth_client_secret_value: str | None = Field(
+        default=None, validation_alias="GOOGLE_OAUTH_CLIENT_SECRET"
+    )
+    google_oauth_redirect_uri_value: str | None = Field(
+        default=None, validation_alias="GOOGLE_OAUTH_REDIRECT_URI"
+    )
+    web_base_url_value: str = Field(
+        default="http://localhost:5173", validation_alias="WEB_BASE_URL"
+    )
+    oauth_flow_hmac_key_value: str | None = Field(
+        default=None, validation_alias="OAUTH_FLOW_HMAC_KEY"
+    )
+    oauth_flow_ttl_seconds_value: int = Field(
+        default=600, validation_alias="OAUTH_FLOW_TTL_SECONDS"
+    )
+    email_confirmation_required_value: bool = Field(
+        default=True,
+        validation_alias="EMAIL_CONFIRMATION_REQUIRED",
+        description=(
+            "Incident-only rollback escape hatch. false violates steady-state email "
+            "confirmation requirements and must be time-bounded."
+        ),
+    )
+    email_confirmation_hmac_key_value: str | None = Field(
+        default=None, validation_alias="EMAIL_CONFIRMATION_HMAC_KEY"
+    )
+    email_confirmation_ttl_seconds_value: int = Field(
+        default=900, validation_alias="EMAIL_CONFIRMATION_TTL_SECONDS"
+    )
+    email_confirmation_max_attempts_value: int = Field(
+        default=5, validation_alias="EMAIL_CONFIRMATION_MAX_ATTEMPTS"
+    )
+    email_confirmation_resend_cooldown_seconds_value: int = Field(
+        default=60, validation_alias="EMAIL_CONFIRMATION_RESEND_COOLDOWN_SECONDS"
+    )
+    email_confirmation_resend_hourly_cap_value: int = Field(
+        default=3, validation_alias="EMAIL_CONFIRMATION_RESEND_HOURLY_CAP"
+    )
+    mail_backend_value: str = Field(default="console", validation_alias="MAIL_BACKEND")
+    mail_from_value: str | None = Field(default=None, validation_alias="MAIL_FROM")
+    mail_outbox_dir_value: str = Field(default="tmp/mail", validation_alias="MAIL_OUTBOX_DIR")
+    mail_http_url_value: str | None = Field(default=None, validation_alias="MAIL_HTTP_URL")
+    mail_http_api_key_value: str | None = Field(default=None, validation_alias="MAIL_HTTP_API_KEY")
     rate_limit_per_window_value: int = Field(default=10, validation_alias="RATE_LIMIT_PER_WINDOW")
     rate_limit_window_seconds_value: int = Field(
         default=300, validation_alias="RATE_LIMIT_WINDOW_SECONDS"
@@ -90,6 +158,21 @@ class EnvSettings(BaseSettings):
     @field_validator("refresh_cookie_domain_value", mode="before")
     @classmethod
     def empty_domain_is_none(cls, value: object) -> object:
+        return None if value == "" else value
+
+    @field_validator(
+        "google_oauth_client_id_value",
+        "google_oauth_client_secret_value",
+        "google_oauth_redirect_uri_value",
+        "oauth_flow_hmac_key_value",
+        "email_confirmation_hmac_key_value",
+        "mail_from_value",
+        "mail_http_url_value",
+        "mail_http_api_key_value",
+        mode="before",
+    )
+    @classmethod
+    def empty_string_is_none(cls, value: object) -> object:
         return None if value == "" else value
 
     @field_validator("refresh_cookie_samesite_value", mode="before")
@@ -139,6 +222,69 @@ class EnvSettingsProvider:
 
     async def google_stub_enabled(self) -> bool:
         return self._settings.google_stub_enabled_value
+
+    async def google_oauth_enabled(self) -> bool:
+        return self._settings.google_oauth_enabled_value
+
+    async def google_oauth_client_id(self) -> str | None:
+        return self._settings.google_oauth_client_id_value
+
+    async def google_oauth_client_secret(self) -> str | None:
+        return self._settings.google_oauth_client_secret_value
+
+    async def google_oauth_redirect_uri(self) -> str | None:
+        return self._settings.google_oauth_redirect_uri_value
+
+    async def google_enabled(self) -> bool:
+        return bool(
+            self._settings.google_oauth_enabled_value
+            and self._settings.google_oauth_client_id_value
+            and self._settings.google_oauth_client_secret_value
+            and self._settings.google_oauth_redirect_uri_value
+            and self._settings.oauth_flow_hmac_key_value
+        )
+
+    async def web_base_url(self) -> str:
+        return self._settings.web_base_url_value.rstrip("/")
+
+    async def oauth_flow_hmac_key(self) -> str | None:
+        return self._settings.oauth_flow_hmac_key_value
+
+    async def oauth_flow_ttl_seconds(self) -> int:
+        return self._settings.oauth_flow_ttl_seconds_value
+
+    async def email_confirmation_required(self) -> bool:
+        return self._settings.email_confirmation_required_value
+
+    async def email_confirmation_hmac_key(self) -> str | None:
+        return self._settings.email_confirmation_hmac_key_value
+
+    async def email_confirmation_ttl_seconds(self) -> int:
+        return self._settings.email_confirmation_ttl_seconds_value
+
+    async def email_confirmation_max_attempts(self) -> int:
+        return self._settings.email_confirmation_max_attempts_value
+
+    async def email_confirmation_resend_cooldown_seconds(self) -> int:
+        return self._settings.email_confirmation_resend_cooldown_seconds_value
+
+    async def email_confirmation_resend_hourly_cap(self) -> int:
+        return self._settings.email_confirmation_resend_hourly_cap_value
+
+    async def mail_backend(self) -> str:
+        return self._settings.mail_backend_value
+
+    async def mail_from(self) -> str | None:
+        return self._settings.mail_from_value
+
+    async def mail_outbox_dir(self) -> str:
+        return self._settings.mail_outbox_dir_value
+
+    async def mail_http_url(self) -> str | None:
+        return self._settings.mail_http_url_value
+
+    async def mail_http_api_key(self) -> str | None:
+        return self._settings.mail_http_api_key_value
 
     async def rate_limit_per_window(self) -> int:
         return self._settings.rate_limit_per_window_value
