@@ -27,6 +27,8 @@ projects:
                 value: dev
               - key: CORS_ORIGINS
                 value: https://campfire-dev.onrender.com
+              - key: TRUSTED_PROXIES
+                sync: false
               - key: REFRESH_COOKIE_SECURE
                 value: "true"
               - key: REFRESH_COOKIE_SAMESITE
@@ -120,6 +122,8 @@ projects:
                 value: prod
               - key: CORS_ORIGINS
                 value: https://campfire-prod.onrender.com
+              - key: TRUSTED_PROXIES
+                sync: false
               - key: REFRESH_COOKIE_SECURE
                 value: "true"
               - key: REFRESH_COOKIE_SAMESITE

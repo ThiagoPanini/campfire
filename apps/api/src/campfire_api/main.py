@@ -32,6 +32,14 @@ def create_app(settings: SettingsProvider | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         await configure_logging(await provider.log_level())
+        if (await provider.env()).lower() == "prod":
+            missing_hmac = []
+            if not await provider.email_confirmation_hmac_key():
+                missing_hmac.append("EMAIL_CONFIRMATION_HMAC_KEY")
+            if not await provider.oauth_flow_hmac_key():
+                missing_hmac.append("OAUTH_FLOW_HMAC_KEY")
+            if missing_hmac:
+                raise RuntimeError(f"ENV=prod missing {', '.join(missing_hmac)}")
         if not await provider.email_confirmation_required():
             logging.getLogger(__name__).warning("email_confirmation_required=false")
         if (await provider.mail_backend()).lower() == "http":

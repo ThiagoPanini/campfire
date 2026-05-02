@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from functools import lru_cache
+from ipaddress import IPv4Network, IPv6Network, ip_network
 from typing import Protocol
 
 from pydantic import Field, field_validator
@@ -20,6 +21,8 @@ class SettingsProvider(Protocol):
     async def refresh_token_ttl_seconds(self) -> int: ...
     async def cors_origins(self) -> Sequence[str]: ...
     def cors_origins_sync(self) -> Sequence[str]: ...
+    async def trusted_proxies(self) -> Sequence[IPv4Network | IPv6Network]: ...
+    def trusted_proxies_sync(self) -> Sequence[IPv4Network | IPv6Network]: ...
     async def google_stub_enabled(self) -> bool: ...
     async def google_oauth_enabled(self) -> bool: ...
     async def google_oauth_client_id(self) -> str | None: ...
@@ -73,6 +76,7 @@ class EnvSettings(BaseSettings):
     cors_origins_value: str = Field(
         default="http://localhost:5173", validation_alias="CORS_ORIGINS"
     )
+    trusted_proxies_value: str = Field(default="", validation_alias="TRUSTED_PROXIES")
     google_stub_enabled_value: bool = Field(default=False, validation_alias="GOOGLE_STUB_ENABLED")
     google_oauth_enabled_value: bool = Field(default=False, validation_alias="GOOGLE_OAUTH_ENABLED")
     google_oauth_client_id_value: str | None = Field(
@@ -195,6 +199,30 @@ class EnvSettings(BaseSettings):
             return []
         return origins
 
+    @field_validator("trusted_proxies_value", mode="before")
+    @classmethod
+    def parse_trusted_proxies(cls, value: object) -> str:
+        if value in (None, ""):
+            return ""
+        if isinstance(value, str):
+            raw_entries = [entry.strip() for entry in value.split(",") if entry.strip()]
+        elif isinstance(value, Sequence):
+            raw_entries = list(value)
+        else:
+            raise ValueError("TRUSTED_PROXIES must be comma-separated CIDR blocks or IPs")
+        try:
+            networks = tuple(ip_network(str(entry), strict=False) for entry in raw_entries)
+        except ValueError as exc:
+            raise ValueError("TRUSTED_PROXIES must contain valid CIDR blocks or IPs") from exc
+        return ",".join(str(network) for network in networks)
+
+    def parsed_trusted_proxies(self) -> tuple[IPv4Network | IPv6Network, ...]:
+        if not self.trusted_proxies_value:
+            return ()
+        return tuple(
+            ip_network(entry, strict=False) for entry in self.trusted_proxies_value.split(",")
+        )
+
     def resolved_refresh_cookie_secure(self) -> bool:
         if self.refresh_cookie_secure_value is not None:
             return self.refresh_cookie_secure_value
@@ -219,6 +247,12 @@ class EnvSettingsProvider:
 
     def cors_origins_sync(self) -> Sequence[str]:
         return self._settings.parsed_cors_origins()
+
+    async def trusted_proxies(self) -> Sequence[IPv4Network | IPv6Network]:
+        return self.trusted_proxies_sync()
+
+    def trusted_proxies_sync(self) -> Sequence[IPv4Network | IPv6Network]:
+        return self._settings.parsed_trusted_proxies()
 
     async def google_stub_enabled(self) -> bool:
         return self._settings.google_stub_enabled_value
