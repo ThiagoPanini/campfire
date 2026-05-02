@@ -52,7 +52,6 @@ class SqlAlchemyEmailConfirmationRepository:
         row.status = confirmation.status
         row.invalidated_reason = confirmation.invalidated_reason
         await self.session.flush()
-        await self.session.commit()
 
     async def invalidate_pending_for(self, user_id: UserId, *, reason: str, now: datetime) -> None:
         await self.session.execute(
@@ -64,7 +63,6 @@ class SqlAlchemyEmailConfirmationRepository:
             .values(status="invalidated", invalidated_reason=reason, last_resent_at=now)
         )
         await self.session.flush()
-        await self.session.commit()
 
     async def count_resends_in_window(self, user_id: UserId, window_start: datetime) -> int:
         value = await self.session.scalar(
