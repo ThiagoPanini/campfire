@@ -11,6 +11,8 @@ from campfire_api.contexts.identity.application.errors import (
     GoogleStubDisabled,
     IdentityError,
     InvalidCredentials,
+    InvalidRegistration,
+    OriginNotAllowed,
     RateLimited,
     RefreshTokenInvalid,
     RefreshTokenReused,
@@ -35,6 +37,19 @@ def identity_error_response(exc: IdentityError) -> JSONResponse:
     elif isinstance(exc, EmailAlreadyRegistered):
         status = 409
         message = "email already registered"
+    elif isinstance(exc, InvalidRegistration):
+        status = 400
+        return JSONResponse(
+            status_code=status,
+            content={
+                "status": "confirmation_required",
+                "expiresInSeconds": None,
+                "resendCooldownSeconds": None,
+            },
+        )
+    elif isinstance(exc, OriginNotAllowed):
+        status = 403
+        message = "origin not allowed"
     elif isinstance(exc, UnknownCatalogId):
         status = 422
         message = "unknown catalog id"

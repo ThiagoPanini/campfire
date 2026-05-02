@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from datetime import UTC
+from ipaddress import ip_address
+from urllib.parse import urlsplit
 
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -42,6 +44,7 @@ from campfire_api.contexts.identity.adapters.security.hmac_code_hasher import (
 from campfire_api.contexts.identity.adapters.security.opaque_token_issuer import OpaqueTokenIssuer
 from campfire_api.contexts.identity.application.errors import (
     InvalidCredentials,
+    OriginNotAllowed,
     SessionRevokedError,
 )
 from campfire_api.settings import SettingsProvider
@@ -63,6 +66,7 @@ async def ping_database(session: AsyncSession) -> None:
 
 async def get_repositories(session: AsyncSession = Depends(get_db_session)):
     return {
+        "_session": session,
         "users": SqlAlchemyUserRepository(session),
         "credentials": SqlAlchemyCredentialsRepository(session),
         "sessions": SqlAlchemySessionRepository(session),
@@ -157,8 +161,87 @@ async def optional_current_session(
         return None
 
 
-def client_ip(request: Request) -> str:
+def _peer_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
+
+
+def _origin_key(value: str) -> str:
+    parsed = urlsplit(value)
+    scheme = parsed.scheme.lower()
+    hostname = (parsed.hostname or "").lower()
+    port = parsed.port
+    if not scheme or not hostname:
+        return ""
+    default_port = (scheme == "http" and port == 80) or (scheme == "https" and port == 443)
+    return f"{scheme}://{hostname}" if port is None or default_port else f"{scheme}://{hostname}:{port}"
+
+
+def client_ip(request: Request, settings: SettingsProvider) -> str:
+    peer = _peer_ip(request)
+    try:
+        peer_address = ip_address(peer)
+    except ValueError:
+        return peer
+    trusted = (
+        tuple(settings.trusted_proxies_sync()) if hasattr(settings, "trusted_proxies_sync") else ()
+    )
+    if not trusted:
+        return peer
+    if not any(peer_address in network for network in trusted):
+        return peer
+    xff = request.headers.get("x-forwarded-for")
+    if not xff:
+        return peer
+    hops = [hop.strip() for hop in xff.split(",") if hop.strip()]
+    try:
+        addresses = [ip_address(hop) for hop in hops]
+    except ValueError:
+        return peer
+    for address in reversed([*addresses, peer_address]):
+        if not any(address in network for network in trusted):
+            return str(address)
+    return peer
+
+
+async def client_ip_async(request: Request, settings: SettingsProvider) -> str:
+    peer = _peer_ip(request)
+    try:
+        peer_address = ip_address(peer)
+    except ValueError:
+        return peer
+    trusted = tuple(await settings.trusted_proxies())
+    if not trusted or not any(peer_address in network for network in trusted):
+        return peer
+    xff = request.headers.get("x-forwarded-for")
+    if not xff:
+        return peer
+    hops = [hop.strip() for hop in xff.split(",") if hop.strip()]
+    try:
+        addresses = [ip_address(hop) for hop in hops]
+    except ValueError:
+        return peer
+    for address in reversed([*addresses, peer_address]):
+        if not any(address in network for network in trusted):
+            return str(address)
+    return peer
+
+
+async def require_same_origin(
+    request: Request, settings: SettingsProvider = Depends(get_settings)
+) -> None:
+    """Allow cookie-backed mutations only from configured origins.
+
+    Browsers send Origin on unsafe cross-site POSTs. If it is absent, treat the
+    request as a same-origin/non-browser call so local clients keep working while
+    hostile browser origins fail closed.
+    """
+    allowed = {_origin_key(origin) for origin in await settings.cors_origins()}
+    raw_origin = request.headers.get("origin")
+    if not raw_origin:
+        return
+    origin = _origin_key(raw_origin)
+    if origin not in allowed:
+        raise OriginNotAllowed()
 
 
 def bad_request(message: str) -> HTTPException:

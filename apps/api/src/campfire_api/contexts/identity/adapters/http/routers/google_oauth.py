@@ -7,7 +7,10 @@ from fastapi.responses import RedirectResponse
 
 from campfire_api.contexts.identity.adapters.clock.system_clock import SystemClock
 from campfire_api.contexts.identity.adapters.http.deps import (
+    client_ip,
     get_clock,
+    get_email_sender,
+    get_rate_limiter,
     get_repositories,
     get_settings,
     get_token_issuer,
@@ -20,6 +23,9 @@ from campfire_api.contexts.identity.adapters.http.schemas import (
 from campfire_api.contexts.identity.adapters.oauth.google_identity_provider import (
     GoogleOAuthIdentityProvider,
 )
+from campfire_api.contexts.identity.adapters.rate_limiting.in_memory_limiter import (
+    InMemoryRateLimiter,
+)
 from campfire_api.contexts.identity.adapters.security.opaque_token_issuer import OpaqueTokenIssuer
 from campfire_api.contexts.identity.application.errors import GoogleSignInFailed
 from campfire_api.contexts.identity.application.use_cases.complete_google_sign_in import (
@@ -28,6 +34,7 @@ from campfire_api.contexts.identity.application.use_cases.complete_google_sign_i
 from campfire_api.contexts.identity.application.use_cases.start_google_sign_in import (
     StartGoogleSignIn,
 )
+from campfire_api.contexts.identity.domain.ports import EmailSender
 from campfire_api.settings import SettingsProvider
 
 router = APIRouter(prefix="/auth/google", tags=["auth"])
@@ -38,10 +45,13 @@ logger = logging.getLogger(__name__)
 async def start_google(
     payload: GoogleStartRequest,
     response: Response,
+    request: Request,
     repos=Depends(get_repositories),
     settings: SettingsProvider = Depends(get_settings),
     clock: SystemClock = Depends(get_clock),
+    limiter: InMemoryRateLimiter = Depends(get_rate_limiter),
 ) -> GoogleStartResponse:
+    await limiter.check(client_ip(request, settings), "google_start")
     started = await StartGoogleSignIn(repos["oauth_flow_states"], settings, clock)(
         intent=payload.intent, next_path=payload.next
     )
@@ -67,6 +77,7 @@ async def google_callback(
     settings: SettingsProvider = Depends(get_settings),
     token_issuer: OpaqueTokenIssuer = Depends(get_token_issuer),
     clock: SystemClock = Depends(get_clock),
+    email_sender: EmailSender = Depends(get_email_sender),
 ) -> RedirectResponse:
     web = await settings.web_base_url()
     if error:
@@ -84,6 +95,8 @@ async def google_callback(
             repos["provider_links"],
             repos["email_confirmations"],
             repos["users"],
+            repos["credentials"],
+            email_sender,
             GoogleOAuthIdentityProvider(client_id=client_id, client_secret=client_secret),
             repos["sessions"],
             repos["refresh_tokens"],

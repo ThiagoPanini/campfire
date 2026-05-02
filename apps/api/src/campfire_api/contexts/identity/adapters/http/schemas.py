@@ -78,6 +78,11 @@ class GoogleConfig(BaseModel):
     enabled: bool
 
 
+class PasswordSignUpConfig(BaseModel):
+    enabled: bool = True
+    requiresEmailConfirmation: bool
+
+
 class AuthConfigResponse(BaseModel):
     google: GoogleConfig
-    passwordSignUp: bool = True
+    passwordSignUp: PasswordSignUpConfig

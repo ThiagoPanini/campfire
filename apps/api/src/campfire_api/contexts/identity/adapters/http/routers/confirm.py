@@ -25,6 +25,11 @@ from campfire_api.contexts.identity.adapters.security.hmac_code_hasher import (
     HmacConfirmationCodeHasher,
 )
 from campfire_api.contexts.identity.adapters.security.opaque_token_issuer import OpaqueTokenIssuer
+from campfire_api.contexts.identity.application.errors import (
+    ConfirmationAttemptsExceeded,
+    ConfirmationCodeExpired,
+    ConfirmationCodeInvalid,
+)
 from campfire_api.contexts.identity.application.use_cases.confirm_email import ConfirmEmail
 from campfire_api.contexts.identity.application.use_cases.resend_confirmation import (
     ResendConfirmation,
@@ -47,19 +52,23 @@ async def confirm_email(
     settings: SettingsProvider = Depends(get_settings),
     limiter: InMemoryRateLimiter = Depends(get_rate_limiter),
 ) -> TokenResponse:
-    await limiter.check(client_ip(request), str(payload.email))
-    issued = await ConfirmEmail(
-        users=repos["users"],
-        credentials=repos["credentials"],
-        confirmations=repos["email_confirmations"],
-        sessions=repos["sessions"],
-        refresh_tokens=repos["refresh_tokens"],
-        hasher=code_hasher,
-        token_issuer=token_issuer,
-        clock=clock,
-        access_ttl_seconds=await settings.access_token_ttl_seconds(),
-        max_attempts=await settings.email_confirmation_max_attempts(),
-    )(str(payload.email), payload.code)
+    await limiter.check(client_ip(request, settings), str(payload.email))
+    try:
+        issued = await ConfirmEmail(
+            users=repos["users"],
+            credentials=repos["credentials"],
+            confirmations=repos["email_confirmations"],
+            sessions=repos["sessions"],
+            refresh_tokens=repos["refresh_tokens"],
+            hasher=code_hasher,
+            token_issuer=token_issuer,
+            clock=clock,
+            access_ttl_seconds=await settings.access_token_ttl_seconds(),
+            max_attempts=await settings.email_confirmation_max_attempts(),
+        )(str(payload.email), payload.code)
+    except (ConfirmationAttemptsExceeded, ConfirmationCodeExpired, ConfirmationCodeInvalid):
+        await repos["_session"].commit()
+        raise
     await apply_refresh_cookie(response, settings, issued.refresh_token)
     return TokenResponse(accessToken=issued.access_token, expiresIn=issued.expires_in)
 
@@ -79,7 +88,7 @@ async def resend_confirmation(
     settings: SettingsProvider = Depends(get_settings),
     limiter: InMemoryRateLimiter = Depends(get_rate_limiter),
 ) -> ConfirmResendResponse:
-    await limiter.check(client_ip(request), str(payload.email))
+    await limiter.check(client_ip(request, settings), str(payload.email))
     ttl_seconds = await settings.email_confirmation_ttl_seconds()
     cooldown_seconds = await settings.email_confirmation_resend_cooldown_seconds()
     await ResendConfirmation(

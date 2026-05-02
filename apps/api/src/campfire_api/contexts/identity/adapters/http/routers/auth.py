@@ -16,6 +16,7 @@ from campfire_api.contexts.identity.adapters.http.deps import (
     get_settings,
     get_token_issuer,
     optional_current_session,
+    require_same_origin,
 )
 from campfire_api.contexts.identity.adapters.http.schemas import (
     ConfirmationRequiredResponse,
@@ -52,8 +53,9 @@ async def enforce_auth_rate_limit(
     request: Request,
     payload: RegisterRequest | LoginRequest,
     limiter: InMemoryRateLimiter,
+    settings: SettingsProvider,
 ) -> None:
-    await limiter.check(client_ip(request), str(payload.email))
+    await limiter.check(client_ip(request, settings), str(payload.email))
 
 
 def set_refresh_cookie(
@@ -106,7 +108,7 @@ async def register(
     settings: SettingsProvider = Depends(get_settings),
     limiter: InMemoryRateLimiter = Depends(get_rate_limiter),
 ) -> ConfirmationRequiredResponse | MeResponse:
-    await enforce_auth_rate_limit(request, payload, limiter)
+    await enforce_auth_rate_limit(request, payload, limiter, settings)
     result = await RegisterUser(
         users=repos["users"],
         credentials=repos["credentials"],
@@ -143,7 +145,7 @@ async def login(
     settings: SettingsProvider = Depends(get_settings),
     limiter: InMemoryRateLimiter = Depends(get_rate_limiter),
 ) -> TokenResponse | ConfirmationRequiredResponse:
-    await enforce_auth_rate_limit(request, payload, limiter)
+    await enforce_auth_rate_limit(request, payload, limiter, settings)
     ttl = await settings.access_token_ttl_seconds()
     issued = await AuthenticateUser(
         repos["users"],
@@ -167,6 +169,7 @@ async def login(
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh(
     response: Response,
+    _origin: None = Depends(require_same_origin),
     refresh_token: str = Depends(require_refresh_cookie),
     repos=Depends(get_repositories),
     token_issuer: OpaqueTokenIssuer = Depends(get_token_issuer),
@@ -187,6 +190,7 @@ async def refresh(
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     response: Response,
+    _origin: None = Depends(require_same_origin),
     context: AuthContext | None = Depends(optional_current_session),
     repos=Depends(get_repositories),
     clock: SystemClock = Depends(get_clock),
