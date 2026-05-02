@@ -42,7 +42,7 @@ Content-Type: application/json
 | Status | Body | When |
 |---|---|---|
 | `503` | `{"detail":"google sign-in unavailable"}` | `GOOGLE_OAUTH_ENABLED=false` or required env var unset |
-| `429` | `{"detail":"too many attempts"}` + `Retry-After` | rate-limit by `(client_ip, "google_start")` exceeded |
+| `429` | `{"message":"too many attempts"}` + `Retry-After` | rate-limit by `(resolved_client_ip, "google_start")` exceeded |
 
 ---
 
@@ -99,7 +99,7 @@ event=google_oauth_failure reason=<short_code> request_id=<id>
 |---|---|---|
 | hit | (n/a) | use `link.user_id`, IssueSession |
 | miss | hit, `email_confirmed_at IS NOT NULL` | insert ProviderLink, IssueSession |
-| miss | hit, `email_confirmed_at IS NULL` (unconfirmed password account) | invalidate any pending `email_confirmations`, set `email_confirmed_at=now`, insert ProviderLink, IssueSession |
+| miss | hit, `email_confirmed_at IS NULL` (unconfirmed password account) | invalidate any pending `email_confirmations`, set `email_confirmed_at=now`, delete stale `credentials`, send one Google-promotion notice, insert ProviderLink, IssueSession |
 | miss | miss | create User (`display_name` from Google `name`, `email_confirmed_at=now`), insert ProviderLink, IssueSession |
 
 In every successful case, `IssueSession` returns the same shape as `POST /auth/login`'s session creation — same fingerprint format, same TTL, same refresh cookie attributes (FR-029, FR-011).
@@ -109,3 +109,5 @@ In every successful case, `IssueSession` returns the same shape as `POST /auth/l
 ## Removed/changed
 
 - `POST /auth/google-stub` is **kept** but `GOOGLE_STUB_ENABLED` defaults to `false` (was `true`). Production sets it `false`; integration tests override to `true` via fixture.
+
+Production startup fails before serving traffic when `OAUTH_FLOW_HMAC_KEY` is missing.

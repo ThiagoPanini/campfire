@@ -7,13 +7,12 @@
             "$ref": "#/components/schemas/GoogleConfig"
           },
           "passwordSignUp": {
-            "default": true,
-            "title": "Passwordsignup",
-            "type": "boolean"
+            "$ref": "#/components/schemas/PasswordSignUpConfig"
           }
         },
         "required": [
-          "google"
+          "google",
+          "passwordSignUp"
         ],
         "title": "AuthConfigResponse",
         "type": "object"
@@ -415,6 +414,24 @@
           "email"
         ],
         "title": "MeResponse",
+        "type": "object"
+      },
+      "PasswordSignUpConfig": {
+        "properties": {
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "requiresEmailConfirmation": {
+            "title": "Requiresemailconfirmation",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "requiresEmailConfirmation"
+        ],
+        "title": "PasswordSignUpConfig",
         "type": "object"
       },
       "RegisterRequest": {

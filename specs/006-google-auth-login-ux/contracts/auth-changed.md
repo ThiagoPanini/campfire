@@ -1,6 +1,17 @@
 # Contract: Existing endpoints — diff
 
-This file documents only the deltas from today's contracts. Endpoints not listed here (`POST /auth/refresh`, `POST /auth/logout`, `GET /me`) are unchanged.
+This file documents only the deltas from today's contracts. `GET /me` is unchanged.
+
+## Auth rate-limit client IPs — CHANGED
+
+All auth endpoints that apply rate limits resolve the client IP through `TRUSTED_PROXIES`:
+
+1. Empty `TRUSTED_PROXIES` means ignore `X-Forwarded-For` and use the immediate peer.
+2. If the immediate peer is not trusted, ignore `X-Forwarded-For`.
+3. If the immediate peer is trusted, scan the `X-Forwarded-For` chain from right to left and use the rightmost untrusted hop.
+4. Malformed `X-Forwarded-For` falls back to the immediate peer.
+
+`TRUSTED_PROXIES` accepts comma-separated CIDR blocks or individual IPv4/IPv6 addresses.
 
 ---
 
@@ -32,10 +43,10 @@ The user-visible response body is byte-identical in all three cases (FR-024).
 ### 400 Response — input validation only
 
 ```json
-{ "detail": "invalid email or password" }
+{ "status": "confirmation_required", "expiresInSeconds": null, "resendCooldownSeconds": null }
 ```
 
-Returned for malformed email or password not meeting strength rules. Domain-level password validation is the source of truth; the HTTP schema's `min_length=10` is a fast-fail UX hint.
+Returned for domain-level weak passwords that pass transport validation. Known confirmed, known unconfirmed, and unknown emails receive byte-identical responses.
 
 ### 429 — unchanged
 
@@ -94,9 +105,17 @@ Frontend `auth.api.ts` discriminates on the presence of `accessToken`.
 
 ---
 
-## `POST /auth/logout` — UNCHANGED
+## `POST /auth/refresh` — CHANGED
 
-Already lands the user logically at "no session". Frontend now navigates to `/` (public landing) explicitly per FR-028. No server-side change.
+Cookie-backed refresh rejects disallowed browser `Origin` values with `403 {"message":"origin not allowed"}` before refresh-token rotation. Allowed origins come from `CORS_ORIGINS`. Requests with no `Origin` are treated as same-origin/non-browser calls.
+
+## `POST /auth/logout` — CHANGED
+
+Cookie-backed logout rejects disallowed browser `Origin` values with `403 {"message":"origin not allowed"}` before session or family revocation. Allowed origins come from `CORS_ORIGINS`. Requests with no `Origin` are treated as same-origin/non-browser calls.
+
+## Email confirmation writes — CHANGED
+
+`SqlAlchemyEmailConfirmationRepository.update()` and `.invalidate_pending_for()` no longer commit inline. The request-scoped session owns commit/rollback, so confirmation row updates and user confirmation changes remain atomic.
 
 ---
 
