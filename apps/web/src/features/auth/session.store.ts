@@ -53,7 +53,11 @@ export function useSessionStore() {
         if (!cancelled) setAuthConfig(config);
       })
       .catch(() => {
-        if (!cancelled) setAuthConfig({ google: { enabled: false }, passwordSignUp: true });
+        if (!cancelled)
+          setAuthConfig({
+            google: { enabled: false },
+            passwordSignUp: { enabled: true, requiresEmailConfirmation: true },
+          });
       });
     refreshInitialSession()
       .then((user) => {

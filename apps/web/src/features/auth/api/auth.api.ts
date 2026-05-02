@@ -35,7 +35,7 @@ type GoogleStartResponse = {
 
 export type AuthConfig = {
   google: { enabled: boolean };
-  passwordSignUp: boolean;
+  passwordSignUp: { enabled: boolean; requiresEmailConfirmation: boolean };
 };
 
 export type AuthOutcome =
