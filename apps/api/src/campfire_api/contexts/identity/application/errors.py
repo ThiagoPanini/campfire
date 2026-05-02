@@ -10,6 +10,14 @@ class EmailAlreadyRegistered(IdentityError):
     pass
 
 
+class InvalidRegistration(IdentityError):
+    pass
+
+
+class OriginNotAllowed(IdentityError):
+    pass
+
+
 class RefreshTokenInvalid(IdentityError):
     pass
 

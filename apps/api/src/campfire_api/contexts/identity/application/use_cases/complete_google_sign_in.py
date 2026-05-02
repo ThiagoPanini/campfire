@@ -15,7 +15,9 @@ from campfire_api.contexts.identity.domain.entities import (
 )
 from campfire_api.contexts.identity.domain.ports import (
     Clock,
+    CredentialsRepository,
     EmailConfirmationRepository,
+    EmailSender,
     GoogleIdentityProvider,
     OAuthFlowStateRepository,
     ProviderLinkRepository,
@@ -40,6 +42,8 @@ class CompleteGoogleSignIn:
     provider_links: ProviderLinkRepository
     email_confirmations: EmailConfirmationRepository
     users: UserRepository
+    credentials: CredentialsRepository
+    email_sender: EmailSender
     google: GoogleIdentityProvider
     sessions: SessionRepository
     refresh_tokens: RefreshTokenRepository
@@ -96,6 +100,8 @@ class CompleteGoogleSignIn:
                 user.email_confirmed_at = now
                 user.updated_at = now
                 await self.users.update(user)
+                await self.credentials.delete_for_user(user.id)
+                await self.email_sender.send_google_promotion_notice(user.email, "en")
             await self.provider_links.add(
                 ProviderLink(
                     id=UserId.new(),

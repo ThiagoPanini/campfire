@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from datetime import timedelta
 
-from campfire_api.contexts.identity.application.errors import EmailAlreadyRegistered
+from campfire_api.contexts.identity.application.errors import (
+    EmailAlreadyRegistered,
+    InvalidRegistration,
+)
 from campfire_api.contexts.identity.application.use_cases.confirmation_codes import (
     generate_confirmation_code,
 )
@@ -51,11 +54,14 @@ class RegisterUser:
         self, email: str, password: str, locale: str = "en"
     ) -> RegistrationResult | User:
         normalized = Email(email)
+        try:
+            Password(password)
+        except ValueError as exc:
+            raise InvalidRegistration() from exc
         existing = await self.users.get_by_email(normalized)
         if self.confirmations is None or self.code_hasher is None or self.email_sender is None:
             if existing:
                 raise EmailAlreadyRegistered()
-            Password(password)
             now = self.clock.now()
             user = User(
                 id=UserId.new(),
@@ -75,7 +81,6 @@ class RegisterUser:
         if existing and existing.email_confirmed_at is not None:
             await self.email_sender.send_duplicate_signup_notice(normalized, locale)
             return RegistrationResult(user_id=existing.id, confirmation_id=None)
-        Password(password)
         now = self.clock.now()
         if existing and existing.email_confirmed_at is None:
             await self.confirmations.invalidate_pending_for(existing.id, reason="resent", now=now)
@@ -105,7 +110,7 @@ class RegisterUser:
         password_hash = HashedPassword(await self.hasher.hash(password))
         await self.users.add(user)
         await self.credentials.add(
-                Credentials.from_plaintext(user.id, password, password_hash, now)
+            Credentials.from_plaintext(user.id, password, password_hash, now)
         )
         if not self.confirmation_required:
             return RegistrationResult(user_id=user.id, confirmation_id=None, status="registered")
