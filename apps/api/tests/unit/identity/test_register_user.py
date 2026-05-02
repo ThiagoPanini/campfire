@@ -1,5 +1,6 @@
 import pytest
 
+from campfire_api.contexts.identity.application.errors import InvalidRegistration
 from campfire_api.contexts.identity.application.use_cases.register_user import RegisterUser
 from tests.unit.identity.fakes import (
     FakeConfirmationCodeHasher,
@@ -61,7 +62,7 @@ async def test_register_user_duplicate_email() -> None:
 
 
 async def test_register_user_short_password() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidRegistration):
         clock = FrozenClock()
         await RegisterUser(
             FakeUsers(),

@@ -9,11 +9,19 @@ from campfire_api.contexts.identity.application.use_cases.complete_google_sign_i
 from campfire_api.contexts.identity.application.use_cases.start_google_sign_in import (
     StartGoogleSignIn,
 )
-from campfire_api.contexts.identity.domain.entities import GoogleIdentity
-from campfire_api.contexts.identity.domain.value_objects import DisplayName, Email, ProviderSubject
+from campfire_api.contexts.identity.domain.entities import Credentials, GoogleIdentity, User
+from campfire_api.contexts.identity.domain.value_objects import (
+    DisplayName,
+    Email,
+    HashedPassword,
+    ProviderSubject,
+    UserId,
+)
 from campfire_api.settings import EnvSettings, EnvSettingsProvider
 from tests.unit.identity.fakes import (
+    FakeCredentials,
     FakeEmailConfirmationRepository,
+    FakeEmailSender,
     FakeGoogleIdentityProvider,
     FakeOAuthFlowStateRepository,
     FakeProviderLinkRepository,
@@ -72,6 +80,8 @@ async def test_complete_google_sign_in_success_creates_user_and_session() -> Non
         FakeProviderLinkRepository(),
         FakeEmailConfirmationRepository(clock),
         users,
+        FakeCredentials(),
+        FakeEmailSender(),
         FakeGoogleIdentityProvider(identity),
         sessions,
         refresh,
@@ -94,6 +104,8 @@ async def test_complete_google_sign_in_rejects_state_mismatch() -> None:
             FakeProviderLinkRepository(),
             FakeEmailConfirmationRepository(clock),
             FakeUsers(),
+            FakeCredentials(),
+            FakeEmailSender(),
             FakeGoogleIdentityProvider(),
             FakeSessions(),
             FakeRefreshTokens(),
@@ -112,6 +124,8 @@ async def test_complete_google_sign_in_rejects_expired_flow() -> None:
             FakeProviderLinkRepository(),
             FakeEmailConfirmationRepository(clock),
             FakeUsers(),
+            FakeCredentials(),
+            FakeEmailSender(),
             FakeGoogleIdentityProvider(),
             FakeSessions(),
             FakeRefreshTokens(),
@@ -119,3 +133,54 @@ async def test_complete_google_sign_in_rejects_expired_flow() -> None:
             settings(),
             clock,
         )(code="abc", query_state=str(flow.id.value), state_cookie=started.state_cookie_value)
+
+
+async def test_complete_google_sign_in_deletes_credentials_and_sends_promotion_notice() -> None:
+    from campfire_api.contexts.identity.application.use_cases import start_google_sign_in as start
+
+    clock, flows, started, flow, _nonce_hash = await prepare_flow()
+    _flow_id, state_secret = started.state_cookie_value.split(".", 1)
+    flow.state_token_hash = start._hmac("pepper", state_secret)
+    flow.nonce_hash = start._hmac("pepper", "nonce")
+    user = User(
+        id=UserId.new(),
+        email=Email("ada@campfire.test"),
+        display_name=DisplayName("Ada"),
+        created_at=clock.now(),
+        updated_at=clock.now(),
+        email_confirmed_at=None,
+    )
+    users = FakeUsers()
+    await users.add(user)
+    credentials = FakeCredentials()
+    await credentials.add(
+        Credentials.from_plaintext(
+            user.id, "Campfire123!", HashedPassword("hash:Campfire123!"), clock.now()
+        )
+    )
+    email_sender = FakeEmailSender()
+    identity = GoogleIdentity(
+        subject=ProviderSubject("google-sub"),
+        email=user.email,
+        display_name=DisplayName("Ada"),
+        nonce="nonce",
+        email_verified=True,
+    )
+
+    await CompleteGoogleSignIn(
+        flows,
+        FakeProviderLinkRepository(),
+        FakeEmailConfirmationRepository(clock),
+        users,
+        credentials,
+        email_sender,
+        FakeGoogleIdentityProvider(identity),
+        FakeSessions(),
+        FakeRefreshTokens(),
+        FakeTokenIssuer(clock),
+        settings(),
+        clock,
+    )(code="abc", query_state=str(flow.id.value), state_cookie=started.state_cookie_value)
+
+    assert await credentials.get_by_user_id(user.id) is None
+    assert email_sender.google_promotion_notices == [(user.email, "en")]

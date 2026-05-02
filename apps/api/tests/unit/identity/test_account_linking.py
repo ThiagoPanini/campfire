@@ -13,7 +13,9 @@ from campfire_api.contexts.identity.domain.value_objects import (
 )
 from campfire_api.settings import EnvSettings, EnvSettingsProvider
 from tests.unit.identity.fakes import (
+    FakeCredentials,
     FakeEmailConfirmationRepository,
+    FakeEmailSender,
     FakeGoogleIdentityProvider,
     FakeOAuthFlowStateRepository,
     FakeProviderLinkRepository,
@@ -48,11 +50,15 @@ async def complete(identity: GoogleIdentity, users: FakeUsers, links: FakeProvid
     flow.state_token_hash = start._hmac("pepper", state_secret)
     flow.nonce_hash = start._hmac("pepper", identity.nonce)
     confirmations = FakeEmailConfirmationRepository(clock)
+    credentials = FakeCredentials()
+    email_sender = FakeEmailSender()
     result = await CompleteGoogleSignIn(
         flows,
         links,
         confirmations,
         users,
+        credentials,
+        email_sender,
         FakeGoogleIdentityProvider(identity),
         FakeSessions(),
         FakeRefreshTokens(),
@@ -60,7 +66,7 @@ async def complete(identity: GoogleIdentity, users: FakeUsers, links: FakeProvid
         settings(),
         clock,
     )(code="abc", query_state=str(flow.id.value), state_cookie=started.state_cookie_value)
-    return result, confirmations
+    return result, confirmations, credentials, email_sender
 
 
 def identity(subject: str = "sub", email: str = "ada@campfire.test") -> GoogleIdentity:
@@ -128,7 +134,9 @@ async def test_miss_subject_hit_unconfirmed_email_confirms_user() -> None:
         None,
     )
     await users.add(user)
-    _result, confirmations = await complete(identity(subject="new-sub"), users, links)
+    _result, confirmations, _credentials, _email_sender = await complete(
+        identity(subject="new-sub"), users, links
+    )
     assert user.email_confirmed_at is not None
     assert links.rows[0].user_id == user.id
     assert confirmations.rows == []

@@ -84,6 +84,9 @@ class FakeCredentials:
     async def add(self, credentials: Credentials) -> None:
         self.rows[credentials.user_id.value] = credentials
 
+    async def delete_for_user(self, user_id: UserId) -> None:
+        self.rows.pop(user_id.value, None)
+
 
 class FakeSessions:
     def __init__(self) -> None:
@@ -221,6 +224,7 @@ class FakeEmailSender:
     def __init__(self) -> None:
         self.confirmations = []
         self.duplicate_notices = []
+        self.google_promotion_notices = []
 
     async def send_confirmation_code(
         self, to: Email, code: ConfirmationCode, locale: str, expires_at: datetime
@@ -229,6 +233,9 @@ class FakeEmailSender:
 
     async def send_duplicate_signup_notice(self, to: Email, locale: str) -> None:
         self.duplicate_notices.append((to, locale))
+
+    async def send_google_promotion_notice(self, to: Email, locale: str) -> None:
+        self.google_promotion_notices.append((to, locale))
 
 
 class FakeConfirmationCodeHasher:
