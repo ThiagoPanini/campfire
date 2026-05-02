@@ -48,3 +48,13 @@ class HttpEmailSender:
                 "If this was you, sign in instead."
             ),
         )
+
+    async def send_google_promotion_notice(self, to: Email, locale: str) -> None:
+        await self._send(
+            to=to,
+            subject="Campfire Google sign-in enabled",
+            text=(
+                "Your unconfirmed Campfire account was confirmed by Google sign-in. "
+                "The old password can no longer be used."
+            ),
+        )

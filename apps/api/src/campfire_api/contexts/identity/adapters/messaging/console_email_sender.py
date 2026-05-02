@@ -66,3 +66,23 @@ class ConsoleEmailSender:
             _recipient_hash(to),
             locale,
         )
+
+    async def send_google_promotion_notice(self, to: Email, locale: str) -> None:
+        self.outbox_dir.mkdir(parents=True, exist_ok=True)
+        body = (
+            f"From: {self.from_email}\n"
+            f"To: {to.value}\n"
+            "Subject: Campfire Google sign-in enabled\n\n"
+            "Your unconfirmed Campfire account was confirmed by Google sign-in. "
+            "The old password can no longer be used.\n"
+        )
+        path = (
+            self.outbox_dir
+            / f"{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}-{_safe_name(to)}-google-promotion.txt"
+        )
+        path.write_text(body, encoding="utf-8")
+        LOGGER.info(
+            "event=mail_sent template=google_promotion_notice to_hash=%s locale=%s",
+            _recipient_hash(to),
+            locale,
+        )
