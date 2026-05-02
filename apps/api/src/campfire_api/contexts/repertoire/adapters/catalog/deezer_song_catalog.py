@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+import logging
+
 import httpx
 
 from campfire_api.contexts.repertoire.domain.entities import SearchResult
@@ -7,6 +10,8 @@ from campfire_api.contexts.repertoire.domain.errors import (
     SongCatalogRateLimited,
     SongCatalogUnavailable,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 PAGE_SIZE = 10
 
@@ -30,9 +35,32 @@ class DeezerSongCatalog:
             raise SongCatalogRateLimited("Deezer rate limited")
         if response.status_code >= 500:
             raise SongCatalogUnavailable(f"Deezer error {response.status_code}")
+        if response.status_code >= 400:
+            raise SongCatalogUnavailable(f"Deezer error {response.status_code}")
 
-        data = response.json()
+        try:
+            data = response.json()
+        except (json.JSONDecodeError, ValueError) as exc:
+            LOGGER.warning(
+                "event=deezer_invalid_json status=%s content_type=%s body_preview=%r",
+                response.status_code,
+                response.headers.get("content-type"),
+                response.text[:200],
+            )
+            raise SongCatalogUnavailable("Deezer returned non-JSON response") from exc
+
+        if not isinstance(data, dict):
+            raise SongCatalogUnavailable("Deezer returned unexpected payload")
+
+        if isinstance(data.get("error"), dict):
+            error_code = data["error"].get("code")
+            if error_code == 4:
+                raise SongCatalogRateLimited("Deezer rate limited")
+            raise SongCatalogUnavailable(f"Deezer error payload: {data['error']}")
+
         tracks = data.get("data", [])
+        if not isinstance(tracks, list):
+            raise SongCatalogUnavailable("Deezer returned unexpected data shape")
 
         has_more = len(tracks) > PAGE_SIZE
         tracks = tracks[:PAGE_SIZE]

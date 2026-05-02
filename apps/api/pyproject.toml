@@ -10,6 +10,7 @@ dependencies = [
   "asyncpg>=0.30,<0.31",
   "email-validator>=2.2,<3",
   "fastapi>=0.136.1,<0.137",
+  "google-auth>=2,<3",
   "httpx>=0.28,<0.29",
   "pydantic>=2.9,<3",
   "pydantic-settings>=2.14.0,<3",
@@ -58,13 +59,16 @@ ignore = ["B008"]
 "sqlalchemy".msg = "SQLAlchemy is restricted to persistence adapters."
 "fastapi".msg = "FastAPI is restricted to HTTP adapters and app assembly."
 "argon2".msg = "Argon2 is restricted to security adapters."
+"google".msg = "google-auth is restricted to OAuth adapters."
 "jose".msg = "python-jose is not used in the domain/application layers."
-"httpx".msg = "httpx is restricted to the Deezer catalog adapter only."
+"httpx".msg = "httpx is restricted to outbound integration adapters only."
 
 [tool.ruff.lint.per-file-ignores]
 "src/campfire_api/shared/persistence/**.py" = ["TID251"]
 "src/campfire_api/contexts/identity/adapters/http/**.py" = ["TID251"]
 "src/campfire_api/contexts/identity/adapters/persistence/**.py" = ["TID251"]
+"src/campfire_api/contexts/identity/adapters/oauth/**.py" = ["TID251"]
+"src/campfire_api/contexts/identity/adapters/messaging/**.py" = ["TID251"]
 "src/campfire_api/contexts/identity/adapters/security/**.py" = ["TID251"]
 "src/campfire_api/contexts/repertoire/adapters/http/**.py" = ["TID251"]
 "src/campfire_api/contexts/repertoire/adapters/persistence/**.py" = ["TID251"]

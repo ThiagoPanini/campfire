@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -7,7 +8,15 @@ from campfire_api import __version__
 from campfire_api.contexts.identity.adapters.http.error_mapping import (
     register_identity_error_handlers,
 )
-from campfire_api.contexts.identity.adapters.http.routers import auth, google_stub, health, me
+from campfire_api.contexts.identity.adapters.http.routers import (
+    auth,
+    config,
+    confirm,
+    google_oauth,
+    google_stub,
+    health,
+    me,
+)
 from campfire_api.contexts.repertoire.adapters.http.error_mapping import (
     register_repertoire_error_handlers,
 )
@@ -23,6 +32,26 @@ def create_app(settings: SettingsProvider | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         await configure_logging(await provider.log_level())
+        if (await provider.env()).lower() == "prod":
+            missing_hmac = []
+            if not await provider.email_confirmation_hmac_key():
+                missing_hmac.append("EMAIL_CONFIRMATION_HMAC_KEY")
+            if not await provider.oauth_flow_hmac_key():
+                missing_hmac.append("OAUTH_FLOW_HMAC_KEY")
+            if missing_hmac:
+                raise RuntimeError(f"ENV=prod missing {', '.join(missing_hmac)}")
+        if not await provider.email_confirmation_required():
+            logging.getLogger(__name__).warning("email_confirmation_required=false")
+        if (await provider.mail_backend()).lower() == "http":
+            missing = []
+            if not await provider.mail_http_url():
+                missing.append("MAIL_HTTP_URL")
+            if not await provider.mail_http_api_key():
+                missing.append("MAIL_HTTP_API_KEY")
+            if not await provider.mail_from():
+                missing.append("MAIL_FROM")
+            if missing:
+                raise RuntimeError(f"MAIL_BACKEND=http missing {', '.join(missing)}")
         yield
 
     app = FastAPI(title="Campfire API", version=__version__, lifespan=lifespan)
@@ -47,6 +76,9 @@ def create_app(settings: SettingsProvider | None = None) -> FastAPI:
     register_repertoire_error_handlers(app)
     app.include_router(health.router)
     app.include_router(auth.router)
+    app.include_router(confirm.router)
+    app.include_router(config.router)
+    app.include_router(google_oauth.router)
     app.include_router(google_stub.router)
     app.include_router(me.router)
     app.include_router(repertoire.router)

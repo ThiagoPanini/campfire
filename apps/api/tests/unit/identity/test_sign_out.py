@@ -19,9 +19,7 @@ pytestmark = pytest.mark.unit
 async def test_sign_out_revokes_session_and_refresh_family_idempotently() -> None:
     clock = FrozenClock()
     users, credentials = FakeUsers(), FakeCredentials()
-    await RegisterUser(users, credentials, FakeHasher(), clock)(
-        "ada@campfire.test", "campfire123"
-    )
+    await RegisterUser(users, credentials, FakeHasher(), clock)("ada@campfire.test", "Campfire123!")
     sessions, refresh_tokens = FakeSessions(), FakeRefreshTokens()
     await AuthenticateUser(
         users,
@@ -32,7 +30,7 @@ async def test_sign_out_revokes_session_and_refresh_family_idempotently() -> Non
         FakeTokenIssuer(clock),
         clock,
         900,
-    )("ada@campfire.test", "campfire123")
+    )("ada@campfire.test", "Campfire123!")
     session = next(iter(sessions.rows.values()))
     use_case = RevokeSession(sessions, refresh_tokens, clock)
     await use_case(session.id, session.family_id)

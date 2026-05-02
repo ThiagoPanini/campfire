@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSessionStore } from "@features/auth";
+import { sanitizeNext } from "@features/auth/redirect";
 import { translate } from "@i18n";
 import { Nav } from "@shared/components/Nav";
 import { HomePage } from "@pages/HomePage";
 import { LandingPage } from "@pages/LandingPage";
+import { ConfirmEmailPage } from "@pages/ConfirmEmailPage";
 import { RepertoirePage } from "@pages/RepertoirePage";
 import { SignInPage } from "@pages/SignInPage";
 import { SignUpPage } from "@pages/SignUpPage";
@@ -33,6 +35,10 @@ export function App() {
   }, [session.accentPreset]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("auth_error")) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
     if (session.currentUser && route === "landing") {
       navigate("home", true);
     }
@@ -57,16 +63,15 @@ export function App() {
         return (
           <SignInPage
             language={session.language}
+            googleEnabled={session.authConfig?.google.enabled ?? false}
+            authSubmitting={session.authSubmitting}
             onSubmit={async (email, password) => {
-              const ok = await session.signIn(email, password);
-              if (ok) navigate("home");
-              return ok;
+              const result = await session.signIn(email, password);
+              if (result === "authenticated") navigate("home");
+              if (result === "confirmation_required") navigate("confirm");
+              return result;
             }}
-            onGoogle={async () => {
-              const ok = await session.signInWithGoogle();
-              if (ok) navigate("home");
-              return ok;
-            }}
+            onGoogle={() => session.signInWithGoogle()}
             onSwap={() => navigate("signup")}
           />
         );
@@ -74,19 +79,41 @@ export function App() {
         return (
           <SignUpPage
             language={session.language}
+            googleEnabled={session.authConfig?.google.enabled ?? false}
+            authSubmitting={session.authSubmitting}
             onSubmit={async (email, password) => {
-              const ok = await session.signUp(email, password);
-              if (ok) navigate("home");
-              return ok;
+              const result = await session.signUp(email, password);
+              if (result === "authenticated") navigate("home");
+              if (result === "confirmation_required") navigate("confirm");
+              return result;
             }}
-            onGoogle={async () => {
-              const ok = await session.signUpWithGoogle();
-              if (ok) navigate("home");
-              return ok;
-            }}
+            onGoogle={() => session.signUpWithGoogle()}
             onSwap={() => navigate("signin")}
           />
         );
+      case "confirm": {
+        const params = new URLSearchParams(window.location.search);
+        const email = params.get("email") ?? session.unconfirmedEmail ?? "";
+        return (
+          <ConfirmEmailPage
+            language={session.language}
+            email={email}
+            authSubmitting={session.authSubmitting}
+            expiresInSeconds={session.confirmationTimings?.expiresInSeconds ?? null}
+            resendCooldownSeconds={session.confirmationTimings?.resendCooldownSeconds ?? null}
+            issuedAt={session.confirmationIssuedAt}
+            onConfirm={async (confirmEmail, code) => {
+              const ok = await session.confirm(confirmEmail, code);
+              if (ok) {
+                const next = sanitizeNext(params.get("next"));
+                navigate(pathToRoute(next ?? "/home"), true);
+              }
+              return ok;
+            }}
+            onResend={session.resend}
+          />
+        );
+      }
       case "home":
         return session.currentUser ? (
           <HomePage
@@ -115,7 +142,14 @@ export function App() {
       <RequireAuth
         route={route}
         isAuthenticated={Boolean(session.currentUser)}
-        onUnauthenticated={() => navigate("landing", true)}
+        isCheckingAuth={!session.authReady}
+        isUnconfirmed={Boolean(session.unconfirmedEmail)}
+        onUnconfirmed={() => navigate("confirm", true)}
+        onUnauthenticated={() => {
+          const next = sanitizeNext(window.location.pathname + window.location.search);
+          if (next) sessionStorage.setItem("campfire.auth.next", next);
+          navigate("signin", true);
+        }}
       >
         {renderRoute()}
       </RequireAuth>

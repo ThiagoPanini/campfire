@@ -3,8 +3,22 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Protocol
 
-from campfire_api.contexts.identity.domain.entities import Credentials, RefreshToken, Session, User
-from campfire_api.contexts.identity.domain.value_objects import Email, UserId
+from campfire_api.contexts.identity.domain.entities import (
+    Credentials,
+    EmailConfirmation,
+    GoogleIdentity,
+    OAuthFlowState,
+    ProviderLink,
+    RefreshToken,
+    Session,
+    User,
+)
+from campfire_api.contexts.identity.domain.value_objects import (
+    ConfirmationCode,
+    Email,
+    ProviderSubject,
+    UserId,
+)
 
 
 class UserRepository(Protocol):
@@ -17,6 +31,7 @@ class UserRepository(Protocol):
 class CredentialsRepository(Protocol):
     async def get_by_user_id(self, user_id: UserId) -> Credentials | None: ...
     async def add(self, credentials: Credentials) -> None: ...
+    async def delete_for_user(self, user_id: UserId) -> None: ...
 
 
 class SessionRepository(Protocol):
@@ -50,3 +65,45 @@ class Clock(Protocol):
 
 class RateLimiter(Protocol):
     async def check(self, client_ip: str, target_email: str) -> None: ...
+
+
+class ProviderLinkRepository(Protocol):
+    async def get(self, provider: str, subject: ProviderSubject) -> ProviderLink | None: ...
+    async def get_for_user(self, user_id: UserId, provider: str) -> ProviderLink | None: ...
+    async def add(self, link: ProviderLink) -> None: ...
+
+
+class EmailConfirmationRepository(Protocol):
+    async def get_pending_for_user(self, user_id: UserId) -> EmailConfirmation | None: ...
+    async def add(self, confirmation: EmailConfirmation) -> None: ...
+    async def update(self, confirmation: EmailConfirmation) -> None: ...
+    async def invalidate_pending_for(
+        self, user_id: UserId, *, reason: str, now: datetime
+    ) -> None: ...
+    async def count_resends_in_window(self, user_id: UserId, window_start: datetime) -> int: ...
+
+
+class OAuthFlowStateRepository(Protocol):
+    async def add(self, flow: OAuthFlowState) -> None: ...
+    async def consume_atomic(
+        self, flow_id: object, *, reason: str, now: datetime
+    ) -> OAuthFlowState | None: ...
+
+
+class ConfirmationCodeHasher(Protocol):
+    def hash(self, code: ConfirmationCode) -> bytes: ...
+    def verify(self, code: ConfirmationCode, digest: bytes) -> bool: ...
+
+
+class GoogleIdentityProvider(Protocol):
+    async def exchange_code(
+        self, *, code: str, code_verifier: str, redirect_uri: str
+    ) -> GoogleIdentity: ...
+
+
+class EmailSender(Protocol):
+    async def send_confirmation_code(
+        self, to: Email, code: ConfirmationCode, locale: str, expires_at: datetime
+    ) -> None: ...
+    async def send_duplicate_signup_notice(self, to: Email, locale: str) -> None: ...
+    async def send_google_promotion_notice(self, to: Email, locale: str) -> None: ...

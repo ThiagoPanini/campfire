@@ -3,9 +3,11 @@ import type { Language } from "@i18n";
 
 type Props = {
   language: Language;
-  onSubmit: (email: string, password: string) => Promise<boolean>;
-  onGoogle: () => Promise<boolean>;
+  onSubmit: (email: string, password: string) => Promise<false | "authenticated" | "confirmation_required">;
+  onGoogle: () => Promise<"redirecting" | "failed">;
   onSwap: () => void;
+  googleEnabled: boolean;
+  authSubmitting: boolean;
 };
 
 export function SignUpPage(props: Props) {

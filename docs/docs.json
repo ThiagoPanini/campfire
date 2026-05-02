@@ -84,6 +84,7 @@
             "pages": [
               "development/local-development",
               "development/testing-strategy",
+              "development/test-google-auth-email-confirmation",
               "development/local-sql-validation",
               "contributors/overview",
               "contributors/workflow",

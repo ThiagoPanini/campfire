@@ -2,10 +2,17 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from campfire_api.contexts.identity.application.errors import (
+    ConfirmationAttemptsExceeded,
+    ConfirmationCodeExpired,
+    ConfirmationCodeInvalid,
+    ConfirmationResendCooldown,
     EmailAlreadyRegistered,
+    GoogleSignInUnavailable,
     GoogleStubDisabled,
     IdentityError,
     InvalidCredentials,
+    InvalidRegistration,
+    OriginNotAllowed,
     RateLimited,
     RefreshTokenInvalid,
     RefreshTokenReused,
@@ -30,6 +37,19 @@ def identity_error_response(exc: IdentityError) -> JSONResponse:
     elif isinstance(exc, EmailAlreadyRegistered):
         status = 409
         message = "email already registered"
+    elif isinstance(exc, InvalidRegistration):
+        status = 400
+        return JSONResponse(
+            status_code=status,
+            content={
+                "status": "confirmation_required",
+                "expiresInSeconds": None,
+                "resendCooldownSeconds": None,
+            },
+        )
+    elif isinstance(exc, OriginNotAllowed):
+        status = 403
+        message = "origin not allowed"
     elif isinstance(exc, UnknownCatalogId):
         status = 422
         message = "unknown catalog id"
@@ -37,7 +57,17 @@ def identity_error_response(exc: IdentityError) -> JSONResponse:
         status = 429
         message = "too many attempts"
         headers["Retry-After"] = str(exc.retry_after)
-    elif isinstance(exc, GoogleStubDisabled):
+    elif isinstance(
+        exc,
+        (ConfirmationCodeInvalid, ConfirmationCodeExpired, ConfirmationAttemptsExceeded),
+    ):
+        status = 400
+        message = "confirmation invalid"
+    elif isinstance(exc, ConfirmationResendCooldown):
+        status = 429
+        message = "too many attempts"
+        headers["Retry-After"] = str(exc.retry_after)
+    elif isinstance(exc, (GoogleStubDisabled, GoogleSignInUnavailable)):
         status = 503
         message = "google sign-in unavailable"
     return JSONResponse(status_code=status, content={"message": message}, headers=headers)

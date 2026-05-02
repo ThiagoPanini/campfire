@@ -10,6 +10,16 @@ except ImportError:  # pragma: no cover
     uuid7 = None
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+COMMON_PASSWORDS = {
+    "password",
+    "password1",
+    "password123",
+    "1234567890",
+    "qwerty123",
+    "letmein123",
+    "admin123",
+    "campfire123",
+}
 
 
 def new_uuid() -> UUID:
@@ -21,7 +31,10 @@ class Email:
     value: str
 
     def __post_init__(self) -> None:
-        normalized = self.value.strip().lower()
+        cleaned = self.value.strip()
+        if cleaned != self.value:
+            raise ValueError("invalid email")
+        normalized = cleaned.lower()
         if not 3 <= len(normalized) <= 320 or not EMAIL_RE.match(normalized):
             raise ValueError("invalid email")
         object.__setattr__(self, "value", normalized)
@@ -30,6 +43,27 @@ class Email:
 @dataclass(frozen=True)
 class HashedPassword:
     value: str
+
+
+@dataclass(frozen=True)
+class Password:
+    value: str
+
+    def __post_init__(self) -> None:
+        if len(self.value) < 10:
+            raise ValueError("password must be at least 10 characters")
+        classes = sum(
+            (
+                any(c.islower() for c in self.value),
+                any(c.isupper() for c in self.value),
+                any(c.isdigit() for c in self.value),
+                any(not c.isalnum() for c in self.value),
+            )
+        )
+        if classes < 3:
+            raise ValueError("password must use at least 3 character classes")
+        if self.value.strip().lower() in COMMON_PASSWORDS:
+            raise ValueError("password is too common")
 
 
 @dataclass(frozen=True)
@@ -97,3 +131,30 @@ class AccentPresetId:
 @dataclass(frozen=True)
 class Language:
     value: str
+
+
+@dataclass(frozen=True)
+class ConfirmationCode:
+    value: str
+
+    def __post_init__(self) -> None:
+        if not re.fullmatch(r"[0-9]{6}", self.value):
+            raise ValueError("invalid confirmation code")
+
+
+@dataclass(frozen=True)
+class ProviderSubject:
+    value: str
+
+    def __post_init__(self) -> None:
+        if not 1 <= len(self.value) <= 255 or not self.value.isascii():
+            raise ValueError("invalid provider subject")
+
+
+@dataclass(frozen=True)
+class OAuthState:
+    value: str
+
+    def __post_init__(self) -> None:
+        if not self.value:
+            raise ValueError("invalid oauth state")

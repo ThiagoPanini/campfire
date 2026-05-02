@@ -1,0 +1,14 @@
+---
+title: Disable Google Runbook
+---
+
+To disable Google sign-in:
+
+1. Set `GOOGLE_OAUTH_ENABLED=false`.
+2. Restart the API.
+3. Verify `GET /auth/config` returns `google.enabled=false`.
+4. Verify password login still works.
+
+Wave 1 keeps Google disablement separate from account safety: accounts promoted by verified Google sign-in have stale password credentials deleted and receive a transactional notice. Disabling Google later does not restore old passwords.
+
+To disable email confirmation during a mailer incident, set `EMAIL_CONFIRMATION_REQUIRED=false`. This is an incident-only rollback that violates the steady-state confirmation requirement. The API logs `email_confirmation_required=false` on startup; grep logs for that warning and re-enable the flag within the incident window.

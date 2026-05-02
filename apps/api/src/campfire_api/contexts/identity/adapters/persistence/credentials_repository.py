@@ -24,3 +24,9 @@ class SqlAlchemyCredentialsRepository:
             )
         )
         await self.session.flush()
+
+    async def delete_for_user(self, user_id: UserId) -> None:
+        row = await self.session.get(CredentialsRow, user_id.value)
+        if row is not None:
+            await self.session.delete(row)
+            await self.session.flush()

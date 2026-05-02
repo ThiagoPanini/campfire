@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --config apps/web/vite.config.ts",
     "build": "tsc -b apps/web/tsconfig.json && vite build --config apps/web/vite.config.ts",
+    "check:i18n": "node apps/web/scripts/check-i18n.mjs",
     "preview": "vite preview --config apps/web/vite.config.ts",
     "typecheck": "tsc -b apps/web/tsconfig.json",
     "docs:dev": "cd docs && mint dev"

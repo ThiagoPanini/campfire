@@ -1,3 +1,5 @@
+from typing import cast
+
 from fastapi import APIRouter, Depends, Request, Response, status
 
 from campfire_api.contexts.identity.adapters.clock.system_clock import SystemClock
@@ -6,14 +8,18 @@ from campfire_api.contexts.identity.adapters.http.deps import (
     AuthContext,
     client_ip,
     get_clock,
+    get_code_hasher,
+    get_email_sender,
     get_hasher,
     get_rate_limiter,
     get_repositories,
     get_settings,
     get_token_issuer,
     optional_current_session,
+    require_same_origin,
 )
 from campfire_api.contexts.identity.adapters.http.schemas import (
+    ConfirmationRequiredResponse,
     LoginRequest,
     MeResponse,
     RegisterRequest,
@@ -23,11 +29,21 @@ from campfire_api.contexts.identity.adapters.rate_limiting.in_memory_limiter imp
     InMemoryRateLimiter,
 )
 from campfire_api.contexts.identity.adapters.security.argon2_hasher import Argon2PasswordHasher
+from campfire_api.contexts.identity.adapters.security.hmac_code_hasher import (
+    HmacConfirmationCodeHasher,
+)
 from campfire_api.contexts.identity.adapters.security.opaque_token_issuer import OpaqueTokenIssuer
-from campfire_api.contexts.identity.application.use_cases.authenticate_user import AuthenticateUser
+from campfire_api.contexts.identity.application.use_cases.authenticate_user import (
+    AuthenticateUser,
+    UnconfirmedAccount,
+)
 from campfire_api.contexts.identity.application.use_cases.refresh_session import RefreshSession
-from campfire_api.contexts.identity.application.use_cases.register_user import RegisterUser
+from campfire_api.contexts.identity.application.use_cases.register_user import (
+    RegisterUser,
+    RegistrationResult,
+)
 from campfire_api.contexts.identity.application.use_cases.sign_out import RevokeSession
+from campfire_api.contexts.identity.domain.ports import EmailSender
 from campfire_api.settings import SettingsProvider
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -37,8 +53,9 @@ async def enforce_auth_rate_limit(
     request: Request,
     payload: RegisterRequest | LoginRequest,
     limiter: InMemoryRateLimiter,
+    settings: SettingsProvider,
 ) -> None:
-    await limiter.check(client_ip(request), str(payload.email))
+    await limiter.check(client_ip(request, settings), str(payload.email))
 
 
 def set_refresh_cookie(
@@ -56,7 +73,7 @@ def set_refresh_cookie(
         token,
         httponly=True,
         secure=secure,
-        samesite=samesite,
+        samesite=cast("str", samesite),
         path="/auth/refresh",
         domain=domain,
         max_age=max_age,
@@ -75,26 +92,48 @@ async def apply_refresh_cookie(response: Response, settings: SettingsProvider, t
     )
 
 
-@router.post("/register", response_model=MeResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=ConfirmationRequiredResponse | MeResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def register(
     payload: RegisterRequest,
     request: Request,
     repos=Depends(get_repositories),
     hasher: Argon2PasswordHasher = Depends(get_hasher),
+    code_hasher: HmacConfirmationCodeHasher = Depends(get_code_hasher),
+    email_sender: EmailSender = Depends(get_email_sender),
     clock: SystemClock = Depends(get_clock),
+    settings: SettingsProvider = Depends(get_settings),
     limiter: InMemoryRateLimiter = Depends(get_rate_limiter),
-) -> MeResponse:
-    await enforce_auth_rate_limit(request, payload, limiter)
-    user = await RegisterUser(
-        repos["users"], repos["credentials"], hasher, clock
+) -> ConfirmationRequiredResponse | MeResponse:
+    await enforce_auth_rate_limit(request, payload, limiter, settings)
+    result = await RegisterUser(
+        users=repos["users"],
+        credentials=repos["credentials"],
+        hasher=hasher,
+        confirmations=repos["email_confirmations"],
+        code_hasher=code_hasher,
+        email_sender=email_sender,
+        clock=clock,
+        confirmation_ttl_seconds=await settings.email_confirmation_ttl_seconds(),
+        confirmation_required=await settings.email_confirmation_required(),
     )(str(payload.email), payload.password)
-    return MeResponse(
-        displayName=user.display_name.value,
-        email=user.email.value,
+    result = cast(RegistrationResult, result)
+    if result.status == "registered":
+        user = await repos["users"].get_by_id(result.user_id)
+        return MeResponse(
+            displayName=user.display_name.value,
+            email=user.email.value,
+        )
+    return ConfirmationRequiredResponse(
+        expiresInSeconds=await settings.email_confirmation_ttl_seconds(),
+        resendCooldownSeconds=await settings.email_confirmation_resend_cooldown_seconds(),
     )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse | ConfirmationRequiredResponse)
 async def login(
     payload: LoginRequest,
     response: Response,
@@ -105,8 +144,8 @@ async def login(
     clock: SystemClock = Depends(get_clock),
     settings: SettingsProvider = Depends(get_settings),
     limiter: InMemoryRateLimiter = Depends(get_rate_limiter),
-) -> TokenResponse:
-    await enforce_auth_rate_limit(request, payload, limiter)
+) -> TokenResponse | ConfirmationRequiredResponse:
+    await enforce_auth_rate_limit(request, payload, limiter, settings)
     ttl = await settings.access_token_ttl_seconds()
     issued = await AuthenticateUser(
         repos["users"],
@@ -118,6 +157,11 @@ async def login(
         clock,
         ttl,
     )(str(payload.email), payload.password)
+    if isinstance(issued, UnconfirmedAccount):
+        return ConfirmationRequiredResponse(
+            expiresInSeconds=await settings.email_confirmation_ttl_seconds(),
+            resendCooldownSeconds=await settings.email_confirmation_resend_cooldown_seconds(),
+        )
     await apply_refresh_cookie(response, settings, issued.refresh_token)
     return TokenResponse(accessToken=issued.access_token, expiresIn=issued.expires_in)
 
@@ -125,6 +169,7 @@ async def login(
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh(
     response: Response,
+    _origin: None = Depends(require_same_origin),
     refresh_token: str = Depends(require_refresh_cookie),
     repos=Depends(get_repositories),
     token_issuer: OpaqueTokenIssuer = Depends(get_token_issuer),
@@ -145,6 +190,7 @@ async def refresh(
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     response: Response,
+    _origin: None = Depends(require_same_origin),
     context: AuthContext | None = Depends(optional_current_session),
     repos=Depends(get_repositories),
     clock: SystemClock = Depends(get_clock),

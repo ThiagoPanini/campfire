@@ -21,7 +21,7 @@ class ErrorResponse(BaseModel):
 
 class RegisterRequest(BaseModel):
     email: CampfireEmail
-    password: str = Field(min_length=8)
+    password: str = Field(min_length=10)
 
 
 class LoginRequest(BaseModel):
@@ -35,6 +35,27 @@ class TokenResponse(BaseModel):
     expiresIn: int
 
 
+class ConfirmationRequiredResponse(BaseModel):
+    status: Literal["confirmation_required"] = "confirmation_required"
+    expiresInSeconds: int | None = None
+    resendCooldownSeconds: int | None = None
+
+
+class ConfirmResendResponse(BaseModel):
+    status: Literal["accepted"] = "accepted"
+    expiresInSeconds: int | None = None
+    resendCooldownSeconds: int | None = None
+
+
+class ConfirmRequest(BaseModel):
+    email: CampfireEmail
+    code: str = Field(pattern=r"^\d{6}$")
+
+
+class ConfirmResendRequest(BaseModel):
+    email: CampfireEmail
+
+
 class MeResponse(BaseModel):
     displayName: str
     email: CampfireEmail
@@ -42,3 +63,26 @@ class MeResponse(BaseModel):
 
 class GoogleStubRequest(BaseModel):
     intent: Literal["sign-up", "sign-in"]
+
+
+class GoogleStartRequest(BaseModel):
+    intent: Literal["sign-up", "sign-in"]
+    next: str | None = None
+
+
+class GoogleStartResponse(BaseModel):
+    authorizeUrl: str
+
+
+class GoogleConfig(BaseModel):
+    enabled: bool
+
+
+class PasswordSignUpConfig(BaseModel):
+    enabled: bool = True
+    requiresEmailConfirmation: bool
+
+
+class AuthConfigResponse(BaseModel):
+    google: GoogleConfig
+    passwordSignUp: PasswordSignUpConfig

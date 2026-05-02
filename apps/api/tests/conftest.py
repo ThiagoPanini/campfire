@@ -56,15 +56,16 @@ async def reset_db(database_url: str) -> AsyncIterator[None]:
     async with engine.begin() as conn:
         await conn.execute(
             text(
-                "TRUNCATE refresh_tokens, sessions, credentials, users "
+                "TRUNCATE oauth_flow_states, email_confirmations, provider_links, "
+                "refresh_tokens, sessions, credentials, users "
                 "RESTART IDENTITY CASCADE"
             )
         )
         await conn.execute(
             text(
                 """
-                INSERT INTO users (id, email, display_name)
-                VALUES (:id, 'ada@campfire.test', 'Ada')
+                INSERT INTO users (id, email, display_name, email_confirmed_at)
+                VALUES (:id, 'ada@campfire.test', 'Ada', now())
                 """
             ),
             {"id": ADA_ID},
@@ -84,6 +85,12 @@ async def client(
     await dispose_engine()
     monkeypatch.setenv("DATABASE_URL", database_url)
     monkeypatch.setenv("CORS_ORIGINS", "http://localhost:5173")
+    monkeypatch.setenv("GOOGLE_STUB_ENABLED", "true")
+    monkeypatch.setenv("GOOGLE_OAUTH_ENABLED", "false")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_ID", "")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_SECRET", "")
+    monkeypatch.setenv("GOOGLE_OAUTH_REDIRECT_URI", "")
+    monkeypatch.setenv("OAUTH_FLOW_HMAC_KEY", "")
     get_settings_provider.cache_clear()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:

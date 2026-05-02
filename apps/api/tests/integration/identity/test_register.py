@@ -5,20 +5,23 @@ pytestmark = pytest.mark.integration
 
 async def test_register_happy_path(client) -> None:
     response = await client.post(
-        "/auth/register", json={"email": "new@campfire.test", "password": "campfire123"}
+        "/auth/register", json={"email": "new@campfire.test", "password": "Campfire123!"}
     )
-    assert response.status_code == 201
+    assert response.status_code == 202
     body = response.json()
-    assert body["email"] == "new@campfire.test"
-    assert body["displayName"] == "New"
-    assert "firstLogin" not in body
+    assert body["status"] == "confirmation_required"
+    assert isinstance(body.get("expiresInSeconds"), int)
+    assert "set-cookie" not in response.headers
 
 
 async def test_register_duplicate(client) -> None:
     response = await client.post(
-        "/auth/register", json={"email": "ada@campfire.test", "password": "campfire123"}
+        "/auth/register", json={"email": "ada@campfire.test", "password": "Campfire123!"}
     )
-    assert response.status_code == 409
+    assert response.status_code == 202
+    body = response.json()
+    assert body["status"] == "confirmation_required"
+    assert isinstance(body.get("expiresInSeconds"), int)
 
 
 async def test_register_validation(client) -> None:

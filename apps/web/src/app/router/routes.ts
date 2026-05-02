@@ -1,9 +1,10 @@
-export type RouteId = "landing" | "signin" | "signup" | "home" | "repertoire";
+export type RouteId = "landing" | "signin" | "signup" | "confirm" | "home" | "repertoire";
 
 export const ROUTES: Record<RouteId, string> = {
   landing: "/",
   signin: "/signin",
   signup: "/signup",
+  confirm: "/confirm",
   home: "/",
   repertoire: "/repertoire",
 };
