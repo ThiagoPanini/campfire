@@ -25,10 +25,20 @@ projects:
                 value: 3.12.12
               - key: ENV
                 value: dev
+              - key: LOG_LEVEL
+                value: INFO
               - key: CORS_ORIGINS
                 value: https://campfire-dev.onrender.com
               - key: TRUSTED_PROXIES
                 sync: false
+              - key: WEB_BASE_URL
+                value: https://campfire-dev.onrender.com
+              - key: ACCESS_TOKEN_TTL_SECONDS
+                value: "900"
+              - key: REFRESH_TOKEN_TTL_SECONDS
+                value: "1209600"
+              - key: REFRESH_COOKIE_NAME
+                value: campfire_refresh
               - key: REFRESH_COOKIE_SECURE
                 value: "true"
               - key: REFRESH_COOKIE_SAMESITE
@@ -36,15 +46,13 @@ projects:
               - key: GOOGLE_STUB_ENABLED
                 value: "false"
               - key: GOOGLE_OAUTH_ENABLED
-                value: "false"
+                value: "true"
               - key: GOOGLE_OAUTH_CLIENT_ID
                 sync: false
               - key: GOOGLE_OAUTH_CLIENT_SECRET
                 sync: false
               - key: GOOGLE_OAUTH_REDIRECT_URI
                 sync: false
-              - key: WEB_BASE_URL
-                value: https://campfire-dev.onrender.com
               - key: OAUTH_FLOW_HMAC_KEY
                 sync: false
               - key: OAUTH_FLOW_TTL_SECONDS
@@ -71,8 +79,20 @@ projects:
                 sync: false
               - key: MAIL_HTTP_API_KEY
                 sync: false
-              - key: LOG_LEVEL
-                value: INFO
+              - key: RATE_LIMIT_PER_WINDOW
+                value: "10"
+              - key: RATE_LIMIT_WINDOW_SECONDS
+                value: "300"
+              - key: DEEZER_BASE_URL
+                value: https://api.deezer.com
+              - key: SEARCH_CACHE_TTL_SECONDS
+                value: "60"
+              - key: SEARCH_CACHE_MAX_ENTRIES
+                value: "1024"
+              - key: SEARCH_RATE_LIMIT_PER_WINDOW
+                value: "30"
+              - key: SEARCH_RATE_LIMIT_WINDOW_SECONDS
+                value: "60"
 
           - type: web
             runtime: static
@@ -120,10 +140,20 @@ projects:
                 value: 3.12.12
               - key: ENV
                 value: prod
+              - key: LOG_LEVEL
+                value: INFO
               - key: CORS_ORIGINS
                 value: https://campfire-prod.onrender.com
               - key: TRUSTED_PROXIES
                 sync: false
+              - key: WEB_BASE_URL
+                value: https://campfire-prod.onrender.com
+              - key: ACCESS_TOKEN_TTL_SECONDS
+                value: "900"
+              - key: REFRESH_TOKEN_TTL_SECONDS
+                value: "1209600"
+              - key: REFRESH_COOKIE_NAME
+                value: campfire_refresh
               - key: REFRESH_COOKIE_SECURE
                 value: "true"
               - key: REFRESH_COOKIE_SAMESITE
@@ -131,15 +161,13 @@ projects:
               - key: GOOGLE_STUB_ENABLED
                 value: "false"
               - key: GOOGLE_OAUTH_ENABLED
-                value: "false"
+                value: "true"
               - key: GOOGLE_OAUTH_CLIENT_ID
                 sync: false
               - key: GOOGLE_OAUTH_CLIENT_SECRET
                 sync: false
               - key: GOOGLE_OAUTH_REDIRECT_URI
                 sync: false
-              - key: WEB_BASE_URL
-                value: https://campfire-prod.onrender.com
               - key: OAUTH_FLOW_HMAC_KEY
                 sync: false
               - key: OAUTH_FLOW_TTL_SECONDS
@@ -166,8 +194,20 @@ projects:
                 sync: false
               - key: MAIL_HTTP_API_KEY
                 sync: false
-              - key: LOG_LEVEL
-                value: INFO
+              - key: RATE_LIMIT_PER_WINDOW
+                value: "10"
+              - key: RATE_LIMIT_WINDOW_SECONDS
+                value: "300"
+              - key: DEEZER_BASE_URL
+                value: https://api.deezer.com
+              - key: SEARCH_CACHE_TTL_SECONDS
+                value: "60"
+              - key: SEARCH_CACHE_MAX_ENTRIES
+                value: "1024"
+              - key: SEARCH_RATE_LIMIT_PER_WINDOW
+                value: "30"
+              - key: SEARCH_RATE_LIMIT_WINDOW_SECONDS
+                value: "60"
 
           - type: web
             runtime: static
