@@ -243,16 +243,13 @@ The current auth implementation routes successful sign-in/sign-up through the mo
 
 ## 9. Auth Callback
 
-Auth callback is out of scope for the current Claude-derived frontend MVP. Do not implement or document an OAuth callback route for this slice.
+> Updated for slice `006-google-auth-login-ux`: a real Google OAuth callback now ships. The "out of scope" stance from the frontend-only era no longer applies. Slice 001's mocked Google sign-in is gone; the canonical flow is the backend-owned authorization-code + PKCE redirect described in `specs/006-google-auth-login-ux/contracts/auth-google.md`.
 
-If a future real managed-identity integration adds a callback page, it should feel like a calm transfer back into Campfire:
+**Callback shape (current).** `GET /auth/google/callback` is a backend route and never renders UI. On success it sets the refresh cookie and 302s the browser to `${WEB_BASE_URL}${return_to or "/home"}?auth=ok`. The SPA, on landing at that URL, calls `POST /auth/refresh` to mint its access token and uses `history.replaceState` to strip `?auth=ok`. There is no dedicated callback page in the frontend; the user perceives a single hop "Google → Campfire home".
 
-- Kicker: `AUTH CALLBACK`.
-- Title: `HANDING THE KEY BACK / TO CAMPFIRE.`
-- Supporting copy explains secure redirect, session restoration, and routing into the authenticated shell.
-- Use the same centered content lane and fade-up animation as other simple pages.
+**Failure paths.** All Google failures (cancellation, state mismatch, code exchange failure, ID-token verification failure, `email_verified=false`, nonce mismatch, audience mismatch, disabled feature) 302 the browser to `${WEB_BASE_URL}/signin?auth_error=<reason>`. The SPA reads `auth_error` once on mount, surfaces a generic message, and clears the query string. Reasons are intentionally coarse (`google_cancelled | google_failed | google_unavailable`) — never enumerate provider state in copy.
 
-Avoid exposing provider implementation details in the primary visual story.
+**Visual posture.** Because the callback is a transient redirect — no rendered page — there is no kicker / headline / paragraph to design. Keep it that way. If you ever introduce a visible interstitial (e.g., "Resolving your sign-in…") for a slow round-trip, follow the same shape used for `RESOLVING YOUR SESSION…` on the home page: one mono kicker, one Anton headline, one short muted line, fade-up animation, no provider branding in the primary visual story.
 
 ## 10. Onboarding Preferences
 
