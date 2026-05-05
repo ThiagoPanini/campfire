@@ -1,5 +1,7 @@
+import { Check, X } from "lucide-react";
 import { translate, type Language } from "@i18n";
 import type { Toast } from "../store/repertoire.store";
+import { instrumentLabel } from "../catalogs";
 
 type Props = {
   toast: Toast;
@@ -16,7 +18,7 @@ export function RepertoireToast({ toast, language, onDismiss }: Props) {
   switch (toast.kind) {
     case "added":
       heading = t.toastAdded;
-      sub = `${toast.title} · ${toast.instrument} · ${t[`proficiency_${toast.proficiency}` as keyof typeof t]}`;
+      sub = `${toast.title} · ${instrumentLabel(toast.instrument)} · ${t[`proficiency_${toast.proficiency}` as keyof typeof t]}`;
       break;
     case "updated":
       heading = t.toastUpdated;
@@ -34,13 +36,13 @@ export function RepertoireToast({ toast, language, onDismiss }: Props) {
 
   return (
     <div className="rep-toast cf-fade" role="status" aria-live="polite">
-      <div className="rep-toast-icon" aria-hidden="true">✓</div>
+      <Check className="rep-toast-icon" size={16} aria-hidden="true" />
       <div>
         <p className="mono rep-toast-heading">{heading}</p>
         <p className="rep-toast-sub">{sub}</p>
       </div>
-      <button type="button" className="mono rep-toast-dismiss" onClick={onDismiss} aria-label="Dismiss">
-        ✕
+      <button type="button" className="mono rep-toast-dismiss" onClick={onDismiss} aria-label="Fechar aviso">
+        <X size={14} aria-hidden="true" />
       </button>
     </div>
   );

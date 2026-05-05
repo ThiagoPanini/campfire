@@ -8,6 +8,7 @@ import {
   type Instrument,
   type ProficiencyLevel,
   type SearchResult,
+  instrumentLabel,
 } from "@features/repertoire";
 import { translate, type Language } from "@i18n";
 import { AccentButton } from "@shared/ui";
@@ -128,7 +129,7 @@ function RecentlyAddedSongsCard({ entries, language, onRepertoire }: { entries: 
             <SongCover entry={entry} />
             <span className="home-recent-main">
               <span className="home-recent-title">{entry.songTitle}</span>
-              <span className="home-recent-sub">{entry.songArtist} · {safeInstrument(entry.instrument)}</span>
+              <span className="home-recent-sub">{entry.songArtist} · {instrumentLabel(entry.instrument)}</span>
             </span>
             <span className="home-recent-meta mono">{relativeAge(entry.createdAt, language)}</span>
           </button>
@@ -143,7 +144,6 @@ function LastAddedSongHighlightCard({ entry, language, onRepertoire }: { entry: 
 
   return (
     <article className="home-latest-card">
-      <div className="home-latest-glow" aria-hidden="true" />
       <div className="home-latest-top">
         <span className="home-latest-icon"><Music2 size={18} aria-hidden="true" /></span>
         <span className="mono">{t.latestSong}</span>
@@ -155,7 +155,7 @@ function LastAddedSongHighlightCard({ entry, language, onRepertoire }: { entry: 
       </div>
 
       <div className="home-latest-details">
-        <SongFact label={t.instrument} value={safeInstrument(entry.instrument)} />
+        <SongFact label={t.instrument} value={instrumentLabel(entry.instrument)} />
         <SongFact label={t.status} value={statusLabel(entry.proficiency, language)} />
         <SongFact label={t.added} value={relativeAge(entry.createdAt, language)} />
       </div>
@@ -255,10 +255,6 @@ function sortByNewest(entries: Entry[]) {
     .map(({ entry }) => entry);
 }
 
-function safeInstrument(instrument: string | null | undefined) {
-  return instrument?.trim() || "Unknown";
-}
-
 function statusLabel(status: ProficiencyLevel, language: Language) {
   const t = translate(language).home;
   if (status === "ready") return t.ready;
@@ -268,10 +264,10 @@ function statusLabel(status: ProficiencyLevel, language: Language) {
 
 function relativeAge(isoDate: string, language: Language): string {
   const date = Date.parse(isoDate);
-  if (Number.isNaN(date)) return language === "pt" ? "sem data" : "undated";
+  if (Number.isNaN(date)) return "sem data";
   const diffMs = Date.now() - date;
   const days = Math.max(0, Math.floor(diffMs / (24 * 60 * 60 * 1000)));
-  if (days === 0) return language === "pt" ? "hoje" : "today";
-  if (days === 1) return language === "pt" ? "1 dia" : "1 day";
-  return language === "pt" ? `${days} dias` : `${days} days`;
+  if (days === 0) return "hoje";
+  if (days === 1) return "1 dia";
+  return `${days} dias`;
 }

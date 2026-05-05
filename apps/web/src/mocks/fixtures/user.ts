@@ -5,9 +5,9 @@ export const seededUser = {
 };
 
 export function displayNameFromEmail(email: string) {
-  const local = email.split("@")[0] || "Member";
+  const local = email.split("@")[0] || "Membro";
   return local
     .replace(/[._-]+/g, " ")
     .trim()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase()) || "Member";
+    .replace(/\b\w/g, (letter) => letter.toUpperCase()) || "Membro";
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AccentButton, AuthFrame, Divider, TextInput } from "@shared/ui";
 import { GoogleMark } from "@shared/icons/GoogleMark";
 import { translate, type Language } from "@i18n";
-import { validateAuth } from "../validation";
+import { validateSignIn } from "../validation";
 import { PasswordField } from "./PasswordField";
 
 type Props = {
@@ -16,14 +16,14 @@ type Props = {
 
 export function SignInForm({ language, onSubmit, onGoogle, onSwap, googleEnabled, authSubmitting }: Props) {
   const t = translate(language);
-  const [email, setEmail] = useState("ada@campfire.test");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [credentialError, setCredentialError] = useState(false);
   const [googleError, setGoogleError] = useState(false);
   const [googleRedirecting, setGoogleRedirecting] = useState(false);
   const [confirmationRequired, setConfirmationRequired] = useState(false);
-  const valid = validateAuth(email, password);
+  const valid = validateSignIn(email, password);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();

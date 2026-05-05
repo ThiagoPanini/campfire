@@ -1,372 +1,291 @@
-# Campfire Design System
+## Overview
 
-> For feature `001-frontend-mvp-prototype`, the authoritative visual source is the Claude Design export at `specs/001-frontend-mvp-prototype/design-reference/project/Campfire Landing.html`. This document is synchronized from that export for implementation guidance. If this file conflicts with the Claude export for Landing, Sign In, Sign Up, or Onboarding, the Claude export wins. Home remains an extrapolated fallback until a Claude Home design is supplied.
+Linear's marketing canvas is the deepest dark surface in this collection — `{colors.canvas}` is #010102, essentially pure black with a faint blue tint. On top sits a four-step surface ladder (`{colors.surface-1}` through `{colors.surface-4}`) for cards, panels, and lifted tiles, with hairline borders running from `{colors.hairline}` (#23252a) up through `{colors.hairline-strong}` and `{colors.hairline-tertiary}`. Light gray text (`{colors.ink}` #f7f8f8) carries the body and headlines.
 
-## 1. Product Vision
+The single chromatic accent is **Linear lavender-blue** `{colors.primary}` (#5e6ad2) — used on the brand mark, focus rings, and the primary CTA button. A lighter hover state (`{colors.primary-hover}` #828fff) and a focus-tinted variant (`{colors.primary-focus}` #5e69d1) extend the same hue. Linear avoids saturated greens, oranges, reds, etc. on the marketing canvas — the only semantic color is `{colors.semantic-success}` (#27a644) for status pills and the rare success indicator.
 
-Campfire is a private music hub for people who play in small, informal circles. The MVP focuses on a narrower first product promise: track the songs you know, understand what you are still learning, and share that repertoire with the people you play with.
+Display type runs Linear's custom sans (with `SF Pro Display` fallback) at weight 500–700 with negative letter-spacing scaling from -3.0px at 80px down to 0 at body. The body family is Linear's text cut, and a Linear Mono is reserved for code snippets in product screenshots.
 
-The implemented design direction is **dark rehearsal-room brutalism**: blackened surfaces, oversized condensed display type, precise mono labels, sparse copy, and one warm orange accent. It should feel direct, musical, and slightly raw, like a rehearsal note taped to a speaker cabinet rather than a generic SaaS dashboard.
+The page rhythm is **dense product screenshots** — Linear's marketing leads with high-fidelity captures of the product UI (issue list, project view, dashboard) framed in `{colors.surface-1}` panels with `{rounded.xl}` 16px corners. The chrome is intentionally minimal so the app screenshots can do the heavy lifting.
 
-## 2. Visual Direction
+**Key Characteristics:**
+- **Dark-canvas marketing system** — `{colors.canvas}` (#010102) is the deepest dark in this collection.
+- **Lavender-blue brand accent** (`{colors.primary}` #5e6ad2) — used scarcely on brand mark, focus, and the primary CTA.
+- Four-step surface ladder (canvas → surface-1 → surface-2 → surface-3 → surface-4) carries hierarchy without shadow.
+- Display tracking pulls aggressively negative (-3.0px at 80px); body holds at -0.05px.
+- Cards use `{rounded.lg}` 12px corners with 1px hairline borders — never pill, rarely 16px.
+- **Product UI screenshots** dominate the page. The marketing chrome is a dark frame for the app.
+- No second chromatic color. No atmospheric gradients. No spotlight cards.
 
-Campfire should use a restrained, high-contrast dark interface. The UI gets its personality from bold typography, clear rhythm, warm accent color, and concise music-specific language rather than decorative illustrations or busy atmospheric effects.
+## Colors
 
-Key characteristics:
+> Source pages: linear.app (home), /intake, /pricing, /contact/sales, /build.
 
-- Near-black graphite background with minimal borders.
-- Burnt orange as the single dominant action and brand accent.
-- Large uppercase display headlines using a condensed typeface.
-- Mono uppercase labels for navigation, section kickers, badges, and actions.
-- Sparse layouts with strong vertical spacing on public pages.
-- Compact controls and preference chips inside authenticated flows.
-- Simple fire mark with subtle flame/ember animation.
-- Alpha-stage honesty in copy and badges.
+### Brand & Accent
+- **Lavender-Blue** ({colors.primary}): The signature Linear accent — primary CTA, brand mark, link emphasis.
+- **Lavender Hover** ({colors.primary-hover}): Lighter lavender (#828fff) — hovered state of the primary CTA.
+- **Lavender Focus** ({colors.primary-focus}): Focus-ring tint (#5e69d1) — focused inputs, focused buttons.
+- **Brand Secure** ({colors.brand-secure}): Muted lavender-gray (#7a7fad) — used in "Linear Security" surfaces.
 
-## 3. Current Token Reference
+### Surface
+- **Canvas** ({colors.canvas}): Default page background — #010102, near-pure black with a faint blue tint.
+- **Surface 1** ({colors.surface-1}): One step above canvas — feature cards, pricing cards, product screenshot panels.
+- **Surface 2** ({colors.surface-2}): Two steps above — featured pricing card, hovered cards.
+- **Surface 3** ({colors.surface-3}): Three steps above — line-tertiary backgrounds, sub-nav.
+- **Surface 4** ({colors.surface-4}): Four steps above — bg-level-3, deepest lifted surface.
+- **Hairline** ({colors.hairline}): 1px borders on cards and dividers.
+- **Hairline Strong** ({colors.hairline-strong}): Stronger 1px borders — input focus rings.
+- **Hairline Tertiary** ({colors.hairline-tertiary}): Tertiary borders for nested surfaces.
+- **Inverse Canvas** ({colors.inverse-canvas}): Pure white — surface of the inverse pill CTA on a small set of section openers.
+- **Inverse Surface 1** ({colors.inverse-surface-1}): One step above inverse canvas.
+- **Inverse Surface 2** ({colors.inverse-surface-2}): Two steps above inverse canvas.
 
-For the current frontend-only prototype, canonical front-end tokens should live in `src/styles/tokens.css` and be consumed by React components through CSS custom properties.
+### Text
+- **Ink** ({colors.ink}): All headlines and emphasized body type — light gray #f7f8f8.
+- **Ink Muted** ({colors.ink-muted}): Secondary type at #d0d6e0 — meta info on hero panels.
+- **Ink Subtle** ({colors.ink-subtle}): Tertiary type at #8a8f98 — deselected pricing tabs, footer columns.
+- **Ink Tertiary** ({colors.ink-tertiary}): Quaternary at #62666d — disabled, footnotes.
 
-| Token | Value | Role |
-| --- | --- | --- |
-| `ACCENT` | `#E8813A` | Default primary action, selected chips, active labels, highlighted headline text |
-| `ACCENT_DARK` | `#6B2E00` | Default dark warm feature tile and deep brand contrast |
-| `BG` | `#131313` | Page background and fixed nav background |
-| `SURFACE` | `#181818` | Cards, neutral feature tile, protected profile panel |
-| `BORDER` | `#1e1e1e` | Navigation divider and quiet structural border |
-| Display font | `"Anton", Impact, sans-serif` | Brand mark and large uppercase headlines |
-| Body font | `"Space Grotesk", Helvetica, Arial, sans-serif` | Body copy, form fields, chips, app content |
-| Mono font | `"Space Mono", monospace` | Labels, buttons, badges, navigation |
+### Semantic
+- **Success Green** ({colors.semantic-success}): Status pills, success indicators. The only semantic color on marketing.
+- **Overlay** ({colors.semantic-overlay}): Pure black overlay scrim for modals.
 
-Supporting colors used by the implementation:
+## Typography
 
-- `#fff`: Primary text.
-- `#ccc`: Secondary action text.
-- `#bbb`: Feature-card body text.
-- `#949494`, `#888`, `#777`, `#666`, `#555`, `#444`, `#333`: Muted text steps.
-- `#1a1a1a`, `#1e1e1e`, `#222`, `#232323`, `#242424`, `#2a2a2a`, `#2d2d2d`, `#2e2e2e`: Surface and border steps.
-- `#FF6B6B`: Error messaging.
-- Google brand colors appear only inside the Google authentication mark.
+### Font Family
 
-Avoid expanding into a full brown/orange monochrome palette; the current look works because the accent is sparse.
+- **Linear Display** — Linear's custom display sans; fallback `SF Pro Display, -apple-system, system-ui, Segoe UI, Roboto`. Carries display-xl through subhead.
+- **Linear Text** — Linear's custom text sans (a slightly different cut tuned for body sizes); same fallback stack. Carries body sizes, button labels, captions.
+- **Linear Mono** — Linear's custom mono; fallback `ui-monospace, SF Mono, Menlo`. Used for code snippets in product screenshots and for status / ID tokens.
 
-Accent presets from the Claude export:
-
-| Preset | Accent | Dark companion |
-| --- | --- | --- |
-| `EMBER` | `#FF6B2B` | `#7C1E00` |
-| `FLAME` | `#FFAA00` | `#7A4800` |
-| `GOLD` | `#FFD166` | `#6B4900` |
-| `COPPER` | `#E8813A` | `#6B2E00` |
-| `BRASS` | `#D4A84B` | `#5C3A00` |
-
-## 4. Typography
-
-### Font Roles
-
-- **Display / Brand**: `Anton`. Use for the Campfire wordmark and major page headlines.
-- **Body / UI**: `Space Grotesk`. Use for paragraphs, form input text, chips, card copy, and protected content.
-- **Mono / Utility**: `Space Mono`. Use for buttons, nav links, badges, kickers, labels, and metadata.
+The marketing surface treats Display and Text as one continuous voice; the family change is silent.
 
 ### Hierarchy
 
-| Role | Font | Size | Weight | Line Height | Letter Spacing | Notes |
-| --- | --- | --- | --- | --- | --- | --- |
-| Landing hero | Anton | `clamp(52px, 11.5vw, 118px)` | 400 | 0.93 | `0.025em` | Uppercase, multi-line, high impact |
-| Auth title | Anton | `clamp(34px, 7vw, 52px)` | 400 | 0.93 | `0.03em` | `WELCOME BACK`, `JOIN CAMPFIRE` |
-| Onboarding title | Anton | `clamp(36px, 7vw, 56px)` | 400 | 0.93 | `0.03em` | Compact protected flow heading |
-| App home title | Anton | `clamp(42px, 8vw, 72px)` | 400 | 0.95 | `0.025em` | Personalized welcome |
-| Body copy | Space Grotesk | 15px-17px | 300-400 | 1.6-1.7 | `0.01em` when needed | Muted, concise explanations |
-| Button | Space Mono | 11px-13px | 700 | 1 | `0.14em` | Uppercase action labels |
-| Label / kicker | Space Mono | 9px-11px | 700 | normal | `0.16em` | Uppercase section labels |
-| Badge | Space Mono | 9px | 700 | 1 | `0.18em` | `ALPHA` pill |
+| Token | Size | Weight | Line Height | Letter Spacing | Use |
+|---|---|---|---|---|---|
+| `{typography.display-xl}` | 80px | 600 | 1.05 | -3.0px | Largest hero headline |
+| `{typography.display-lg}` | 56px | 600 | 1.10 | -1.8px | Section opener headlines |
+| `{typography.display-md}` | 40px | 600 | 1.15 | -1.0px | Sub-section headlines |
+| `{typography.headline}` | 28px | 600 | 1.20 | -0.6px | Pricing tier titles, CTA banner heading |
+| `{typography.card-title}` | 22px | 500 | 1.25 | -0.4px | Feature card title |
+| `{typography.subhead}` | 20px | 400 | 1.40 | -0.2px | Lead body, intro paragraphs |
+| `{typography.body-lg}` | 18px | 400 | 1.50 | -0.1px | Hero subhead, lead paragraphs |
+| `{typography.body}` | 16px | 400 | 1.50 | -0.05px | Default body |
+| `{typography.body-sm}` | 14px | 400 | 1.50 | 0 | Card body, footer columns |
+| `{typography.caption}` | 12px | 400 | 1.40 | 0 | Captions, meta, status |
+| `{typography.button}` | 14px | 500 | 1.20 | 0 | All button labels |
+| `{typography.eyebrow}` | 13px | 500 | 1.30 | 0.4px | Section eyebrow (slight positive tracking) |
+| `{typography.mono}` | 13px | 400 | 1.50 | 0 | Linear Mono for code in product screenshots |
 
-Rules:
+### Principles
 
-- Keep headlines uppercase and short.
-- Let `Anton` stay lightweight at `400`; avoid artificially bold display text.
-- Use positive tracking only. Do not use negative letter spacing.
-- Keep body copy muted and understated so the accent and headlines carry the visual emphasis.
-- Use direct product language: `TRACK THE SONGS YOU KNOW TO PLAY`, `ENTER CAMPFIRE`, `START TRACKING`, `UPDATE PREFERENCES`.
+- **Aggressive negative tracking on display** (-3.0px at 80px ≈ 4% of size).
+- **Single voice from display to body.** Display-xl at 600 → body at 400 — same family, narrower weights.
+- **Eyebrow uses positive tracking** (+0.4px) — contrast against the negative-tracked display marks the eyebrow as taxonomy.
+- **Mono only in code contexts.** Linear Mono lives inside product screenshots — not on marketing chrome.
 
-## 5. Layout System
+### Note on Font Substitutes
 
-### Global Frame
+Linear's custom typeface isn't publicly distributed; the documented fallback `SF Pro Display, -apple-system, system-ui` is the recommended substitute on macOS. For cross-platform implementation, **Inter** at weight 500 / 600 / 700 is the closest free substitute. **Geist Sans** is also viable. For mono, **JetBrains Mono** or **Geist Mono** at weight 400 closely approximates Linear Mono.
 
-- All pages use a fixed top nav, 58px tall.
-- Root background is `#131313`.
-- Page content uses `min-height: 100dvh`.
-- Content lanes are centered and constrained rather than full-width by default.
-- Public landing content uses a maximum width of 1300px.
-- Auth forms use a maximum width of 400px.
-- App home uses a maximum width of 760px.
-- Onboarding uses a maximum width of 640px.
+## Layout
 
-### Spacing
+### Spacing System
 
-Use clamp-based responsive spacing for large page regions:
+- **Base unit**: 4px.
+- **Tokens (front matter)**: `{spacing.xxs}` 4px · `{spacing.xs}` 8px · `{spacing.sm}` 12px · `{spacing.md}` 16px · `{spacing.lg}` 24px · `{spacing.xl}` 32px · `{spacing.xxl}` 48px · `{spacing.section}` 96px.
+- Card interior padding: `{spacing.lg}` 24px on feature/pricing cards; `{spacing.xl}` 32px on testimonial cards; `{spacing.xxl}` 48px on CTA banners.
+- Pill button padding: 8px vertical · 14px horizontal — Linear's compact button spec.
+- Form input padding: 8px vertical · 12px horizontal.
 
-- Landing top padding: `clamp(110px, 18vw, 168px)`.
-- Auth top padding: `clamp(80px, 14vw, 130px)`.
-- App home top padding: `clamp(110px, 16vw, 160px)`.
-- Onboarding top padding: `clamp(80px, 14vw, 120px)`.
-- Horizontal page padding: `clamp(20px/24px, 5vw/6vw, 40px/80px)` depending on page density.
+### Grid & Container
 
-Use tighter spacing in controls:
+- Max content width sits around 1280px.
+- Card grids are 3-up at desktop, 2-up at tablet, 1-up at mobile.
+- Pricing tier grid is 3-up; comparison strip below shows checkmarks per tier.
+- Product screenshot panels span full content width — they're the protagonist.
 
-- Feature tiles: `clamp(24px, 3vw, 36px)`.
-- Profile panel: `clamp(20px, 3vw, 32px)`.
-- Chips: 8px row/column gap.
-- Form stack: 14px gap.
+### Whitespace Philosophy
 
-## 6. Shared Components
+The dark canvas IS the whitespace. Sections separate by lift onto surface-1 panels, not by gaps in white. Within a panel, generous `{spacing.lg}` 24px gaps between content blocks; `{spacing.section}` 96px between sections.
 
-For the current prototype, shared primitives live under `src/components/` and shared styles live under `src/styles/`.
+## Elevation & Depth
 
-### Nav
+| Level | Treatment | Use |
+|---|---|---|
+| 0 (flat) | No shadow, no border | Default for body type, hero text, footer |
+| 1 (charcoal lift) | `{colors.surface-1}` background on canvas, 1px `{colors.hairline}` | Default cards, product panels |
+| 2 (surface-2 lift) | `{colors.surface-2}` background, 1px `{colors.hairline-strong}` | Featured pricing card, hovered cards |
+| 3 (surface-3 lift) | `{colors.surface-3}` background | Sub-nav, dropdown menus |
+| 4 (focus ring) | 2px `{colors.primary-focus}` outline at 50% opacity | Focused input, focused button |
 
-The nav is fixed and minimal:
+Linear's depth is carried by surface ladder + hairline borders. The brand resists drop shadows on dark almost entirely.
 
-- Left side: animated fire icon, `CAMPFIRE` wordmark, `ALPHA` badge.
-- Right side: one mono text action such as `SIGN IN`, `BACK`, or `SIGN OUT`.
-- Background: `#131313`.
-- Border bottom: `1px solid #1e1e1e`.
-- Height: 58px.
+### Decorative Depth
 
-### Fire Icon
+- **Product UI screenshots** dominate as decorative depth.
+- **No atmospheric gradients, no spotlight cards.**
+- **Subtle white edge highlight** on the top edge of lifted panels — gives the dark surface a faint "pixel rendered" feel.
 
-The mark is an inline SVG flame:
+## Shapes
 
-- Outer flame uses `ACCENT`.
-- Inner flame uses `#FFD166`.
-- Ember uses `#FFF5B0`.
-- Animation classes: `cf-flame-outer`, `cf-flame-inner`, `cf-ember`.
-- It should remain decorative with `aria-hidden="true"` when paired with the text wordmark.
+### Border Radius Scale
 
-### Alpha Badge
+| Token | Value | Use |
+|---|---|---|
+| `{rounded.xs}` | 4px | Small chips, status badges |
+| `{rounded.sm}` | 6px | Inline tags |
+| `{rounded.md}` | 8px | All buttons, form inputs |
+| `{rounded.lg}` | 12px | Pricing cards, feature cards, testimonial cards |
+| `{rounded.xl}` | 16px | Product screenshot panels |
+| `{rounded.xxl}` | 24px | Oversized CTA banners (rare) |
+| `{rounded.pill}` | 9999px | Pricing tab toggles, status pills |
+| `{rounded.full}` | 9999px | Avatar circles |
 
-- Text: `ALPHA`.
-- Font: `Space Mono`, 9px, 700.
-- Background: `ACCENT`.
-- Text: black.
-- Radius: 20px.
+### Photography & Illustration Geometry
 
-### Mono Label
+- Product UI screenshots dominate; they sit in `{rounded.xl}` 16px tiles with `{spacing.lg}` 24px outer padding.
+- Customer logo tiles render at small sizes (~24px logo height) on `{colors.canvas}` with no border.
+- Avatar circles in testimonial cards use `{rounded.full}` at 32–40px sizes.
 
-Mono labels are the system's main information scent. Use them for section titles, step labels, metadata labels, feature kickers, and low-level status.
+## Components
 
-### Accent Button
+### Buttons
 
-- Background: `ACCENT`.
-- Text: black.
-- Hover: translucent white background, white text, and subtle light border.
-- Font: `Space Mono`, uppercase, 700.
-- Radius: 40px.
-- Minimum height: 48px.
-- Large size: 13px text, `15px 40px` padding.
-- Medium size: 11px text, `11px 28px` padding.
+**`button-primary`** — Lavender CTA. The default primary CTA across all pages.
+- Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}`, padding 8px 14px, rounded `{rounded.md}`.
+- Pressed state lives in `button-primary-pressed` (background shifts to `{colors.primary-focus}`).
+- Hover state lives in `button-primary-hover` (background shifts to `{colors.primary-hover}` lighter lavender).
 
-### Ghost Button
+**`button-secondary`** — Charcoal button. Used for secondary CTAs ("Sign in", "Read changelog").
+- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.button}`, padding 8px 14px, rounded `{rounded.md}`. 1px `{colors.hairline}` border.
 
-- Transparent background.
-- Muted text, white on hover.
-- Border moves from `#2d2d2d` to `#555`.
-- Used for lower-commitment choices such as `SKIP FOR NOW`.
+**`button-tertiary`** — Plain text button.
+- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.button}`, rounded `{rounded.md}`, padding 8px 14px.
 
-### Form Input
+**`button-inverse`** — White-on-dark inverse CTA.
+- Background `{colors.inverse-canvas}`, text `{colors.inverse-ink}`, type `{typography.button}`, rounded `{rounded.md}`, padding 8px 14px.
 
-- Label: mono uppercase, 9px, `#666`.
-- Input background: `#1a1a1a`.
-- Border: `#2e2e2e`, changing to `ACCENT` on focus.
-- Radius: 6px.
-- Text: white, 15px `Space Grotesk`.
-- Padding: `12px 14px`.
+### Pricing Tabs
 
-### Google Button
+**`pricing-tab-default`** + **`pricing-tab-selected`** — Pill-toggle on `/pricing`.
+- Default: `{colors.canvas}` background, `{colors.ink-subtle}` text, rounded `{rounded.pill}`, padding 6px 14px.
+- Selected: `{colors.surface-2}` background, `{colors.ink}` text — selected = surface lift.
 
-- Full-width secondary auth action.
-- Background: `#1e1e1e`, hover `#242424`.
-- Border: `#2e2e2e`.
-- Radius: 8px.
-- Uses the official four-color Google `G` mark.
-- Label is uppercase mono, for example `CONTINUE WITH GOOGLE`.
+### Cards & Containers
 
-## 7. Public Landing Page
+**`pricing-card`** — Each tier on `/pricing`.
+- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.lg}`, padding 24px. 1px `{colors.hairline}` border.
 
-The current landing page is not a full marketing site. It is a direct, typographic entry point.
+**`pricing-card-featured`** — Recommended tier — surface lift to surface-2.
+- Background `{colors.surface-2}`, otherwise identical structure.
 
-Required structure:
+**`feature-card`** — Generic feature highlight tile.
+- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.lg}`, padding 24px.
 
-- Fixed nav with sign-in action.
-- Early-access kicker: `EARLY ACCESS · CURRENTLY IN ALPHA`.
-- Huge uppercase hero headline:
-  `TRACK THE SONGS / YOU KNOW TO PLAY / AND SHARE / WITH OTHERS.`
-- Accent color on the final phrase.
-- Short supporting paragraph about building a repertoire by instrument, tracking what is being learned, and sharing with the group.
-- Primary CTA: `ENTER CAMPFIRE`, routing to sign-up.
-- Three feature tiles below the fold:
-  `YOUR REPERTOIRE`, `WHAT TO PRACTICE`, `SHARE WITH YOUR CIRCLE`.
-- Footer copy that acknowledges alpha status.
+**`product-screenshot-card`** — The dominant card type — frames a high-fidelity Linear app UI screenshot.
+- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.xl}`, padding 24px.
 
-Feature tiles use a single bordered grid with no gutters between cells:
+**`testimonial-card`** — Customer quote with avatar + name + role.
+- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body-lg}`, rounded `{rounded.lg}`, padding 32px.
 
-- Tile 1: `ACCENT` background, black text/icon.
-- Tile 2: `SURFACE` background, orange icon, muted copy.
-- Tile 3: `ACCENT_DARK` background, warm light text/icon.
+**`customer-logo-tile`** — Small tile in the customer marquee.
+- Background `{colors.canvas}`, text `{colors.ink-subtle}`, type `{typography.caption}`, rounded `{rounded.xs}`, padding 16px.
 
-The landing page should stay sparse. Do not add a decorative product dashboard, generic hero illustration, or long marketing feature grid unless the product scope changes.
+**`cta-banner`** — Closing CTA panel near page bottom.
+- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.headline}`, rounded `{rounded.lg}`, padding 48px.
 
-## 8. Authentication Pages
+### Inputs & Forms
 
-Authentication is implemented as dedicated pages, not as an embedded landing panel.
+**`text-input`** + **`text-input-focused`** — Form fields on `/contact/sales` and signup overlays.
+- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.md}`, padding 8px 12px.
+- Focused state retains the same surface; the focus ring is a 2px `{colors.primary-focus}` outline at 50% opacity.
 
-Routes:
+### Status & Build Page
 
-- `/signin`: title `WELCOME BACK`, primary action `SIGN IN`.
-- `/signup`: title `JOIN CAMPFIRE`, primary action `CREATE ACCOUNT`.
+**`changelog-row`** — Each row in `/build` (changelog page) listing version, date, and changes.
+- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.xs}`, padding 24px 0. 1px `{colors.hairline}` bottom rule.
 
-The current frontend-only MVP does not ship `/auth/callback`; Google sign-in/sign-up is simulated in place and routes forward without an OAuth handoff.
+**`status-badge`** — Small status pill.
+- Background `{colors.surface-2}`, text `{colors.ink-muted}`, type `{typography.caption}`, rounded `{rounded.pill}`, padding 2px 8px.
 
-Auth page order:
+### Navigation
 
-1. Brand cluster with fire icon, `CAMPFIRE`, and `ALPHA`.
-2. Large display title.
-3. Google button.
-4. Quiet `OR` divider.
-5. Email field.
-6. Password field with an 8-character minimum.
-7. Full-width accent submit button.
-8. Mode swap link.
-9. Error message when needed.
+**`top-nav`** — Sticky dark bar with the Linear wordmark left, primary nav links centered, and a `button-secondary` ("Sign in") + `button-primary` ("Get started") pair right.
+- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.body-sm}`, height 56px.
 
-The current auth implementation routes successful sign-in/sign-up through the mocked or managed session flow. Copy and visual states should not promise a public open community; the tone should remain private, alpha, and small-group oriented.
+### Footer
 
-## 9. Auth Callback
+**`footer`** — Dense link grid on `{colors.canvas}` with the Linear wordmark left.
+- Background `{colors.canvas}`, text `{colors.ink-subtle}`, type `{typography.caption}`, padding 64px 32px.
 
-> Updated for slice `006-google-auth-login-ux`: a real Google OAuth callback now ships. The "out of scope" stance from the frontend-only era no longer applies. Slice 001's mocked Google sign-in is gone; the canonical flow is the backend-owned authorization-code + PKCE redirect described in `specs/006-google-auth-login-ux/contracts/auth-google.md`.
-
-**Callback shape (current).** `GET /auth/google/callback` is a backend route and never renders UI. On success it sets the refresh cookie and 302s the browser to `${WEB_BASE_URL}${return_to or "/home"}?auth=ok`. The SPA, on landing at that URL, calls `POST /auth/refresh` to mint its access token and uses `history.replaceState` to strip `?auth=ok`. There is no dedicated callback page in the frontend; the user perceives a single hop "Google → Campfire home".
-
-**Failure paths.** All Google failures (cancellation, state mismatch, code exchange failure, ID-token verification failure, `email_verified=false`, nonce mismatch, audience mismatch, disabled feature) 302 the browser to `${WEB_BASE_URL}/signin?auth_error=<reason>`. The SPA reads `auth_error` once on mount, surfaces a generic message, and clears the query string. Reasons are intentionally coarse (`google_cancelled | google_failed | google_unavailable`) — never enumerate provider state in copy.
-
-**Visual posture.** Because the callback is a transient redirect — no rendered page — there is no kicker / headline / paragraph to design. Keep it that way. If you ever introduce a visible interstitial (e.g., "Resolving your sign-in…") for a slow round-trip, follow the same shape used for `RESOLVING YOUR SESSION…` on the home page: one mono kicker, one Anton headline, one short muted line, fade-up animation, no provider branding in the primary visual story.
-
-## 10. Onboarding Preferences
-
-The onboarding page collects music context after first authentication.
-
-Required content:
-
-- Step kicker: `STEP 2 OF 2`.
-- Title: `ONE LAST THING`.
-- Supporting text: `Help Campfire understand how you play. You can always update this later.`
-- Instrument multi-select chips.
-- Genre multi-select chips.
-- Play-context single-select cards.
-- Goal multi-select chips.
-- Experience-level single-select cards.
-- Primary action: `START TRACKING`, loading state `SAVING…`.
-- Secondary action: `SKIP FOR NOW`.
-
-Control rules:
-
-- Chips use pill radius 40px.
-- Selected chips use `ACCENT` background, black text, and orange border.
-- Unselected chips use `#1e1e1e`, `#888`, and `#2e2e2e`.
-- Option cards use 10px radius, `#1a1a1a` base, and an orange border/tint when selected.
-- The page may use musician/context emoji inside option cards, but keep them functional and sparse.
-
-## 11. Protected App Home
-
-The current protected app home is a bootstrap home, not the final full app shell.
-
-Required content:
-
-- Kicker: `CAMPFIRE · HOME`.
-- Personalized display headline: `WELCOME BACK, {DISPLAY_NAME}.`
-- Supporting copy explaining that repertoire, learning, and group-play content will live here.
-- Loading label: `RESOLVING YOUR SESSION…`.
-- Error copy for failed profile loading.
-- Member panel showing first-login/returning state, name, and email.
-- Primary action: `UPDATE PREFERENCES`, routing to onboarding.
-
-The member panel should remain compact:
-
-- Background: `#181818`.
-- Border: `1px solid #222`.
-- Radius: 20px.
-- Two-column metadata on desktop; collapse naturally on narrow screens if layout changes.
-
-Future authenticated shells can add sidebar navigation and denser session boards, but this guide should treat the current `/home` as the implemented baseline.
-
-## 12. Motion
-
-The shared animation layer is small and intentional:
-
-- `cfFadeUp`: page content enters with 16px upward movement and opacity fade.
-- `cfFlicker`: outer flame motion.
-- `cfFlicker2`: inner flame motion.
-- `cfEmberPulse`: ember opacity pulse.
-
-Use motion for:
-
-- Initial page entrance.
-- Fire mark liveliness.
-- Button and control hover transitions.
-- Form focus transitions.
-
-Do not add large parallax, continuous background particles, or motion that competes with forms. Add `prefers-reduced-motion` handling before introducing any new decorative or continuous animation.
-
-## 13. Responsive Behavior
-
-The implementation relies on fluid CSS rather than many named breakpoints:
-
-- Use `clamp()` for hero type, page padding, and large content regions.
-- Landing feature tiles use `repeat(auto-fit, minmax(240px, 1fr))`.
-- Onboarding option cards use `repeat(auto-fill, minmax(200px, 1fr))` or `minmax(160px, 1fr)` depending on content.
-- Flex rows should wrap before truncating controls.
-- Long email values must use `word-break: break-all`.
-- Buttons keep `white-space: nowrap`; containers must provide enough wrapping space.
-
-When adding new UI, preserve the fixed top nav offset and test at mobile widths where uppercase labels can become wide.
-
-## 14. Accessibility Rules
-
-- Keep all form fields labeled.
-- Preserve visible focus states, especially the orange input border.
-- Keep button text readable against `ACCENT`; black text is the current standard.
-- Do not rely on color alone for error states; include specific error text.
-- Inline SVG icons that duplicate adjacent text should be `aria-hidden`.
-- Authentication pages must be keyboard navigable from nav action through form submission.
-- Keep contrast high on muted copy. Avoid going below the existing `#555` usage for essential text.
-
-## 15. Do's and Don'ts
+## Do's and Don'ts
 
 ### Do
 
-- Use the current tokens from `src/styles/tokens.css`.
-- Keep `Anton`, `Space Grotesk`, and `Space Mono` as the visual foundation.
-- Use orange sparingly and decisively.
-- Keep copy short, uppercase, and music-specific where it acts as UI chrome.
-- Treat alpha status as part of the product voice.
-- Keep public pages bold and sparse; keep protected flows compact and task-oriented.
-- Reuse primitives before creating one-off controls.
+- Reserve `{colors.canvas}` (#010102) as the system's anchor surface — the faint blue tint is intentional.
+- Use `{colors.primary}` lavender ONLY for: brand mark, primary CTA, focus ring, link emphasis.
+- Use the four-step surface ladder for hierarchy. Avoid skipping levels.
+- Pair display weight 600 with body weight 400 — Linear resists 700+ display weights.
+- Apply negative letter-spacing aggressively on display.
+- Use product UI screenshots as the protagonist of every section.
+- Compose CTAs as `{rounded.md}` 8px corners.
 
 ### Don't
 
-- Do not describe the current UI as an image-led bonfire scene unless that implementation returns.
-- Do not add a detached SaaS hero, generic dashboard mockup, or stock-looking feature section.
-- Do not reintroduce Electric Aqua or broad multicolor gradients.
-- Do not imply that sign-up is broadly public if the auth/product policy remains invite or alpha oriented.
-- Do not bury the primary action under explanatory content.
+- Don't ship a light-mode marketing page.
+- Don't use lavender as a section background or card fill.
+- Don't introduce a second chromatic accent (orange, pink, green for marketing).
+- Don't add atmospheric gradients or spotlight cards.
+- Don't pill-round CTAs.
+- Don't use `#000000` true black as the canvas.
+- Don't combine multiple bright accents in product screenshot mockups.
 
-## 16. Prompt Guide For Future Front-End Work
+## Responsive Behavior
 
-Use these prompts as constraints for agents and designers:
+### Breakpoints
 
-- "Extend the implemented Campfire UI using `Anton`, `Space Grotesk`, `Space Mono`, `#131313`, and `#E8813A`; keep the layout sparse, uppercase, and rehearsal-room brutalist."
-- "Create a protected repertoire screen that feels like the current `/home`: fixed top nav, mono section kickers, compact dark panels, orange selected states, and no generic SaaS cards."
-- "Add an onboarding step using the existing chip and option-card patterns; selected states use orange fill or orange border/tint, and the page remains centered at about 640px wide."
-- "Design a loading or callback state with one mono kicker, one Anton headline, one short muted paragraph, and the shared fade-up animation."
+| Name | Width | Key Changes |
+|---|---|---|
+| Desktop-XL | 1440px | Default desktop layout |
+| Desktop | 1280px | Card grid 3-up maintained |
+| Tablet | 1024px | Card grid 3-up → 2-up |
+| Mobile-Lg | 768px | Pricing comparison becomes accordion; nav hamburger |
+| Mobile | 480px | Single-column; display-xl scales 80px → ~36px |
 
-When in doubt, match the implemented front end first, then evolve deliberately through shared tokens and primitives.
+### Touch Targets
+
+- CTAs hold ≥40px tap height across viewports.
+- Pricing tab pills hold ≥36px tap height; touch viewports grow to ≥44px.
+- Form inputs hold ≥44px tap target on touch.
+
+### Collapsing Strategy
+
+- **Top nav**: links collapse to hamburger below 768px.
+- **Card grids**: 3-up → 2-up at 1024px → 1-up below 768px.
+- **Pricing comparison**: per-tier accordion below 768px.
+- **Display type**: `{typography.display-xl}` 80px scales toward `{typography.display-md}` 40px on mobile.
+
+### Image Behavior
+
+- Product UI screenshots maintain aspect ratio and never crop.
+- Customer logos in the marquee may collapse from 6-up to 3-up below 768px.
+
+## Iteration Guide
+
+1. Focus on ONE component at a time and reference it by its `components:` token name.
+2. When introducing a section, decide first which surface lift it lives on.
+3. Default body to `{typography.body}` at weight 400.
+4. Run `npx @google/design.md lint DESIGN.md` after edits.
+5. Add new variants as separate component entries.
+6. Treat lavender as scarce: brand mark, primary CTA, focus, link emphasis.
+7. Lead every section with a product UI screenshot.
+
+## Known Gaps
+
+- The four-step surface ladder values are extracted directly from Linear's `--color-bg-level-3`, `--color-line-tint`, etc. CSS variables; they are Linear's canonical surface spec.
+- Form-field error and validation styling is not visible on the inspected pages.
+- Light mode is not documented because the marketing site does not ship a light theme.
+- Linear's actual product UI uses a richer color-tag palette (red, orange, yellow, green, blue, purple) for issue priorities and project labels — those colors live in the in-product surfaces shown in mockups.
+- The custom display, text, and mono families are proprietary; an open-source substitute is acceptable.

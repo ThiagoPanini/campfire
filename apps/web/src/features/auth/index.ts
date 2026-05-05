@@ -1,5 +1,5 @@
 export { useSessionStore, type SessionStore } from "./session.store";
-export { validateAuth } from "./validation";
+export { validateSignIn, validateSignUp } from "./validation";
 export { SignInForm } from "./components/SignInForm";
 export { SignUpForm } from "./components/SignUpForm";
 export { ConfirmEmailForm } from "./components/ConfirmEmailForm";

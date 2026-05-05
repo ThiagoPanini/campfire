@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AccentButton, AuthFrame, Divider, TextInput } from "@shared/ui";
 import { GoogleMark } from "@shared/icons/GoogleMark";
 import { translate, type Language } from "@i18n";
-import { validateAuth } from "../validation";
+import { validateSignUp } from "../validation";
 import { PasswordField } from "./PasswordField";
 import { PasswordStrengthHint } from "./PasswordStrengthHint";
 
@@ -23,7 +23,7 @@ export function SignUpForm({ language, onSubmit, onGoogle, onSwap, googleEnabled
   const [accountError, setAccountError] = useState(false);
   const [googleError, setGoogleError] = useState(false);
   const [googleRedirecting, setGoogleRedirecting] = useState(false);
-  const valid = validateAuth(email, password);
+  const valid = validateSignUp(email, password);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();

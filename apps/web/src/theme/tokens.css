@@ -1,18 +1,92 @@
 :root {
-  --cf-bg: #131313;
-  --cf-surface: #181818;
-  --cf-surface-2: #1e1e1e;
-  --cf-border: #2d2d2d;
-  --cf-border-soft: #1e1e1e;
-  --cf-text: #ffffff;
-  --cf-muted: #949494;
-  --cf-subtle: #666666;
-  --cf-error: #ff6b6b;
-  --cf-accent: #e8813a;
-  --cf-accent-dark: #6b2e00;
-  --cf-focus: color-mix(in srgb, var(--cf-accent) 70%, white);
-  --cf-selected: color-mix(in srgb, var(--cf-accent) 16%, transparent);
-  --cf-font-display: "Anton", Impact, sans-serif;
-  --cf-font-body: "Space Grotesk", Helvetica, Arial, sans-serif;
-  --cf-font-mono: "Space Mono", monospace;
+  color-scheme: dark;
+
+  /* Surface ladder — Linear-grade dark canvas. */
+  --cf-bg: #010102;
+  --cf-surface: #0a0b0f;
+  --cf-surface-2: #101217;
+  --cf-surface-3: #171a21;
+  --cf-surface-4: #20232c;
+  --cf-border: #23252a;
+  --cf-border-soft: #181a20;
+  --cf-border-strong: #343844;
+
+  /* Ink scale */
+  --cf-text: #f7f8f8;
+  --cf-muted: #d0d6e0;
+  --cf-subtle: #8a8f98;
+  --cf-tertiary: #62666d;
+  --cf-faint: #3c3f47;
+
+  /* Brand — Linear lavender. The single chromatic accent. */
+  --cf-accent: #5e6ad2;
+  --cf-accent-hover: #828fff;
+  --cf-accent-pressed: #4951b8;
+  --cf-accent-soft: rgba(94, 106, 210, 0.16);
+  --cf-accent-soft-strong: rgba(94, 106, 210, 0.28);
+  --cf-accent-on: #ffffff;
+
+  /* Semantic colours */
+  --cf-success: #27a644;
+  --cf-success-soft: rgba(39, 166, 68, 0.16);
+  --cf-warning: #d8a64a;
+  --cf-warning-soft: rgba(216, 166, 74, 0.16);
+  --cf-error: #ff7a7a;
+  --cf-error-soft: rgba(255, 122, 122, 0.14);
+
+  /* Status indicators (proficiency) — three muted, distinguishable hues. */
+  --cf-status-learning: #c47b3b;
+  --cf-status-practicing: #d8a64a;
+  --cf-status-ready: #4ec07a;
+
+  /* Focus + selection */
+  --cf-focus: rgba(130, 143, 255, 0.72);
+  --cf-selected: rgba(94, 106, 210, 0.18);
+
+  /* Typography */
+  --cf-font-display: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --cf-font-body: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --cf-font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* Radii */
+  --cf-radius-xs: 4px;
+  --cf-radius-sm: 6px;
+  --cf-radius-md: 8px;
+  --cf-radius-lg: 12px;
+  --cf-radius-xl: 16px;
+  --cf-radius-pill: 9999px;
+
+  /* Spacing scale (4px base) */
+  --cf-space-2: 2px;
+  --cf-space-4: 4px;
+  --cf-space-6: 6px;
+  --cf-space-8: 8px;
+  --cf-space-10: 10px;
+  --cf-space-12: 12px;
+  --cf-space-16: 16px;
+  --cf-space-20: 20px;
+  --cf-space-24: 24px;
+  --cf-space-32: 32px;
+  --cf-space-40: 40px;
+  --cf-space-48: 48px;
+  --cf-space-64: 64px;
+  --cf-space-96: 96px;
+
+  /* Layout */
+  --cf-nav-h: 56px;
+  --cf-content-max: 1200px;
+  --cf-form-max: 420px;
+  --cf-app-max: 1080px;
+
+  /* Motion */
+  --cf-ease-standard: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --cf-ease-emphasized: cubic-bezier(0.2, 0.8, 0.1, 1);
+  --cf-dur-fast: 120ms;
+  --cf-dur-base: 180ms;
+  --cf-dur-slow: 320ms;
+
+  /* Shadows — used sparingly on dark; mostly hairlines + surface ladder. */
+  --cf-shadow-panel: 0 24px 70px -52px rgba(0, 0, 0, 0.8);
+  --cf-shadow-modal: 0 30px 80px -32px rgba(0, 0, 0, 0.85), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --cf-shadow-toast: 0 18px 50px -22px rgba(0, 0, 0, 0.8);
 }

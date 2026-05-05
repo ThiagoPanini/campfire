@@ -11,5 +11,5 @@ export function GhostButton({ children, className = "", ...props }: ButtonProps)
 }
 
 export function AlphaBadge() {
-  return <span className="alpha">ALPHA</span>;
+  return <span className="alpha">Alfa</span>;
 }

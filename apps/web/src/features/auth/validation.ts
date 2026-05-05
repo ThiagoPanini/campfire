@@ -24,9 +24,20 @@ export function passwordChecks(password: string) {
   ];
 }
 
-export function validateAuth(email: string, password: string) {
+function validateEmail(email: string) {
+  return email === email.trim() && email.length >= 3 && email.length <= 320 && emailPattern.test(email);
+}
+
+export function validateSignIn(email: string, password: string) {
   return {
-    email: email === email.trim() && email.length >= 3 && email.length <= 320 && emailPattern.test(email),
+    email: validateEmail(email),
+    password: password.length > 0,
+  };
+}
+
+export function validateSignUp(email: string, password: string) {
+  return {
+    email: validateEmail(email),
     password: passwordChecks(password).every((check) => check.ok),
   };
 }

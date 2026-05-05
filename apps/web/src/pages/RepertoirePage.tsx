@@ -8,6 +8,7 @@ import {
   RepertoireToast,
   RemoveEntryDialog,
   INSTRUMENTS,
+  instrumentLabel,
   useRepertoireStore,
   type Entry,
   type SearchResult,
@@ -250,7 +251,7 @@ function RepertoireStats({ stats, language }: { stats: ReturnType<typeof getRepe
         <div className="rep-bars">
           {stats.topInstruments.map((item) => (
             <div className="rep-bar-row" key={item.instrument}>
-              <span>{item.instrument}</span>
+              <span>{instrumentLabel(item.instrument)}</span>
               <div className="rep-bar-track" aria-hidden="true">
                 <span style={{ width: `${item.percent}%` }} />
               </div>
@@ -320,7 +321,7 @@ function RepertoireFilters({
         <span className="mono">{t.instrumentFilter}</span>
         <select value={instrument} onChange={(event) => onInstrument(event.target.value as "all" | Instrument)}>
           <option value="all">{t.allInstruments}</option>
-          {INSTRUMENTS.map((item) => <option value={item} key={item}>{item}</option>)}
+          {INSTRUMENTS.map((item) => <option value={item} key={item}>{instrumentLabel(item)}</option>)}
         </select>
       </label>
 
@@ -439,7 +440,7 @@ function shortStatusLabel(status: ProficiencyLevel, language: Language) {
 }
 
 function safeInstrument(instrument: string | null | undefined) {
-  return instrument?.trim() || "Unknown";
+  return instrument?.trim() || "Instrumento não definido";
 }
 
 function hasActiveFilters(query: string, instrument: "all" | Instrument, status: StatusFilter) {

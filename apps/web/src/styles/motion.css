@@ -11,7 +11,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.fade-up { animation: cf-fade-up 0.5s ease both; }
+.fade-up, .cf-fade { animation: cf-fade-up 0.5s ease both; }
 .cf-flame-outer { transform-origin: 50% 100%; animation: cf-flicker 2.2s ease-in-out infinite; }
 .cf-flame-inner { transform-origin: 50% 100%; animation: cf-flicker 1.7s ease-in-out infinite reverse; }
 

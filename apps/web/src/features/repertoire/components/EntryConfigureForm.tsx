@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { translate, type Language } from "@i18n";
 import type { Instrument, ProficiencyLevel, SearchResult } from "../types";
-import { INSTRUMENTS, PROFICIENCY_DOTS } from "../catalogs";
+import { INSTRUMENTS, PROFICIENCY_DOTS, instrumentLabel } from "../catalogs";
 
 type Props = {
   result: SearchResult;
@@ -64,7 +65,7 @@ export function EntryConfigureForm({ result, language, saving, onSave, onBack }:
                 aria-pressed={instrument === ins}
                 onClick={() => setInstrument(ins)}
               >
-                <span>{ins}</span>
+                <span>{instrumentLabel(ins)}</span>
               </button>
             ))}
           </div>
@@ -95,7 +96,7 @@ export function EntryConfigureForm({ result, language, saving, onSave, onBack }:
       {/* Footer */}
       <div className="rep-modal-foot">
         <button type="button" className="ghost-button" onClick={onBack} disabled={saving}>
-          ← {t.back}
+          <ArrowLeft size={14} aria-hidden="true" /> {t.back}
         </button>
         <button
           type="button"

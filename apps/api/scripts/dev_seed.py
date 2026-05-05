@@ -22,21 +22,26 @@ async def seed_ada() -> None:
             await connection.execute(
                 text(
                     """
-                    INSERT INTO users (id, email, display_name)
-                    VALUES (:id, 'ada@campfire.test', 'Ada')
-                    ON CONFLICT (email) DO UPDATE
-                    SET display_name = EXCLUDED.display_name
-                    """
-                ),
-                {"id": ADA_ID},
-            )
-            await connection.execute(
-                text(
-                    """
+                    WITH seeded_user AS (
+                        INSERT INTO users (id, email, display_name, email_confirmed_at)
+                        VALUES (:id, 'ada@campfire.test', 'Ada', now())
+                        ON CONFLICT (email) DO UPDATE
+                        SET
+                            display_name = EXCLUDED.display_name,
+                            email_confirmed_at = COALESCE(
+                                users.email_confirmed_at,
+                                EXCLUDED.email_confirmed_at
+                            ),
+                            updated_at = now()
+                        RETURNING id
+                    )
                     INSERT INTO credentials (user_id, password_hash)
-                    VALUES (:id, :password_hash)
+                    SELECT id, :password_hash
+                    FROM seeded_user
                     ON CONFLICT (user_id) DO UPDATE
-                    SET password_hash = EXCLUDED.password_hash
+                    SET
+                        password_hash = EXCLUDED.password_hash,
+                        updated_at = now()
                     """
                 ),
                 {"id": ADA_ID, "password_hash": ADA_HASH},

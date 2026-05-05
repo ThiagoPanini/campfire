@@ -74,7 +74,7 @@ class EnvSettings(BaseSettings):
         default=1_209_600, validation_alias="REFRESH_TOKEN_TTL_SECONDS"
     )
     cors_origins_value: str = Field(
-        default="http://localhost:5173", validation_alias="CORS_ORIGINS"
+        default="http://localhost:5173,http://localhost:5174", validation_alias="CORS_ORIGINS"
     )
     trusted_proxies_value: str = Field(default="", validation_alias="TRUSTED_PROXIES")
     google_stub_enabled_value: bool = Field(default=False, validation_alias="GOOGLE_STUB_ENABLED")

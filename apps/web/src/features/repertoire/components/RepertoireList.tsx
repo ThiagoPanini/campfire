@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { translate, type Language } from "@i18n";
 import type { Entry, ProficiencyLevel } from "../types";
 import { EntryRow } from "./EntryRow";
@@ -38,7 +39,7 @@ export function RepertoireList({ entries, language, loading, onAddSong, onUpdate
           </p>
         </div>
         <button type="button" className="accent-button" onClick={onAddSong}>
-          + {t.addSong}
+          <Plus size={14} aria-hidden="true" /> {t.addSong}
         </button>
       </div>
 

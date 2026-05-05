@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Search, X } from "lucide-react";
 import { translate, type Language } from "@i18n";
 import type { Instrument, ProficiencyLevel, SearchResult } from "../types";
 import type { SearchState } from "../store/repertoire.store";
@@ -86,7 +87,7 @@ export function AddSongModal({ language, searchState, onSearch, onClearSearch, o
             aria-label={t.close}
             onClick={onClose}
           >
-            ✕
+            <X size={16} aria-hidden="true" />
           </button>
         </div>
 
@@ -94,7 +95,7 @@ export function AddSongModal({ language, searchState, onSearch, onClearSearch, o
           {mode === "search" ? (
             <>
               <div className="rep-search-wrap">
-                <span className="rep-search-icon" aria-hidden="true">⌕</span>
+                <Search className="rep-search-icon" size={16} aria-hidden="true" />
                 <input
                   ref={inputRef}
                   type="search"
@@ -111,7 +112,7 @@ export function AddSongModal({ language, searchState, onSearch, onClearSearch, o
                     onClick={() => { setQuery(""); onClearSearch(); }}
                     aria-label={t.clearSearch}
                   >
-                    ✕
+                    <X size={14} aria-hidden="true" />
                   </button>
                 )}
               </div>

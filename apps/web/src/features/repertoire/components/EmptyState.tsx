@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { translate, type Language } from "@i18n";
 
 type Props = {
@@ -14,7 +15,7 @@ export function EmptyState({ language, onAddSong }: Props) {
       <h1 className="display rep-empty-title">{t.emptyTitle}</h1>
       <p className="rep-empty-copy">{t.emptyCopy}</p>
       <button type="button" className="accent-button large" onClick={onAddSong}>
-        + {t.addFirstSong}
+        <Plus size={15} aria-hidden="true" /> {t.addFirstSong}
       </button>
       <div className="rep-empty-illus">
         <p className="mono rep-empty-illus-label">{t.starterIdeas}</p>

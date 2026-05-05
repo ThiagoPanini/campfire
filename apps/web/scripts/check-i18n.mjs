@@ -6,7 +6,6 @@ const roots = [
   "apps/web/src/pages/ConfirmEmailPage.tsx",
 ];
 const locales = {
-  en: readFileSync("apps/web/src/i18n/locales/en.ts", "utf8"),
   pt: readFileSync("apps/web/src/i18n/locales/pt.ts", "utf8"),
 };
 

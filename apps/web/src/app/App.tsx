@@ -30,11 +30,6 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--cf-accent", session.accentPreset.hex);
-    document.documentElement.style.setProperty("--cf-accent-dark", session.accentPreset.dark);
-  }, [session.accentPreset]);
-
-  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("auth_error")) {
       window.history.replaceState(null, "", window.location.pathname);
@@ -49,8 +44,14 @@ export function App() {
     navigate(session.currentUser ? "home" : "landing", true);
   }, [navigate, session.currentUser]);
 
-  const t = translate(session.language);
+  const t = translate();
   const isProtected = route === "home" || route === "repertoire";
+  const protectedLinks = isProtected
+    ? [
+        { label: t.nav.home, active: route === "home", onClick: () => navigate("home") },
+        { label: t.nav.repertoire, active: route === "repertoire", onClick: () => navigate("repertoire") },
+      ]
+    : [];
   const navAction = route === "landing"
     ? <button className="nav-button" onClick={() => navigate("signin")}>{t.nav.signin}</button>
     : isProtected
@@ -62,7 +63,7 @@ export function App() {
       case "signin":
         return (
           <SignInPage
-            language={session.language}
+            language="pt"
             googleEnabled={session.authConfig?.google.enabled ?? false}
             authSubmitting={session.authSubmitting}
             onSubmit={async (email, password) => {
@@ -78,7 +79,7 @@ export function App() {
       case "signup":
         return (
           <SignUpPage
-            language={session.language}
+            language="pt"
             googleEnabled={session.authConfig?.google.enabled ?? false}
             authSubmitting={session.authSubmitting}
             onSubmit={async (email, password) => {
@@ -96,7 +97,7 @@ export function App() {
         const email = params.get("email") ?? session.unconfirmedEmail ?? "";
         return (
           <ConfirmEmailPage
-            language={session.language}
+            language="pt"
             email={email}
             authSubmitting={session.authSubmitting}
             expiresInSeconds={session.confirmationTimings?.expiresInSeconds ?? null}
@@ -117,20 +118,17 @@ export function App() {
       case "home":
         return session.currentUser ? (
           <HomePage
-            language={session.language}
+            language="pt"
             onRepertoire={() => navigate("repertoire")}
           />
         ) : null;
       case "repertoire":
-        return <RepertoirePage language={session.language} onHome={() => navigate("home")} />;
+        return <RepertoirePage language="pt" onHome={() => navigate("home")} />;
       default:
         return (
           <LandingPage
-            language={session.language}
-            accent={session.accent}
-            onLanguage={session.setLanguage}
-            onAccent={session.setAccent}
             onEnter={() => navigate("signup")}
+            onSignIn={() => navigate("signin")}
           />
         );
     }
@@ -138,7 +136,11 @@ export function App() {
 
   return (
     <>
-      <Nav action={navAction} onHome={() => navigate(session.currentUser ? "home" : "landing")} />
+      <Nav
+        action={navAction}
+        links={protectedLinks}
+        onHome={() => navigate(session.currentUser ? "home" : "landing")}
+      />
       <RequireAuth
         route={route}
         isAuthenticated={Boolean(session.currentUser)}

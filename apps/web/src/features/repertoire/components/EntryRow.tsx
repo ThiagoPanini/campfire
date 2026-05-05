@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { Pencil, Trash2 } from "lucide-react";
 import { translate, type Language } from "@i18n";
 import type { Entry, ProficiencyLevel } from "../types";
-import { PROFICIENCY_DOTS } from "../catalogs";
+import { PROFICIENCY_DOTS, instrumentLabel } from "../catalogs";
 
 type Props = {
   entry: Entry;
@@ -52,7 +53,7 @@ export function EntryRow({ entry, language, onUpdateProficiency, onRemove }: Pro
         <div className="rep-entry-sub">{entry.songArtist}</div>
       </div>
 
-      <div className="rep-entry-instrument">{entry.instrument}</div>
+      <div className="rep-entry-instrument">{instrumentLabel(entry.instrument)}</div>
 
       {editing ? (
         <div className="rep-inline-edit">
@@ -92,7 +93,7 @@ export function EntryRow({ entry, language, onUpdateProficiency, onRemove }: Pro
             aria-label={t.editProficiency}
             onClick={() => setEditing(true)}
           >
-            ✎
+            <Pencil size={14} aria-hidden="true" />
           </button>
         )}
         <button
@@ -101,7 +102,7 @@ export function EntryRow({ entry, language, onUpdateProficiency, onRemove }: Pro
           aria-label={t.remove}
           onClick={() => onRemove(entry.id, entry.songTitle)}
         >
-          ✕
+          <Trash2 size={14} aria-hidden="true" />
         </button>
       </div>
     </div>

@@ -38,7 +38,7 @@ export function SearchResultRow({ result, selected, onClick }: Props) {
         </div>
       </div>
       {selected && (
-        <span className="mono rep-result-hint">↵ ENTER</span>
+        <span className="mono rep-result-hint">Selecionar</span>
       )}
     </div>
   );

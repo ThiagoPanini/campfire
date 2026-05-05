@@ -1,6 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import type { Language } from "@i18n";
-import { defaultAccent, getAccent, type AccentPresetId } from "@theme/accents";
+import { useEffect, useState } from "react";
 import {
   authenticate,
   confirmEmail,
@@ -17,15 +15,6 @@ import type { MockUser } from "./types";
 
 let initialRefreshPromise: Promise<MockUser | null> | null = null;
 
-function readStoredLanguage(): Language {
-  return sessionStorage.getItem("campfire.language") === "pt" ? "pt" : "en";
-}
-
-function readStoredAccent(): AccentPresetId {
-  const stored = sessionStorage.getItem("campfire.accent") as AccentPresetId | null;
-  return stored && getAccent(stored).id === stored ? stored : defaultAccent;
-}
-
 function refreshInitialSession(): Promise<MockUser | null> {
   initialRefreshPromise ??= refreshSession();
   return initialRefreshPromise;
@@ -41,10 +30,6 @@ export function useSessionStore() {
   );
   const [confirmationTimings, setConfirmationTimings] = useState<ConfirmationTimings | null>(null);
   const [confirmationIssuedAt, setConfirmationIssuedAt] = useState<number | null>(null);
-  const [language, setLanguageState] = useState<Language>(readStoredLanguage);
-  const [accent, setAccentState] = useState<AccentPresetId>(readStoredAccent);
-
-  const accentPreset = useMemo(() => getAccent(accent), [accent]);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,16 +61,6 @@ export function useSessionStore() {
       cancelled = true;
     };
   }, []);
-
-  function setLanguage(next: Language) {
-    sessionStorage.setItem("campfire.language", next);
-    setLanguageState(next);
-  }
-
-  function setAccent(next: AccentPresetId) {
-    sessionStorage.setItem("campfire.accent", next);
-    setAccentState(next);
-  }
 
   function rememberUnconfirmed(email: string, timings: ConfirmationTimings | null = null) {
     sessionStorage.setItem("campfire.auth.unconfirmedEmail", email);
@@ -186,16 +161,11 @@ export function useSessionStore() {
   return {
     currentUser,
     authReady,
-    language,
-    accent,
-    accentPreset,
     authConfig,
     authSubmitting,
     unconfirmedEmail,
     confirmationTimings,
     confirmationIssuedAt,
-    setLanguage,
-    setAccent,
     signUp,
     signUpWithGoogle,
     signIn,
