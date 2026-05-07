@@ -14,9 +14,9 @@
   "dependencies": {
     "@vitejs/plugin-react": "^6.0.1",
     "lucide-react": "^1.14.0",
-    "mintlify": "4.2.542",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "mintlify": "4.2.551",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "typescript": "^6.0.3",
     "vite": "^8.0.0"
   },
