@@ -1,0 +1,20 @@
+{
+  "skill_name": "start-ai-assisted-project",
+  "evals": [
+    {
+      "id": "flux",
+      "prompt": "I want to start a new project. The idea is a tool called 'flux' — it's a Pomodoro timer with a twist: each focused session logs what I worked on, and over time the app produces a heatmap of where my time actually goes vs where I thought it went. I want a web frontend and a backend, and I plan to use FastAPI for the backend because I like it. Frontend stack I haven't decided. I want to start this properly — I've burned cycles on other projects by going too fast and ending up with a mess. Help me bootstrap the repo.",
+      "expected_output": "Monorepo foundation under apps/api (FastAPI noted but no code) + apps/web (stack TBD). Full multi-agent setup. All foundational docs created. License deferred. No premature pyproject.toml / package.json / Dockerfile / CI."
+    },
+    {
+      "id": "tossit",
+      "prompt": "Setting up a new repo for a CLI tool. It's called 'tossit' — basically just a wrapper around git that adds a `git tossit` command which stashes everything dirty, commits with a generated WIP message, and pushes to a personal junk branch so I can recover later if needed. Single binary, Go. Help me bootstrap the foundation — I want this to look like a real project, not a hacked-together script.",
+      "expected_output": "Single-app foundation (no apps/ or packages/ directories). Full multi-agent setup. Foundational docs with single-app phrasing. ADR 0001 records single-app structure. Go-specific .gitignore additions. No go.mod, no source files."
+    },
+    {
+      "id": "chronicler",
+      "prompt": "Ok so I want to build a thing for my D&D group. The idea is each player can log their character's actions per session, and at the end of the campaign we get a generated 'lore document' that reads like a chronicle. I'll probably need a web app since the group is remote. I've never started a project like this and I want to set it up right from day one. Don't pick the stack for me though, I want to think about that separately. Project name is 'campaign-chronicler'.",
+      "expected_output": "Foundation with explicit stack-TBD across the board (backend, frontend, database, deploy). Monorepo if multi-component implied, single-app if not — both acceptable as long as consistent. Full multi-agent setup. License deferred."
+    }
+  ]
+}

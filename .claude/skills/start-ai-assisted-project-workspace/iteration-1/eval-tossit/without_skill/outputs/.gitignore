@@ -1,0 +1,21 @@
+# Compiled binaries — built locally, never committed.
+/tossit
+/dist/
+*.exe
+
+# Go build & test artefacts
+*.test
+*.out
+coverage.txt
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Local environment overrides
+.env
+.env.local

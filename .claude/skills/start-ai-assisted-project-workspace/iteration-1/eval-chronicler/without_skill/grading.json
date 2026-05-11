@@ -1,0 +1,109 @@
+{
+  "expectations": [
+    {
+      "text": "README.md exists at root",
+      "passed": true,
+      "evidence": "README.md present"
+    },
+    {
+      "text": "CLAUDE.md exists at root",
+      "passed": true,
+      "evidence": "CLAUDE.md present"
+    },
+    {
+      "text": "AI_WORKFLOW.md exists at root",
+      "passed": true,
+      "evidence": "AI_WORKFLOW.md present"
+    },
+    {
+      "text": "PRODUCT_VISION.md exists at root",
+      "passed": true,
+      "evidence": "PRODUCT_VISION.md present"
+    },
+    {
+      "text": ".gitignore exists at root",
+      "passed": true,
+      "evidence": ".gitignore present"
+    },
+    {
+      "text": ".editorconfig exists at root",
+      "passed": true,
+      "evidence": ".editorconfig present"
+    },
+    {
+      "text": "docs/mvp-scope.md exists",
+      "passed": true,
+      "evidence": "docs/mvp-scope.md present"
+    },
+    {
+      "text": "First ADR exists in docs/decisions/",
+      "passed": true,
+      "evidence": "matches: ['docs/decisions/0001-record-architecture-decisions.md']"
+    },
+    {
+      "text": "AGENTS.md exists (Codex)",
+      "passed": true,
+      "evidence": "AGENTS.md present"
+    },
+    {
+      "text": ".github/copilot-instructions.md exists (Copilot)",
+      "passed": false,
+      "evidence": ".github/copilot-instructions.md missing"
+    },
+    {
+      "text": "No leftover {PROJECT_NAME} placeholder in any file",
+      "passed": true,
+      "evidence": "no occurrences (good)"
+    },
+    {
+      "text": "No leftover {PROJECT_DESCRIPTION} placeholder in any file",
+      "passed": true,
+      "evidence": "no occurrences (good)"
+    },
+    {
+      "text": "No leftover {TODAY} placeholder in any file",
+      "passed": true,
+      "evidence": "no occurrences (good)"
+    },
+    {
+      "text": "No premature pyproject.toml anywhere",
+      "passed": true,
+      "evidence": "no match (good)"
+    },
+    {
+      "text": "No premature package.json anywhere",
+      "passed": true,
+      "evidence": "no match (good)"
+    },
+    {
+      "text": "No premature Dockerfile anywhere",
+      "passed": true,
+      "evidence": "no match (good)"
+    },
+    {
+      "text": "No premature .github/workflows/ directory",
+      "passed": true,
+      "evidence": ".github/workflows/ absent (good)"
+    },
+    {
+      "text": ".gitignore whitelists .vscode/launch.json (workflow consistency)",
+      "passed": true,
+      "evidence": "'!.vscode/launch.json' found in .gitignore"
+    },
+    {
+      "text": "PRODUCT_VISION.md is a scaffold (no invented content)",
+      "passed": false,
+      "evidence": "regex '(?i)(to be drafted|status.*to be|scaffold|placeholder)' did not match in PRODUCT_VISION.md"
+    },
+    {
+      "text": "README mentions 'campaign-chronicler'",
+      "passed": true,
+      "evidence": "'campaign-chronicler' found in README.md"
+    },
+    {
+      "text": "Stack left open in CLAUDE.md (TBD / not chosen / etc.)",
+      "passed": true,
+      "evidence": "regex '(?i)(TBD|not chosen|to be chosen|deferred)' matched in CLAUDE.md"
+    }
+  ]
+}
