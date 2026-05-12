@@ -48,3 +48,6 @@ Thumbs.db
 
 # Claude Code (per-developer overrides)
 .claude/settings.local.json
+
+# Skill development workspaces (eval/benchmark scaffolding — not part of the product)
+.claude/skills/*-workspace/
