@@ -22,4 +22,8 @@ campfire/
 
 ## Status
 
-Early-stage development — monorepo foundation. Decision history in [docs/decisions/](./docs/decisions/).
+Early-stage development. The foundation — product vision, MVP scope, monorepo skeleton, and the AI-collaboration documents — is in place. The next milestone is the walking skeleton: a deployed instance where a real human can complete the end-to-end flow described in [docs/mvp-scope.md](./docs/mvp-scope.md). Decision history lives in [docs/decisions/](./docs/decisions/).
+
+## License
+
+Not yet decided — the code defaults to "all rights reserved" until an explicit license is chosen. The deferral is recorded in [docs/decisions/0001-monorepo-structure.md](./docs/decisions/0001-monorepo-structure.md).

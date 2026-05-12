@@ -12,6 +12,8 @@ This file is read by AI agents that follow the AGENTS.md convention (e.g., OpenA
 - `apps/web/` — frontend (stack TBD).
 - `packages/` — code shared between apps (empty until real sharing exists).
 - `docs/decisions/` — ADRs (architectural decision records).
+- `.agents/skills/` — canonical location for AI agent skills shared across agents. See [AI_WORKFLOW.md](./AI_WORKFLOW.md) and [docs/decisions/0003-shared-agent-skills.md](./docs/decisions/0003-shared-agent-skills.md).
+- `skills-lock.json` — content-hash lockfile pinning externally-sourced skills.
 
 ## Engineering principles
 
@@ -28,7 +30,7 @@ All persisted artifacts (docs, commits, code identifiers, comments) are written 
 ## What to avoid
 
 - No `pyproject.toml`, `package.json`, CI, or Docker until code requires them.
-- No preemptive slash commands, sub-agents, or custom skills.
+- No preemptively authored slash commands, sub-agents, or custom skills. Externally-sourced skills pinned in `skills-lock.json` are allowed.
 - No abstraction without three concrete use cases.
 - No comments describing *what* — only *why* when non-obvious.
 - No foundational decisions (database, deploy provider, frontend framework, architectural pattern) without an ADR.
