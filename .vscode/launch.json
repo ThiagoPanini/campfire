@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run web locally",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/apps/web/dev/run_local.py",
+      "console": "integratedTerminal"
+    }
+  ]
+}
