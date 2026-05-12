@@ -1,0 +1,10 @@
+{
+  "name": "campfire",
+  "private": true,
+  "packageManager": "pnpm@11.1.0",
+  "scripts": {
+    "dev:web": "pnpm --filter @campfire/web dev",
+    "build:web": "pnpm --filter @campfire/web build",
+    "preview:web": "pnpm --filter @campfire/web preview"
+  }
+}
