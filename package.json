@@ -14,14 +14,14 @@
   "dependencies": {
     "@vitejs/plugin-react": "^6.0.1",
     "lucide-react": "^1.14.0",
-    "mintlify": "4.2.542",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "mintlify": "4.2.560",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "typescript": "^6.0.3",
-    "vite": "^8.0.0"
+    "vite": "^8.0.12"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
+    "@playwright/test": "^1.60.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3"
   },
