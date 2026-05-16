@@ -4,7 +4,7 @@ These instructions are read by GitHub Copilot for repository custom instructions
 
 ## Project
 
-`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Full vision: [../PRODUCT_VISION.md](../PRODUCT_VISION.md). MVP scope: [../docs/mvp-scope.md](../docs/mvp-scope.md).
+`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Full product context: [../PRODUCT.md](../PRODUCT.md). MVP scope: [../docs/mvp-scope.md](../docs/mvp-scope.md).
 
 ## Repository layout
 

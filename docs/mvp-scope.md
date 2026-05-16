@@ -1,6 +1,6 @@
 # MVP Scope
 
-The single end-to-end flow campfire's first deployment delivers. Everything not listed here is explicitly deferred. Product context: [../PRODUCT_VISION.md](../PRODUCT_VISION.md).
+The single end-to-end flow campfire's first deployment delivers. Everything not listed here is explicitly deferred. Product context: [../PRODUCT.md](../PRODUCT.md).
 
 ## MVP goal
 

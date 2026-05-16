@@ -4,7 +4,7 @@ Conventions and context for AI sessions in this repository. Keep this file conci
 
 ## About the project
 
-`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Full vision in [PRODUCT_VISION.md](./PRODUCT_VISION.md). Current MVP scope in [docs/mvp-scope.md](./docs/mvp-scope.md).
+`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Full product context in [PRODUCT.md](./PRODUCT.md). Current MVP scope in [docs/mvp-scope.md](./docs/mvp-scope.md).
 
 ## Repository layout
 
@@ -32,7 +32,7 @@ Architectural decisions are formalized in [docs/decisions/](./docs/decisions/). 
 As patterns emerge, document them here or in dedicated ADRs. Current state:
 
 - **Backend**: Python + FastAPI. Internal structure (Clean/Hexagonal vs. flat) deferred until concrete pain justifies it.
-- **Frontend**: stack not chosen.
+- **Frontend**: Vite + React + TypeScript (strict mode), vanilla CSS with `:root` custom properties sourced from [DESIGN.md](./DESIGN.md), Radix UI for headless behavior. See [ADR 0004](./docs/decisions/0004-frontend-stack.md) and [ADR 0005](./docs/decisions/0005-frontend-styling-and-primitives.md).
 - **Database**: not chosen.
 - **Deploy provider**: not chosen.
 - **Dates in ADRs and documents**: always absolute (YYYY-MM-DD).
@@ -47,6 +47,15 @@ Both `dev/run_local.py` and `.vscode/launch.json` materialize in the same commit
 ## AI workflow
 
 How AI is integrated into this project — categories of tooling, principles for adoption, and the active inventory of tools and skills — is documented in [AI_WORKFLOW.md](./AI_WORKFLOW.md).
+
+## Design context
+
+Frontend work in this repo is governed by two root files maintained via the `impeccable` skill:
+
+- [PRODUCT.md](./PRODUCT.md) — strategic register, target users, brand personality, anti-references, design principles.
+- [DESIGN.md](./DESIGN.md) — visual system (palette, typography, elevation, components) in the [Stitch DESIGN.md format](https://stitch.withgoogle.com/docs/design-md/format/).
+
+Before generating, redesigning, reviewing, or auditing any UI surface, read both. For non-trivial design work, prefer the `/impeccable` slash commands (`shape`, `craft`, `critique`, `polish`, `audit`, etc.) over freehand generation — they enforce the project's register, named rules, and explicit anti-references.
 
 ## What to avoid
 

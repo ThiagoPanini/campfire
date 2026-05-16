@@ -56,7 +56,7 @@ Externally-sourced skills are pinned in `skills-lock.json` at the repo root, whi
 
 ## Design workflow
 
-When the design phase begins (after `PRODUCT_VISION.md` and `docs/mvp-scope.md` are drafted), this section will be filled in: which tools generate mockups and prototypes, where artifacts are stored, and how they hand off to implementation.
+When the design phase begins (after `PRODUCT.md` and `docs/mvp-scope.md` are drafted), this section will be filled in: which tools generate mockups and prototypes, where artifacts are stored, and how they hand off to implementation.
 
 ## Active inventory
 
