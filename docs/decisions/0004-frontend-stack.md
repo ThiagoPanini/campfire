@@ -35,3 +35,7 @@ No frontend application framework, UI component library, global state library, r
 - Authentication provider or session mechanism.
 - Production hosting and deploy provider.
 - End-to-end test strategy.
+
+## Implementation note (2026-05-16)
+
+The stack decision (React + TypeScript + Vite in a pnpm workspace) stands. The first runnable slice that actually landed under this ADR was **not** the MVP CRUD described in the Context section above — it is a single landing-page poster (`apps/web/src/home/Home.tsx`) on the `mvp/lofi-style` branch, used to explore visual direction. The "Workshop" direction named in the original Context has shifted in practice toward a warm-dark, monospace, VHS-poster aesthetic; whether that is a refinement of Workshop or a new direction is still open. None of the account, repertoire, or persistence code described in the original Context exists yet. This note preserves the original decision while keeping current readers honest about what shipped.

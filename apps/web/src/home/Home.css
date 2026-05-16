@@ -99,10 +99,38 @@
   outline-offset: 7px;
 }
 
+.poster-link--primary {
+  padding: 0.5rem 1.2rem;
+  color: var(--bg);
+  background: var(--ink);
+  border-radius: 0.25rem;
+  transition:
+    background 160ms ease-out,
+    color 160ms ease-out;
+}
+
+.poster-link--primary::after {
+  display: none;
+}
+
+.poster-link--primary:hover {
+  background: var(--vhs-cyan);
+  color: var(--bg);
+}
+
+.poster-link--primary:focus-visible {
+  outline-color: var(--vhs-cyan);
+  outline-offset: 4px;
+}
+
+.poster-link--secondary {
+  opacity: 0.7;
+}
+
 .poster-main {
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(300px, 50svh) minmax(0, 1fr);
+  grid-template-rows: minmax(300px, 1fr) auto;
   background: var(--bg);
 }
 
@@ -125,7 +153,7 @@
 
 .poster-band::before {
   z-index: 7;
-  inset: clamp(0.85rem, 2vw, 1.55rem);
+  inset: clamp(0.55rem, 1.2vw, 0.85rem);
   border: 1px solid rgba(236, 232, 223, 0.11);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.52),
@@ -282,6 +310,28 @@
   text-wrap: pretty;
 }
 
+.poster-footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 2.5svh, 2rem) clamp(1rem, 5vw, 3rem);
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(236, 232, 223, 0.03) 100%),
+    var(--bg);
+  border-top: 1px solid var(--hairline);
+}
+
+.poster-footer-text {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  opacity: 0.6;
+}
+
 @keyframes poster-tracking {
   0%,
   100% {
@@ -340,7 +390,7 @@
   }
 
   .poster-main {
-    grid-template-rows: minmax(230px, 41svh) minmax(320px, 1fr);
+    grid-template-rows: minmax(230px, 1fr) auto;
   }
 
   .poster-video {
@@ -348,19 +398,7 @@
   }
 
   .poster-band::before {
-    inset: 0.75rem;
-  }
-
-  .poster-headline {
-    max-width: 11ch;
-    font-size: clamp(2rem, 10.7vw, 3.45rem);
-    line-height: 1.08;
-  }
-
-  .poster-copy {
-    max-width: 34rem;
-    font-size: clamp(1rem, 4.2vw, 1.16rem);
-    line-height: 1.48;
+    inset: clamp(0.5rem, 1vw, 0.7rem);
   }
 }
 
@@ -383,31 +421,19 @@
     letter-spacing: 0.055em;
   }
 
+  .poster-link--primary {
+    padding: 0.45rem 1rem;
+    font-size: 0.75rem;
+  }
+
   .poster-main {
-    grid-template-rows: minmax(210px, 37svh) minmax(330px, 1fr);
-  }
-
-  .poster-cap {
-    padding-inline: 1.1rem;
-  }
-
-  .poster-headline {
-    max-width: 12ch;
-    font-size: clamp(1.82rem, 9.6vw, 2.56rem);
+    grid-template-rows: minmax(210px, 1fr) auto;
   }
 }
 
 @media (max-height: 720px) and (min-width: 821px) {
   .poster-main {
-    grid-template-rows: minmax(250px, 44svh) minmax(0, 1fr);
-  }
-
-  .poster-headline {
-    font-size: clamp(2rem, 3.9vw, 3.8rem);
-  }
-
-  .poster-cap {
-    padding-block: clamp(1.1rem, 3svh, 2.1rem);
+    grid-template-rows: minmax(250px, 1fr) auto;
   }
 }
 
@@ -419,23 +445,7 @@
   }
 
   .poster-main {
-    grid-template-rows: minmax(168px, 31svh) minmax(0, 1fr);
-  }
-
-  .poster-cap {
-    gap: 0.75rem;
-    padding-block: 1rem 1.15rem;
-  }
-
-  .poster-headline {
-    max-width: 13ch;
-    font-size: clamp(1.45rem, 8.4vw, 1.9rem);
-  }
-
-  .poster-copy {
-    max-width: 32ch;
-    font-size: 0.92rem;
-    line-height: 1.38;
+    grid-template-rows: minmax(168px, 1fr) auto;
   }
 }
 
@@ -461,4 +471,41 @@
   .poster-link::after {
     transition: none;
   }
+}
+
+/* Font scheme variants */
+.poster[data-fonts="b"] {
+  --font-display: "Space Mono", "Courier New", ui-monospace, monospace;
+  --font-mono: "IBM Plex Mono", "Courier New", ui-monospace, monospace;
+}
+
+.poster[data-fonts="b"] .poster-headline {
+  font-weight: 700;
+}
+
+.poster[data-fonts="a"] {
+  --font-display: "Special Elite", "Courier New", ui-monospace, monospace;
+  --font-mono: "Newsreader", Georgia, "Times New Roman", serif;
+}
+
+.poster[data-fonts="a"] .poster-headline {
+  font-weight: 400;
+}
+
+.poster[data-fonts="c"] {
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", "Courier New", ui-monospace, monospace;
+}
+
+.poster[data-fonts="c"] .poster-headline {
+  font-weight: 700;
+}
+
+.poster[data-fonts="d"] {
+  --font-display: "Major Mono Display", "Courier New", ui-monospace, monospace;
+  --font-mono: "IBM Plex Mono", "Courier New", ui-monospace, monospace;
+}
+
+.poster[data-fonts="d"] .poster-headline {
+  font-weight: 400;
 }

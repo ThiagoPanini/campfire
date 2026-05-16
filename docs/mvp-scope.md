@@ -2,6 +2,12 @@
 
 The single end-to-end flow campfire's first deployment delivers. Everything not listed here is explicitly deferred. Product context: [../PRODUCT_VISION.md](../PRODUCT_VISION.md).
 
+## Implementation status (as of 2026-05-16)
+
+This document specifies the **intended** MVP flow. None of it is implemented yet. The only runnable code today is a landing-page slice in [apps/web/src/home/Home.tsx](../apps/web/src/home/Home.tsx) — a video-poster hero with non-functional `entrar` / `criar conta` CTAs. There is no backend, no account creation, no repertoire, and no persistence. The CTAs currently link to `#home` rather than to real flows.
+
+The immediate next milestone implied by this state is wiring those CTAs to actual account creation and sign-in, then exposing the repertoire view below.
+
 ## MVP goal
 
 A real human visits the deployed URL, creates an account, and maintains a personal repertoire of songs that persists across sessions.
@@ -64,3 +70,4 @@ The following operational features are also out of scope for the MVP and will be
 
 - **Instrument field shape.** Free-text input, or a selection from a fixed list? Free-text is simpler to ship; a fixed list keeps the data tidy and aligns the field with future filtering. Defaulting to free-text in the absence of a decision.
 - **Account recovery.** Without password reset, a forgotten password means a lost account. For the author + one friend this is acceptable; before broader sharing it likely is not. Flagging here so the deferral is conscious.
+- **UI language.** The current landing-page slice ships in Portuguese (`<html lang="pt-BR">`, `entrar`, `criar conta`). The "Internationalization beyond English UI" out-of-scope item above implicitly assumes an English UI baseline that the implementation has not committed to. Resolve before the MVP screens are built — either by aligning the implementation with the English assumption or by writing a UI-language ADR that supersedes it.

@@ -56,7 +56,12 @@ Externally-sourced skills are pinned in `skills-lock.json` at the repo root, whi
 
 ## Design workflow
 
-When the design phase begins (after `PRODUCT_VISION.md` and `docs/mvp-scope.md` are drafted), this section will be filled in: which tools generate mockups and prototypes, where artifacts are stored, and how they hand off to implementation.
+Design exploration is currently active and lightweight — there is no formal pipeline yet:
+
+- The `frontend-design` skill (see *Active inventory* below) supports generating frontend code with deliberate aesthetic choices. It was adopted to back the current visual exploration.
+- The current landing-page slice in `apps/web/src/home/` lives on the `mvp/lofi-style` branch and explores a warm-dark, monospace, VHS-poster aesthetic — adjacent to but distinct from the "Workshop" direction named in [ADR 0004](./docs/decisions/0004-frontend-stack.md).
+
+When the design direction stabilizes, this section should be replaced with a description of the chosen system, where its tokens live, and how it hands off to implementation.
 
 ## Active inventory
 
@@ -70,6 +75,7 @@ Tools, skills, MCPs, and frameworks currently in active use on this project. The
 | `enhance-prompt` | [google-labs-code/stitch-skills](https://github.com/google-labs-code/stitch-skills) | refines vague UI/UX prompts before generation. |
 | `git-commit` | [github/awesome-copilot](https://github.com/github/awesome-copilot) | structures conventional commit messages from the staged diff. |
 | `skill-creator` | [anthropics/skills](https://github.com/anthropics/skills) | authors and evaluates new skills. |
+| `frontend-design` | [anthropics/skills](https://github.com/anthropics/skills) | supports the active visual exploration on the web app (see *Design workflow* above). |
 
 External skills are pinned by content hash in [skills-lock.json](./skills-lock.json).
 

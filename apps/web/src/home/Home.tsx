@@ -43,10 +43,10 @@ export function Home() {
         </span>
 
         <nav className="poster-actions" aria-label="Conta">
-          <a className="poster-link" href="#home">
+          <a className="poster-link poster-link--secondary" href="#home">
             entrar
           </a>
-          <a className="poster-link" href="#home">
+          <a className="poster-link poster-link--primary" href="#home">
             criar conta
           </a>
         </nav>
@@ -74,16 +74,9 @@ export function Home() {
           <div className="poster-fx poster-fx--vignette" />
         </div>
 
-        <section className="poster-cap" aria-labelledby="home-title">
-          <h1 id="home-title" className="poster-headline">
-            Um lugar para registrar seu repertório pessoal
-          </h1>
-
-          <p className="poster-copy">
-            campfire é uma estante pessoal pras músicas que você toca em casa,
-            enquanto aguarda o momento de fazer uma jam session entre amigos
-          </p>
-        </section>
+        <footer className="poster-footer">
+          <p className="poster-footer-text">alpha • coming soon</p>
+        </footer>
       </main>
     </div>
   );

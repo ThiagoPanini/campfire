@@ -4,12 +4,16 @@ These instructions are read by GitHub Copilot for repository custom instructions
 
 ## Project
 
-`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Full vision: [../PRODUCT_VISION.md](../PRODUCT_VISION.md). MVP scope: [../docs/mvp-scope.md](../docs/mvp-scope.md).
+`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Full vision: [../PRODUCT_VISION.md](../PRODUCT_VISION.md). Intended MVP flow: [../docs/mvp-scope.md](../docs/mvp-scope.md).
+
+## Current implementation status
+
+The MVP flow (accounts, repertoire CRUD, persistence) is **not yet implemented**. `apps/web/` currently renders only a landing-page slice (`src/home/Home.tsx`): a video-poster hero with two non-functional `entrar` / `criar conta` CTAs and an `alpha • coming soon` footer. `apps/api/` is an empty placeholder. Do not suggest code that assumes accounts, repertoire, or persistence already exist.
 
 ## Repository layout
 
-- `apps/api/` — backend (FastAPI, Python).
-- `apps/web/` — frontend (stack TBD).
+- `apps/api/` — backend (FastAPI, Python). Empty `.gitkeep` placeholder.
+- `apps/web/` — frontend (React + TypeScript + Vite per [../docs/decisions/0004-frontend-stack.md](../docs/decisions/0004-frontend-stack.md)). Currently a landing-page slice only.
 - `packages/` — code shared between apps (empty until real sharing exists).
 - `docs/decisions/` — ADRs (architectural decision records).
 - `.agents/skills/` — canonical location for AI agent skills shared across agents. See [../AI_WORKFLOW.md](../AI_WORKFLOW.md) and [../docs/decisions/0003-shared-agent-skills.md](../docs/decisions/0003-shared-agent-skills.md).
@@ -26,6 +30,8 @@ These instructions are read by GitHub Copilot for repository custom instructions
 ## Language
 
 All persisted artifacts (docs, commits, code identifiers, comments) are written in **English**. See [../docs/decisions/0002-documentation-language.md](../docs/decisions/0002-documentation-language.md).
+
+User-facing UI strings are not yet covered by an ADR. The current landing page ships Portuguese copy (`<html lang="pt-BR">`, `entrar`, `criar conta`); treat this as an implementation fact and raise the open question before extending PT copy to new screens.
 
 ## What to avoid
 
