@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-16T00:00:00.000Z",
+  "title": "Design System: campfire",
+  "extensions": {
+    "colorMeta": {
+      "dead-channel": {
+        "role": "neutral",
+        "displayName": "Dead Channel Black",
+        "canonical": "oklch(0% 0 0)",
+        "tonalRamp": [
+          "oklch(0% 0 0)",
+          "oklch(8% 0.003 22)",
+          "oklch(16% 0.005 22)",
+          "oklch(28% 0.005 22)",
+          "oklch(40% 0.005 22)",
+          "oklch(55% 0.005 22)",
+          "oklch(72% 0.005 22)",
+          "oklch(90% 0.005 22)"
+        ]
+      },
+      "channel-elev": {
+        "role": "neutral",
+        "displayName": "Channel Elev",
+        "canonical": "oklch(4% 0.002 22)",
+        "tonalRamp": [
+          "oklch(4% 0.002 22)",
+          "oklch(12% 0.004 22)",
+          "oklch(22% 0.005 22)",
+          "oklch(34% 0.005 22)",
+          "oklch(46% 0.005 22)",
+          "oklch(60% 0.005 22)",
+          "oklch(76% 0.005 22)",
+          "oklch(92% 0.005 22)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Aged Manual Ivory",
+        "canonical": "oklch(91% 0.012 78)",
+        "tonalRamp": [
+          "oklch(12% 0.005 78)",
+          "oklch(24% 0.008 78)",
+          "oklch(36% 0.010 78)",
+          "oklch(48% 0.012 78)",
+          "oklch(60% 0.012 78)",
+          "oklch(72% 0.012 78)",
+          "oklch(84% 0.012 78)",
+          "oklch(96% 0.010 78)"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Aged Manual Ivory (Muted)",
+        "canonical": "oklch(91% 0.012 78 / 0.64)",
+        "tonalRamp": [
+          "oklch(91% 0.012 78 / 0.16)",
+          "oklch(91% 0.012 78 / 0.24)",
+          "oklch(91% 0.012 78 / 0.36)",
+          "oklch(91% 0.012 78 / 0.48)",
+          "oklch(91% 0.012 78 / 0.64)",
+          "oklch(91% 0.012 78 / 0.78)",
+          "oklch(91% 0.012 78 / 0.90)",
+          "oklch(91% 0.012 78 / 1.00)"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(91% 0.012 78 / 0.13)",
+        "tonalRamp": [
+          "oklch(91% 0.012 78 / 0.04)",
+          "oklch(91% 0.012 78 / 0.08)",
+          "oklch(91% 0.012 78 / 0.13)",
+          "oklch(91% 0.012 78 / 0.22)",
+          "oklch(91% 0.012 78 / 0.36)",
+          "oklch(91% 0.012 78 / 0.55)",
+          "oklch(91% 0.012 78 / 0.78)",
+          "oklch(91% 0.012 78 / 1.00)"
+        ]
+      },
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "Hairline Strong",
+        "canonical": "oklch(91% 0.012 78 / 0.22)",
+        "tonalRamp": [
+          "oklch(91% 0.012 78 / 0.06)",
+          "oklch(91% 0.012 78 / 0.12)",
+          "oklch(91% 0.012 78 / 0.22)",
+          "oklch(91% 0.012 78 / 0.36)",
+          "oklch(91% 0.012 78 / 0.52)",
+          "oklch(91% 0.012 78 / 0.70)",
+          "oklch(91% 0.012 78 / 0.86)",
+          "oklch(91% 0.012 78 / 1.00)"
+        ]
+      },
+      "tracking-red": {
+        "role": "primary",
+        "displayName": "Tracking Error Red",
+        "canonical": "oklch(55% 0.16 22)",
+        "tonalRamp": [
+          "oklch(15% 0.04 22)",
+          "oklch(25% 0.08 22)",
+          "oklch(35% 0.12 22)",
+          "oklch(45% 0.16 22)",
+          "oklch(55% 0.16 22)",
+          "oklch(65% 0.14 22)",
+          "oklch(78% 0.10 22)",
+          "oklch(92% 0.05 22)"
+        ]
+      },
+      "crt-chroma": {
+        "role": "primary",
+        "displayName": "CRT Chroma",
+        "canonical": "oklch(78% 0.11 188)",
+        "tonalRamp": [
+          "oklch(15% 0.03 188)",
+          "oklch(28% 0.06 188)",
+          "oklch(40% 0.08 188)",
+          "oklch(52% 0.10 188)",
+          "oklch(64% 0.11 188)",
+          "oklch(78% 0.11 188)",
+          "oklch(88% 0.08 188)",
+          "oklch(96% 0.04 188)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headlines on landing and large standalone titles. Defined but not yet rendered in markup."
+      },
+      "brand": {
+        "displayName": "Brand Wordmark",
+        "purpose": "The campfire wordmark in the nav. Lowercase, locked, user-select disabled."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Standard reading copy. Cap line length at 60ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Nav links, button text, in-product field labels. Always lowercase, wide tracking."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Footers, system meta, timestamps. Lowercase, 60% opacity."
+      }
+    },
+    "shadows": [
+      {
+        "name": "inset-vignette",
+        "value": "0 0 0 1px rgba(0,0,0,0.52), inset 0 0 5rem rgba(0,0,0,0.42)",
+        "purpose": "The only 'shadow' in the system, and it's an inset. Used to frame hero surfaces so a CRT overlay reads as living inside a screen."
+      }
+    ],
+    "motion": [
+      {
+        "name": "hover-color",
+        "value": "160ms ease-out",
+        "purpose": "Standard hover color/opacity transition on buttons and links."
+      },
+      {
+        "name": "hover-underline",
+        "value": "180ms ease-out",
+        "purpose": "The growing-cyan underline on ghost links — scaleX(0.36 → 1) and opacity(0 → 0.82). System signature interaction."
+      },
+      {
+        "name": "tracking-glitch",
+        "value": "7s steps(2, end) infinite",
+        "purpose": "VHS tracking band drift on hero surfaces. Honor prefers-reduced-motion."
+      },
+      {
+        "name": "grain-drift",
+        "value": "1.6s steps(6) infinite",
+        "purpose": "Film-grain SVG noise drift on hero surfaces. Honor prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "520px" },
+      { "name": "md", "value": "820px" },
+      { "name": "lg", "value": "1200px" },
+      { "name": "short", "value": "720px (max-height)" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The promoted CTA. Ivory fill on black text; on hover the fill swaps to CRT Chroma. No lift, no scale.",
+      "html": "<button class=\"ds-btn-primary\">criar conta</button>",
+      "css": ".ds-btn-primary { background: #ece8df; color: #000000; padding: 0.5rem 1.2rem; border: none; border-radius: 0.25rem; font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 1rem; font-weight: 400; letter-spacing: 0.12em; text-transform: lowercase; cursor: pointer; transition: background 160ms ease-out, color 160ms ease-out; } .ds-btn-primary:hover { background: #46d4d0; color: #000000; } .ds-btn-primary:focus-visible { outline: 1px solid #46d4d0; outline-offset: 4px; }"
+    },
+    {
+      "name": "Ghost Link",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "The demoted nav-style link. Muted ivory at rest; on hover the text brightens and a cyan underline grows in from a 36% width baseline. Signature interaction of the system.",
+      "html": "<a class=\"ds-link-ghost\" href=\"#\">entrar</a>",
+      "css": ".ds-link-ghost { position: relative; display: inline-block; padding: 0.25rem 0; color: rgba(236, 232, 223, 0.64); font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 1rem; font-weight: 400; letter-spacing: 0.12em; text-transform: lowercase; text-decoration: none; transition: color 160ms ease-out; } .ds-link-ghost::after { content: ''; position: absolute; right: 0; bottom: -0.18rem; left: 0; height: 1px; background: #46d4d0; opacity: 0; transform: scaleX(0.36); transition: opacity 180ms ease-out, transform 180ms ease-out; } .ds-link-ghost:hover { color: #ece8df; } .ds-link-ghost:hover::after, .ds-link-ghost:focus-visible::after { opacity: 0.82; transform: scaleX(1); } .ds-link-ghost:focus-visible { color: #ece8df; outline: 1px solid #ece8df; outline-offset: 7px; }"
+    },
+    {
+      "name": "Brand Wordmark",
+      "kind": "nav",
+      "refersTo": "typography.brand",
+      "description": "The campfire wordmark. Lowercase, locked, wide tracking. Anchors the left of the nav.",
+      "html": "<span class=\"ds-brand\" aria-label=\"campfire\">campfire</span>",
+      "css": ".ds-brand { display: inline-block; color: #ece8df; font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 1.1rem; font-weight: 400; letter-spacing: 0.13em; text-transform: lowercase; user-select: none; }"
+    },
+    {
+      "name": "Nav Bar",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Horizontal nav with brand left and two actions right (one ghost, one primary). Bottom hairline divider. Gradient from dead-channel to channel-elev.",
+      "html": "<header class=\"ds-nav\" role=\"banner\"><span class=\"ds-nav-brand\" aria-label=\"campfire\">campfire</span><nav class=\"ds-nav-actions\" aria-label=\"Conta\"><a class=\"ds-nav-link\" href=\"#\">entrar</a><a class=\"ds-nav-cta\" href=\"#\">criar conta</a></nav></header>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: 0 2.5rem; height: 80px; background: linear-gradient(180deg, #000000 0%, #050505 100%); border-bottom: 1px solid rgba(236, 232, 223, 0.13); } .ds-nav-brand { color: #ece8df; font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 1.1rem; letter-spacing: 0.13em; text-transform: lowercase; user-select: none; } .ds-nav-actions { display: flex; align-items: center; gap: 1.75rem; } .ds-nav-link { position: relative; padding: 0.25rem 0; color: rgba(236, 232, 223, 0.45); font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 0.95rem; letter-spacing: 0.12em; text-transform: lowercase; text-decoration: none; transition: color 160ms ease-out; } .ds-nav-link::after { content: ''; position: absolute; right: 0; bottom: -0.18rem; left: 0; height: 1px; background: #46d4d0; opacity: 0; transform: scaleX(0.36); transition: opacity 180ms ease-out, transform 180ms ease-out; } .ds-nav-link:hover { color: #ece8df; } .ds-nav-link:hover::after { opacity: 0.82; transform: scaleX(1); } .ds-nav-cta { padding: 0.5rem 1.2rem; background: #ece8df; color: #000000; font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 0.95rem; letter-spacing: 0.12em; text-transform: lowercase; text-decoration: none; border-radius: 0.25rem; transition: background 160ms ease-out; } .ds-nav-cta:hover { background: #46d4d0; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "inputs",
+      "description": "Synthesized per DESIGN.md rules — not yet built in the product. Transparent fill, hairline bottom border only, label above. On focus the bottom border thickens and shifts to CRT Chroma. No box.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">título</span><input class=\"ds-field-input\" type=\"text\" placeholder=\"the night we met\" /></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.4rem; width: 100%; } .ds-field-label { color: #ece8df; font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: lowercase; } .ds-field-input { padding: 0.5rem 0; background: transparent; color: #ece8df; font-family: 'VT323', 'Courier New', ui-monospace, monospace; font-size: 1.2rem; letter-spacing: 0.035em; border: none; border-bottom: 1px solid rgba(236, 232, 223, 0.13); outline: none; transition: border-color 160ms ease-out, border-bottom-width 160ms ease-out; } .ds-field-input::placeholder { color: rgba(236, 232, 223, 0.42); } .ds-field-input:focus { border-bottom: 2px solid #46d4d0; padding-bottom: calc(0.5rem - 1px); }"
+    },
+    {
+      "name": "Repertoire List Item",
+      "kind": "custom",
+      "refersTo": "list",
+      "description": "Synthesized per the 'personal shelf, not catalog' principle. A song entry on the repertoire shelf — title, artist, instrument, separated by hairlines instead of cards.",
+      "html": "<li class=\"ds-shelf-item\"><span class=\"ds-shelf-title\">the night we met</span><span class=\"ds-shelf-artist\">lord huron</span><span class=\"ds-shelf-instrument\">violão</span></li>",
+      "css": ".ds-shelf-item { display: grid; grid-template-columns: 1fr 1fr auto; align-items: baseline; gap: 1.5rem; padding: 1rem 0; border-bottom: 1px solid rgba(236, 232, 223, 0.13); list-style: none; } .ds-shelf-title { color: #ece8df; font-family: 'VT323', 'Courier New', ui-monospace, monospace; font-size: 1.3rem; letter-spacing: 0.035em; } .ds-shelf-artist { color: rgba(236, 232, 223, 0.64); font-family: 'VT323', 'Courier New', ui-monospace, monospace; font-size: 1.1rem; letter-spacing: 0.035em; } .ds-shelf-instrument { color: rgba(236, 232, 223, 0.64); font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: lowercase; }"
+    },
+    {
+      "name": "Hero Band",
+      "kind": "custom",
+      "refersTo": "hero-band",
+      "description": "Signature surface — a cinematic full-bleed area with stacked CRT overlays (scanlines + grain). aria-hidden; honor prefers-reduced-motion in real implementations.",
+      "html": "<div class=\"ds-hero\" aria-hidden=\"true\"><div class=\"ds-hero-canvas\"></div><div class=\"ds-hero-scanlines\"></div><div class=\"ds-hero-vignette\"></div><div class=\"ds-hero-frame\"></div></div>",
+      "css": ".ds-hero { position: relative; min-height: 280px; overflow: hidden; background: radial-gradient(circle at 50% 52%, rgba(70, 212, 208, 0.1), transparent 32%), #050505; border: 1px solid rgba(236, 232, 223, 0.13); } .ds-hero-canvas { position: absolute; inset: 0; background: linear-gradient(135deg, #1a1010 0%, #050505 60%, #0a0808 100%); filter: brightness(0.5) contrast(1.2); } .ds-hero-scanlines { position: absolute; inset: 0; background: repeating-linear-gradient(180deg, rgba(236, 232, 223, 0.06) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, transparent 0 8px, rgba(204, 51, 68, 0.04) 8px 9px, transparent 9px 20px, rgba(70, 212, 208, 0.035) 20px 21px, transparent 21px 34px); mix-blend-mode: overlay; pointer-events: none; } .ds-hero-vignette { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, transparent 12%, transparent 88%, rgba(0, 0, 0, 0.86) 100%), radial-gradient(ellipse at center, transparent 38%, rgba(0, 0, 0, 0.6) 100%); pointer-events: none; } .ds-hero-frame { position: absolute; inset: 0.8rem; border: 1px solid rgba(236, 232, 223, 0.11); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.52), inset 0 0 5rem rgba(0, 0, 0, 0.42); pointer-events: none; }"
+    },
+    {
+      "name": "Footer Caption",
+      "kind": "custom",
+      "refersTo": "typography.caption",
+      "description": "The small print at the bottom of a page — system meta, version, alpha disclaimer.",
+      "html": "<p class=\"ds-caption\">alpha • coming soon</p>",
+      "css": ".ds-caption { margin: 0; color: rgba(236, 232, 223, 0.38); font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: lowercase; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The 2am VHS Mixtape",
+    "overview": "A VHS tape someone made for you, watched alone at 2am — the tracking is a hair off, the chroma bleeds a little, the picture is dim but the gesture is loud. campfire's interface is built from that material. Mono type with the friction of an old typewriter ribbon. A warm-dark canvas the color of an off-air channel. Decorative CRT overlays — scanlines, halftone, grain, tracking glitch — that texture the hero but never touch the text. Two color punches (a tracking-error red, a chroma-cyan) used like signal interference: rare, deliberate, never decorative. This system explicitly rejects four neighbors: the saturated-gradient catalogue of a streaming service; the dopamine-fed infinite feed of a public social network; the gamified progress meter of a practice app; the dense tech-blue chrome of a DAW. campfire owns the smallness of being a personal log; its visual language honors that, instead of padding it out.",
+    "keyCharacteristics": [
+      "VHS-warm dark canvas — off-air black with warm-cream ink, never cool blue.",
+      "Mono everywhere — Share Tech Mono for display and labels, VT323 for body. No proportional type.",
+      "Two-accent restraint — tracking-error red and CRT chroma cyan, ≤10% of any screen.",
+      "Flat by default — zero drop shadows. Depth comes from atmosphere (overlays, vignettes), not from elevation.",
+      "Hairline-driven layout — 1px dividers at low opacity carry structure where other systems would use cards.",
+      "Decorative ≠ functional — CRT overlays are aria-hidden and never overlap text or focus rings."
+    ],
+    "rules": [
+      { "name": "The Interference Rule", "body": "The red and the cyan are never used together as a paired scheme. They appear in the same scanline overlay because real VHS chroma error does that, but no UI surface should pair them deliberately as 'red + cyan brand'. One signal at a time.", "section": "colors" },
+      { "name": "The Off-Air Rule", "body": "The canvas is currently #000000. The shared design laws forbid pure black; the current state is a known compromise carried from the landing's cinematic poster. Future iterations should tint warm toward oklch(10% 0.006 22).", "section": "colors" },
+      { "name": "The 10% Accent Rule", "body": "Tracking-Error Red and CRT Chroma together must never exceed 10% of any screen's painted area. They are signal, not decoration.", "section": "colors" },
+      { "name": "The Lowercase Rule", "body": "All UI text is lowercase. The brand is 'campfire', not 'Campfire'. Buttons are 'entrar' and 'criar conta', not 'Entrar'. Exceptions: proper nouns inside user-generated content must respect whatever case the user typed.", "section": "typography" },
+      { "name": "The Mono-Only Rule", "body": "No sans, no serif anywhere in the product or the marketing. Share Tech Mono + VT323 is the entire system. Contrast comes from size, weight, letter-spacing, or opacity — never from switching to a proportional face.", "section": "typography" },
+      { "name": "The 60ch Rule", "body": "Body text caps at 60ch. Wider lines read as documentation, not as a personal product.", "section": "typography" },
+      { "name": "The No-Lift Rule", "body": "Components never lift on hover. State change is communicated by color, opacity, or by an underline that grows in. Translate, scale, and lift are prohibited as hover affordances. Lifting is a SaaS gesture; campfire is not a card.", "section": "elevation" },
+      { "name": "The Atmosphere-Over-Elevation Rule", "body": "When a surface needs to feel distinct, reach for canvas-color shift (dead-channel → channel-elev) and a hairline border first. Reach for an inset frame second. Never reach for a drop shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Aged Manual Ivory (#ece8df) as the only text color at full opacity. Demote to ink-muted (#ece8dfa3, 64%) for non-primary copy.",
+      "Do use the growing-cyan underline as the canonical hover affordance for any ghost link — it is the system's signature interaction.",
+      "Do keep both accents (Tracking Error Red, CRT Chroma) under 10% of painted area on any screen, and never use them together as a paired scheme.",
+      "Do prefer hairline dividers (#ece8df21 / #ece8df38) over cards. The first answer to 'how do I group these?' is a 1px line.",
+      "Do keep CRT overlays on hero surfaces only — never let scanlines, halftone, or grain overlay form fields, lists, or any dense reading surface.",
+      "Do honor prefers-reduced-motion: reduce on every motion you add. Video pauses, animated overlays stop, hover transitions drop to instant.",
+      "Do lowercase all UI copy. 'entrar', 'criar conta', 'configurações', 'sair'. Capitals are corporate; lowercase is intimate.",
+      "Do stamp focus rings wide and clearly (outline-offset 7px for ghost links, 4px for primary buttons). The dim canvas eats narrow focus rings."
+    ],
+    "donts": [
+      "Don't use drop shadows. Anywhere. Depth comes from atmosphere, not elevation.",
+      "Don't lift, scale, or translate components on hover. State change is color, opacity, or underline only.",
+      "Don't pair Tracking Error Red and CRT Chroma as a deliberate brand scheme.",
+      "Don't introduce a sans-serif or serif typeface for any UI purpose. Share Tech Mono + VT323 is the entire system.",
+      "Don't capitalize labels, buttons, headings, or copy.",
+      "Don't ship CRT overlays (scanlines, halftone, grain, tracking) on any surface that contains text or interactive controls.",
+      "Don't look like a streaming service (Spotify, Apple Music, YouTube Music). No saturated gradients, no infinite cover-art grids, no algorithmic recommendation surfaces.",
+      "Don't look like a public social network (Instagram, TikTok music, Twitter/X). No engagement metrics exposed, no infinite feeds, no public profiles.",
+      "Don't look like a gamified practice app (Yousician, Simply Piano, Fender Play). No streak counters, no level meters, no progress bars on songs, no badges.",
+      "Don't look like a DAW (Bandlab, Soundtrap, Ableton, Logic). No mixer surfaces, no timelines, no plugin-rack chrome.",
+      "Don't drift into generic SaaS-dashboard look. If you reach for shadcn/ui, MUI, or Chakra defaults, you are about to lose the voice.",
+      "Don't carry the four exploratory data-fonts='a|b|c|d' variants forward. Prune them now that the canon is Share Tech Mono + VT323.",
+      "Don't keep #000000 forever as the canvas. Migrate toward a warm-tinted near-black (oklch(10% 0.006 22)) on the next intentional pass."
+    ]
+  }
+}
