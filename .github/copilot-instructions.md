@@ -4,16 +4,22 @@ These instructions are read by GitHub Copilot for repository custom instructions
 
 ## Project
 
-`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Full vision: [../PRODUCT_VISION.md](../PRODUCT_VISION.md). Intended MVP flow: [../docs/mvp-scope.md](../docs/mvp-scope.md).
+`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Product north star: [../PRODUCT_VISION.md](../PRODUCT_VISION.md). MVP scope: [../docs/mvp-scope.md](../docs/mvp-scope.md). Visual/product design: [../DESIGN.md](../DESIGN.md).
 
 ## Current implementation status
 
-The MVP flow (accounts, repertoire CRUD, persistence) is **not yet implemented**. `apps/web/` currently renders only a landing-page slice (`src/home/Home.tsx`): a video-poster hero with two non-functional `entrar` / `criar conta` CTAs and an `alpha • coming soon` footer. `apps/api/` is an empty placeholder. Do not suggest code that assumes accounts, repertoire, or persistence already exist.
+The MVP walking skeleton (accounts, repertoire CRUD, persistence, deploy) is **not yet implemented end-to-end**. The front-end on `mvp/lofi-style` covers the pre-auth shape against a stubbed client:
+
+- `apps/web/` — React + TypeScript + Vite + `react-router-dom`. Routes: `/` (`Home` poster), `/signup`, `/signup/confirm`, `/signin` (modal overlays on `Home`), `/app` (placeholder).
+- `apps/web/src/auth/client.ts` is a **stub** with `sleep()`-based fakes. No backend, no persistence, no session.
+- `apps/api/` is an empty `.gitkeep` placeholder.
+
+Do not suggest code that assumes a real backend, accounts, repertoire, or persistence already exist.
 
 ## Repository layout
 
 - `apps/api/` — backend (FastAPI, Python). Empty `.gitkeep` placeholder.
-- `apps/web/` — frontend (React + TypeScript + Vite per [../docs/decisions/0004-frontend-stack.md](../docs/decisions/0004-frontend-stack.md)). Currently a landing-page slice only.
+- `apps/web/` — frontend (React + TypeScript + Vite + react-router-dom per [../docs/decisions/0004-frontend-stack.md](../docs/decisions/0004-frontend-stack.md) and [../docs/decisions/0006-frontend-routing.md](../docs/decisions/0006-frontend-routing.md)).
 - `packages/` — code shared between apps (empty until real sharing exists).
 - `docs/decisions/` — ADRs (architectural decision records).
 - `.agents/skills/` — canonical location for AI agent skills shared across agents. See [../AI_WORKFLOW.md](../AI_WORKFLOW.md) and [../docs/decisions/0003-shared-agent-skills.md](../docs/decisions/0003-shared-agent-skills.md).
@@ -29,9 +35,7 @@ The MVP flow (accounts, repertoire CRUD, persistence) is **not yet implemented**
 
 ## Language
 
-All persisted artifacts (docs, commits, code identifiers, comments) are written in **English**. See [../docs/decisions/0002-documentation-language.md](../docs/decisions/0002-documentation-language.md).
-
-User-facing UI strings are not yet covered by an ADR. The current landing page ships Portuguese copy (`<html lang="pt-BR">`, `entrar`, `criar conta`); treat this as an implementation fact and raise the open question before extending PT copy to new screens.
+All persisted artifacts (docs, commits, code identifiers, comments) are written in **English** ([../docs/decisions/0002-documentation-language.md](../docs/decisions/0002-documentation-language.md)). User-facing UI strings ship in **Brazilian Portuguese** ([../docs/decisions/0005-ui-language.md](../docs/decisions/0005-ui-language.md)) — copy is inline in components, no i18n framework.
 
 ## What to avoid
 

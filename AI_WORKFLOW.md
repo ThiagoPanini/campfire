@@ -56,12 +56,9 @@ Externally-sourced skills are pinned in `skills-lock.json` at the repo root, whi
 
 ## Design workflow
 
-Design exploration is currently active and lightweight — there is no formal pipeline yet:
+The visual direction has stabilized on the lo-fi / VHS / monospace aesthetic explored on the `mvp/lofi-style` branch. [DESIGN.md](./DESIGN.md) is the canonical source for design intent, anti-references, and the component-level rules. Implementation tokens live in [apps/web/src/ui/tokens.css](apps/web/src/ui/tokens.css); the shipped primitives live in [apps/web/src/ui/](apps/web/src/ui/).
 
-- The `frontend-design` skill (see *Active inventory* below) supports generating frontend code with deliberate aesthetic choices. It was adopted to back the current visual exploration.
-- The current landing-page slice in `apps/web/src/home/` lives on the `mvp/lofi-style` branch and explores a warm-dark, monospace, VHS-poster aesthetic — adjacent to but distinct from the "Workshop" direction named in [ADR 0004](./docs/decisions/0004-frontend-stack.md).
-
-When the design direction stabilizes, this section should be replaced with a description of the chosen system, where its tokens live, and how it hands off to implementation.
+The `frontend-design` and `impeccable` skills (see *Active inventory* below) support generating and auditing frontend code with deliberate aesthetic choices, and were adopted to back this direction.
 
 ## Active inventory
 
@@ -71,11 +68,13 @@ Tools, skills, MCPs, and frameworks currently in active use on this project. The
 
 | Skill | Source | Adopted because |
 |---|---|---|
-| `start-ai-assisted-project` | locally authored | bootstrapped this repo's foundation; kept in-tree as the canonical reference implementation of the bootstrap flow. |
 | `enhance-prompt` | [google-labs-code/stitch-skills](https://github.com/google-labs-code/stitch-skills) | refines vague UI/UX prompts before generation. |
 | `git-commit` | [github/awesome-copilot](https://github.com/github/awesome-copilot) | structures conventional commit messages from the staged diff. |
 | `skill-creator` | [anthropics/skills](https://github.com/anthropics/skills) | authors and evaluates new skills. |
-| `frontend-design` | [anthropics/skills](https://github.com/anthropics/skills) | supports the active visual exploration on the web app (see *Design workflow* above). |
+| `frontend-design` | [anthropics/skills](https://github.com/anthropics/skills) | generates frontend code with deliberate aesthetic choices (backs the lo-fi visual direction). |
+| `impeccable` | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | audits and polishes existing frontend surfaces against the design system in [DESIGN.md](./DESIGN.md). |
+| `caveman` | [juliusbrussee/caveman](https://github.com/juliusbrussee/caveman) | optional token-efficient communication mode for long agent sessions. |
+| `start-ai-assisted-project` | locally authored | bootstrapped this repo's foundation; lives under `.claude/skills/` only (Claude-specific, not in the shared `.agents/skills/` tree) and is kept in-tree as a reference implementation of the bootstrap flow. |
 
 External skills are pinned by content hash in [skills-lock.json](./skills-lock.json).
 
