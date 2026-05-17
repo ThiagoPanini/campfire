@@ -118,7 +118,7 @@ export function SignIn() {
       <section className="signin" aria-labelledby="signin-title">
         <ModalBadge label="entrar" />
         <h1 className="signin__title" id="signin-title">
-          volte para sua prateleira.
+          acesse seu painel de controle pessoal de músicas
         </h1>
 
         <form className="signin__form" onSubmit={handleSubmit} noValidate>

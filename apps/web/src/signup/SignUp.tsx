@@ -157,7 +157,7 @@ export function SignUp() {
       <section className="signup" aria-labelledby="signup-title">
         <ModalBadge label="criar conta" />
         <h1 className="signup__title" id="signup-title">
-          registre sua jornada musical.
+          cadastre-se e construa seu repertório musical pessoal
         </h1>
 
         <form className="signup__form" onSubmit={handleSubmit} noValidate>

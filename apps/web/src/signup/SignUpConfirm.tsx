@@ -38,6 +38,7 @@ export function SignUpConfirm({ email, username }: SignUpConfirmProps) {
   const [expiryTime, setExpiryTime] = useState(CODE_EXPIRY_TIME);
   const [isResending, setIsResending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     if (cooldown === 0) {
@@ -71,10 +72,12 @@ export function SignUpConfirm({ email, username }: SignUpConfirmProps) {
 
     if (nextCode.length !== 6) {
       setCodeError("código inválido. tenta de novo.");
+      setStatusMessage("código incompleto.");
       return;
     }
 
     setCodeError(undefined);
+    setStatusMessage("verificando código.");
     setIsVerifying(true);
 
     try {
@@ -85,7 +88,9 @@ export function SignUpConfirm({ email, username }: SignUpConfirmProps) {
         return;
       }
 
-      setCodeError(codeErrorMessage(result.reason));
+      const message = codeErrorMessage(result.reason);
+      setCodeError(message);
+      setStatusMessage(message);
     } finally {
       setIsVerifying(false);
     }
@@ -103,12 +108,14 @@ export function SignUpConfirm({ email, username }: SignUpConfirmProps) {
 
     setIsResending(true);
     setCodeError(undefined);
+    setStatusMessage("reenviando código.");
 
     try {
       await resendCode(email);
       setCooldown(RESEND_COOLDOWN);
       setExpiryTime(CODE_EXPIRY_TIME);
       setCode("");
+      setStatusMessage("código reenviado.");
     } finally {
       setIsResending(false);
     }
@@ -122,6 +129,7 @@ export function SignUpConfirm({ email, username }: SignUpConfirmProps) {
     <Modal
       ariaLabelledBy="confirm-title"
       className="confirm-modal"
+      closeOnBackdrop={false}
       onClose={handleClose}
     >
       <section className="confirm" aria-labelledby="confirm-title">
@@ -168,7 +176,7 @@ export function SignUpConfirm({ email, username }: SignUpConfirmProps) {
             type="button"
             variant="ghost"
           >
-            {cooldown > 0 ? `reenviando em ${cooldown}s` : "não chegou? reenviar"}
+            {cooldown > 0 ? `reenviar em ${cooldown}s` : "não chegou? reenviar"}
           </Button>
           <span className="confirm__divider">·</span>
           <GhostLink to="/signup" className="confirm__change-email">
@@ -186,6 +194,10 @@ export function SignUpConfirm({ email, username }: SignUpConfirmProps) {
             <span className="confirm__meta-val">e-mail · postal · {expiryTime > 0 ? "aguardando" : "expirado"}</span>
           </div>
         </div>
+
+        <p className="confirm__status" aria-live="polite" role="status">
+          {statusMessage}
+        </p>
       </section>
     </Modal>
   );

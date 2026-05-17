@@ -1,35 +1,34 @@
 .signin-modal {
-  width: min(380px, 92vw);
-  padding: clamp(1.1rem, 2.4vw, 1.55rem) clamp(1.15rem, 2.6vw, 1.7rem)
-    clamp(1.15rem, 2.4vw, 1.55rem);
+  width: min(440px, 92vw);
+  padding: 0.9rem clamp(1.05rem, 2.4vw, 1.55rem)
+    clamp(1.05rem, 2.2vw, 1.35rem);
   background: var(--bg);
   border: 1px solid var(--hairline);
-  border-radius: 6px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
 }
 
 .signin {
   display: grid;
-  gap: 1rem;
+  gap: 0.82rem;
   width: 100%;
 }
 
 .signin__title {
-  max-width: 22ch;
+  max-width: 27ch;
   margin: 0;
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: clamp(1.2rem, 3.4vw, 1.55rem);
+  font-size: clamp(1.12rem, 3vw, 1.45rem);
   font-weight: 400;
-  line-height: 1.12;
-  letter-spacing: -0.015em;
+  line-height: 1.1;
+  letter-spacing: 0;
   text-align: left;
   text-wrap: balance;
 }
 
 .signin__form {
   display: grid;
-  gap: 0.95rem;
+  gap: 0.82rem;
 }
 
 .signin__password-stack {
@@ -93,12 +92,12 @@
   .signin-modal {
     width: 100vw;
     min-height: 100dvh;
-    border: none;
+    border: 0;
     border-radius: 0;
-    padding: 1.6rem 1.1rem 1.1rem;
+    padding: 0.95rem 1.1rem 1.1rem;
   }
 
   .signin {
-    gap: 0.9rem;
+    gap: 0.78rem;
   }
 }
