@@ -10,18 +10,32 @@ import "./SignUp.css";
 
 type SignUpLocationState = {
   email?: string;
+  username?: string;
 };
 
 type FieldErrors = {
+  username?: string;
   email?: string;
   password?: string;
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const USERNAME_PATTERN = /^[a-zA-Z0-9_.\s-]{2,32}$/;
 
-function locationEmail(state: unknown) {
+function locationField(state: unknown, key: keyof SignUpLocationState) {
   const candidate = state as SignUpLocationState | null;
-  return typeof candidate?.email === "string" ? candidate.email : "";
+  return typeof candidate?.[key] === "string" ? (candidate[key] as string) : "";
+}
+
+function validateUsername(username: string) {
+  const trimmed = username.trim();
+  if (trimmed.length < 2) {
+    return "como você quer ser chamado?";
+  }
+  if (!USERNAME_PATTERN.test(trimmed)) {
+    return "use letras, números, ponto, traço ou _";
+  }
+  return undefined;
 }
 
 function validateEmail(email: string) {
@@ -35,7 +49,8 @@ function validatePassword(password: string) {
 export function SignUp() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [email, setEmail] = useState(() => locationEmail(location.state));
+  const [username, setUsername] = useState(() => locationField(location.state, "username"));
+  const [email, setEmail] = useState(() => locationField(location.state, "email"));
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -72,12 +87,13 @@ export function SignUp() {
 
   const validateForm = () => {
     const nextErrors = {
+      username: validateUsername(username),
       email: validateEmail(email),
       password: validatePassword(password),
     };
 
     setErrors(nextErrors);
-    return !nextErrors.email && !nextErrors.password;
+    return !nextErrors.username && !nextErrors.email && !nextErrors.password;
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -92,10 +108,12 @@ export function SignUp() {
     setIsSubmitting(true);
 
     try {
-      const result = await signUpWithEmail(email.trim(), password);
+      const result = await signUpWithEmail(email.trim(), password, username.trim());
 
       if (result.ok) {
-        navigate("/signup/confirm", { state: { email: email.trim() } });
+        navigate("/signup/confirm", {
+          state: { email: email.trim(), username: username.trim() },
+        });
         return;
       }
 
@@ -130,7 +148,11 @@ export function SignUp() {
   };
 
   return (
-    <Modal onClose={handleClose} className="signup-modal">
+    <Modal
+      ariaLabelledBy="signup-title"
+      className="signup-modal"
+      onClose={handleClose}
+    >
       <section className="signup" aria-labelledby="signup-title">
         <ModalBadge label="criar conta" />
         <h1 className="signup__title" id="signup-title">
@@ -138,6 +160,26 @@ export function SignUp() {
         </h1>
 
         <form className="signup__form" onSubmit={handleSubmit} noValidate>
+          <Field
+            autoComplete="nickname"
+            error={errors.username}
+            helper="como aparece no seu perfil"
+            label="nome"
+            onBlur={() => {
+              setErrors((current) => ({
+                ...current,
+                username: validateUsername(username),
+              }));
+            }}
+            onChange={(event) => {
+              setUsername(event.target.value);
+              setSubmitError(null);
+            }}
+            placeholder="ex: ana, tião do cavaco"
+            type="text"
+            value={username}
+          />
+
           <Field
             autoComplete="email"
             error={errors.email}

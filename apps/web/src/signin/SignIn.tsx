@@ -109,7 +109,11 @@ export function SignIn() {
   };
 
   return (
-    <Modal onClose={handleClose} className="signin-modal">
+    <Modal
+      ariaLabelledBy="signin-title"
+      className="signin-modal"
+      onClose={handleClose}
+    >
       <section className="signin" aria-labelledby="signin-title">
         <ModalBadge label="entrar" />
         <h1 className="signin__title" id="signin-title">

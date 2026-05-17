@@ -9,6 +9,7 @@ import "./SignUpConfirm.css";
 
 type SignUpConfirmProps = {
   email: string;
+  username?: string;
 };
 
 function codeErrorMessage(reason: "invalid" | "expired") {
@@ -28,7 +29,8 @@ function formatTimeRemaining(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-export function SignUpConfirm({ email }: SignUpConfirmProps) {
+export function SignUpConfirm({ email, username }: SignUpConfirmProps) {
+  void username; // username is consumed at signUp time via the auth client.
   const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState<string | undefined>();
@@ -117,7 +119,11 @@ export function SignUpConfirm({ email }: SignUpConfirmProps) {
   };
 
   return (
-    <Modal onClose={handleClose} className="confirm-modal">
+    <Modal
+      ariaLabelledBy="confirm-title"
+      className="confirm-modal"
+      onClose={handleClose}
+    >
       <section className="confirm" aria-labelledby="confirm-title">
         <ModalBadge label="quase lá" />
         <h1 className="confirm__title" id="confirm-title">
