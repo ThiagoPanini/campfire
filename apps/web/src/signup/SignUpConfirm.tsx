@@ -1,22 +1,15 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { resendCode, verifyCode } from "../auth/client";
 import { Button } from "../ui/Button";
 import { CodeBoxes } from "../ui/CodeBoxes";
-import { FooterHairline } from "../ui/FooterHairline";
 import { GhostLink } from "../ui/GhostLink";
-import { Nav } from "../ui/Nav";
-import { PageColumn } from "../ui/PageColumn";
+import { Modal, ModalBadge } from "../ui/Modal";
 import "./SignUpConfirm.css";
 
-type ConfirmLocationState = {
-  email?: string;
+type SignUpConfirmProps = {
+  email: string;
 };
-
-function locationEmail(state: unknown) {
-  const candidate = state as ConfirmLocationState | null;
-  return typeof candidate?.email === "string" ? candidate.email : "";
-}
 
 function codeErrorMessage(reason: "invalid" | "expired") {
   if (reason === "expired") {
@@ -26,21 +19,13 @@ function codeErrorMessage(reason: "invalid" | "expired") {
   return "código inválido. tenta de novo.";
 }
 
-export function SignUpConfirm() {
-  const location = useLocation();
+export function SignUpConfirm({ email }: SignUpConfirmProps) {
   const navigate = useNavigate();
-  const email = locationEmail(location.state);
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState<string | undefined>();
   const [cooldown, setCooldown] = useState(0);
   const [isResending, setIsResending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-
-  useEffect(() => {
-    if (!email) {
-      navigate("/signup", { replace: true });
-    }
-  }, [email, navigate]);
 
   useEffect(() => {
     if (cooldown === 0) {
@@ -103,50 +88,47 @@ export function SignUpConfirm() {
     }
   };
 
+  const handleClose = () => {
+    navigate("/");
+  };
+
   return (
-    <div className="confirm-page">
-      <Nav
-        action={
-          <GhostLink to="/signup" state={{ email }}>
-            trocar email
-          </GhostLink>
-        }
-      />
+    <Modal onClose={handleClose} className="confirm-modal">
+      <section className="confirm" aria-labelledby="confirm-title">
+        <ModalBadge label="quase lá" />
+        <h1 className="confirm__title" id="confirm-title">
+          um último passo.
+        </h1>
 
-      <PageColumn className="confirm-page__main">
-        <section className="confirm" aria-labelledby="confirm-title">
-          <h1 className="confirm__title" id="confirm-title">
-            checa seu email
-          </h1>
+        <p className="confirm__lede">
+          mandamos um código de 6 dígitos para <strong>{email}</strong>. cole ou digite os 6 dígitos abaixo.
+        </p>
 
-          <p className="confirm__caption">
-            enviamos um código pra <span>{email}</span>
-          </p>
+        <form className="confirm__form" onSubmit={handleSubmit}>
+          <CodeBoxes
+            disabled={isVerifying}
+            error={codeError}
+            onChange={(nextCode) => {
+              setCode(nextCode);
+              setCodeError(undefined);
+            }}
+            onComplete={(nextCode) => {
+              void confirmCode(nextCode);
+            }}
+            value={code}
+          />
 
-          <form className="confirm__form" onSubmit={handleSubmit}>
-            <CodeBoxes
-              disabled={isVerifying}
-              error={codeError}
-              onChange={(nextCode) => {
-                setCode(nextCode);
-                setCodeError(undefined);
-              }}
-              onComplete={(nextCode) => {
-                void confirmCode(nextCode);
-              }}
-              value={code}
-            />
+          <Button
+            fullWidth
+            isLoading={isVerifying}
+            loadingLabel="confirmando..."
+            type="submit"
+          >
+            verificar
+          </Button>
+        </form>
 
-            <Button
-              fullWidth
-              isLoading={isVerifying}
-              loadingLabel="confirmando..."
-              type="submit"
-            >
-              confirmar
-            </Button>
-          </form>
-
+        <div className="confirm__actions">
           <Button
             className="confirm__resend"
             disabled={cooldown > 0}
@@ -156,12 +138,29 @@ export function SignUpConfirm() {
             type="button"
             variant="ghost"
           >
-            {cooldown > 0 ? `reenviado. tenta de novo em ${cooldown}s` : "não chegou? reenviar"}
+            {cooldown > 0 ? `reenviar (${cooldown}s)` : "não chegou? reenviar"}
           </Button>
-        </section>
-      </PageColumn>
+          <span className="confirm__divider">·</span>
+          <GhostLink to="/signup" className="confirm__change-email">
+            trocar email
+          </GhostLink>
+        </div>
 
-      <FooterHairline />
-    </div>
+        <div className="confirm__meta">
+          <div className="confirm__meta-row">
+            <span className="confirm__meta-key">enviado</span>
+            <span className="confirm__meta-val">há 4 segundos</span>
+          </div>
+          <div className="confirm__meta-row">
+            <span className="confirm__meta-key">expira em</span>
+            <span className="confirm__meta-val">14:56</span>
+          </div>
+          <div className="confirm__meta-row">
+            <span className="confirm__meta-key">via</span>
+            <span className="confirm__meta-val">e-mail · postal · aguardando</span>
+          </div>
+        </div>
+      </section>
+    </Modal>
   );
 }

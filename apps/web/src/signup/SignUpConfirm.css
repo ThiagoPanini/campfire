@@ -1,61 +1,114 @@
-.confirm-page {
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+.confirm-modal {
+  width: min(420px, 90vw);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
   background: var(--bg);
-  color: var(--ink);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .confirm {
   display: grid;
-  justify-items: center;
-  gap: 1.5rem;
+  gap: 1.35rem;
   width: 100%;
 }
 
 .confirm__title {
-  margin: 0;
+  margin: 0 0 0.5rem;
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: clamp(2rem, 8vw, 3.2rem);
+  font-size: clamp(1.3rem, 5vw, 1.8rem);
   font-weight: 400;
-  line-height: 1.04;
+  line-height: 1.15;
   letter-spacing: -0.015em;
-  text-align: center;
+  text-align: left;
   text-wrap: balance;
 }
 
-.confirm__caption {
-  max-width: 28ch;
-  margin: 0 0 0.3rem;
+.confirm__lede {
+  max-width: 36ch;
+  margin: 0;
   color: var(--ink-muted);
   font-family: var(--font-display);
   font-size: var(--type-caption);
   line-height: 1.45;
-  letter-spacing: 0.1em;
-  text-align: center;
+  letter-spacing: 0.05em;
   text-transform: lowercase;
 }
 
-.confirm__caption span {
+.confirm__lede strong {
   color: var(--ink);
+  font-weight: 400;
   overflow-wrap: anywhere;
 }
 
 .confirm__form {
   display: grid;
-  gap: 1.55rem;
+  gap: 1.35rem;
   width: 100%;
 }
 
+.confirm__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: var(--type-caption);
+  color: var(--ink-muted);
+}
+
 .confirm__resend {
-  max-width: 100%;
-  white-space: normal;
+  min-height: auto;
+  padding: 0;
+  font-size: var(--type-caption);
+}
+
+.confirm__divider {
+  opacity: 0.5;
+}
+
+.confirm__change-email {
+  font-size: var(--type-caption);
+}
+
+.confirm__meta {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+  font-size: var(--type-caption);
+  color: var(--ink-muted);
+}
+
+.confirm__meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.confirm__meta-key {
+  color: var(--ink-muted);
+}
+
+.confirm__meta-val {
+  color: var(--ink-muted);
+  text-align: right;
+  flex-shrink: 0;
 }
 
 @media (max-width: 520px) {
-  .confirm-page__main {
-    padding-block: clamp(1.65rem, 5svh, 3rem);
+  .confirm-modal {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    border-radius: 0;
+    padding: 2rem 1rem 1rem;
+    max-height: none;
+    overflow-y: auto;
+  }
+
+  .confirm {
+    gap: 1.25rem;
   }
 }
