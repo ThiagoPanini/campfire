@@ -4,41 +4,101 @@
   display: grid;
   place-items: center;
   z-index: 1000;
-  animation: fadeIn 0.2s ease-out;
+  padding: clamp(0.75rem, 3vw, 1.25rem);
+  animation: modal-fade 180ms var(--ease-out-quart);
 }
 
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
-  animation: fadeIn 0.2s ease-out;
+  background: rgba(0, 0, 0, 0.78);
+  animation: modal-fade 180ms var(--ease-out-quart);
 }
 
 .modal-content {
   position: relative;
   z-index: 1001;
-  animation: slideIn 0.3s ease-out;
   max-height: 90vh;
   overflow-y: auto;
+  animation: modal-card-in 180ms var(--ease-out-quart);
 }
 
-@keyframes fadeIn {
+.modal-content::before,
+.modal-content::after {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  content: "";
+  pointer-events: none;
+}
+
+.modal-content::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1px solid var(--crt-chroma);
+  border-left: 1px solid var(--crt-chroma);
+  opacity: 0.5;
+}
+
+.modal-content::after {
+  right: -1px;
+  bottom: -1px;
+  border-right: 1px solid var(--tracking-red);
+  border-bottom: 1px solid var(--tracking-red);
+  opacity: 0.42;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.72rem;
+  right: 0.72rem;
+  z-index: 2;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.2rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--hairline-strong);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease-out-quart),
+    color 160ms var(--ease-out-quart);
+}
+
+.modal-close:hover,
+.modal-close:focus-visible {
+  color: var(--ink);
+  border-bottom-color: var(--crt-chroma);
+}
+
+.modal-close:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+@keyframes modal-fade {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
-@keyframes slideIn {
+@keyframes modal-card-in {
   from {
-    transform: scale(0.95) translateY(10px);
     opacity: 0;
   }
+
   to {
-    transform: scale(1) translateY(0);
     opacity: 1;
   }
 }
@@ -67,4 +127,16 @@
   background: var(--tracking-red);
   border-radius: 50%;
   content: "";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal-backdrop,
+  .modal-content {
+    animation: none;
+  }
+
+  .modal-close {
+    transition: none;
+  }
 }

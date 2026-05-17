@@ -1,7 +1,12 @@
-import { useId, type InputHTMLAttributes, type ReactNode } from "react";
+import {
+  useId,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type TextareaHTMLAttributes,
+} from "react";
 import "./Field.css";
 
-type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "id"> & {
+type CommonFieldProps = {
   action?: ReactNode;
   error?: string;
   helper?: string;
@@ -9,12 +14,23 @@ type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "id"> & {
   label: string;
 };
 
+type FieldProps =
+  | (CommonFieldProps &
+      Omit<InputHTMLAttributes<HTMLInputElement>, "id"> & {
+        multiline?: false;
+      })
+  | (CommonFieldProps &
+      Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "id"> & {
+        multiline: true;
+      });
+
 export function Field({
   action,
   error,
   helper,
   inputId,
   label,
+  multiline = false,
   ...props
 }: FieldProps) {
   const generatedId = useId();
@@ -31,13 +47,23 @@ export function Field({
         </label>
         {action ? <span className="field__action">{action}</span> : null}
       </span>
-      <input
-        className="field__input"
-        id={id}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy}
-        {...props}
-      />
+      {multiline ? (
+        <textarea
+          className="field__input field__input--textarea"
+          id={id}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
+          {...(props as TextareaHTMLAttributes<HTMLTextAreaElement>)}
+        />
+      ) : (
+        <input
+          className="field__input"
+          id={id}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
+          {...(props as InputHTMLAttributes<HTMLInputElement>)}
+        />
+      )}
       {helper ? (
         <span className="field__note" id={helperId}>
           {helper}
