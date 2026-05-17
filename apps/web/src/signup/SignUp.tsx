@@ -151,6 +151,7 @@ export function SignUp() {
     <Modal
       ariaLabelledBy="signup-title"
       className="signup-modal"
+      closeOnBackdrop={false}
       onClose={handleClose}
     >
       <section className="signup" aria-labelledby="signup-title">
