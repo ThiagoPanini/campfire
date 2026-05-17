@@ -4,7 +4,7 @@ import { signInWithGoogle, signInWithEmail } from "../auth/client";
 import { Button } from "../ui/Button";
 import { Field } from "../ui/Field";
 import { GhostLink } from "../ui/GhostLink";
-import { Modal, ModalBadge, TypingTitle } from "../ui/Modal";
+import { Modal, ModalBadge } from "../ui/Modal";
 import "./SignIn.css";
 
 type FieldErrors = {
@@ -112,7 +112,9 @@ export function SignIn() {
     <Modal onClose={handleClose} className="signin-modal">
       <section className="signin" aria-labelledby="signin-title">
         <ModalBadge label="entrar" />
-        <TypingTitle text="acesse seu painel musical." duration={2.5} className="signin__title" />
+        <h1 className="signin__title" id="signin-title">
+          acesse seu painel musical.
+        </h1>
 
         <form className="signin__form" onSubmit={handleSubmit} noValidate>
           <Field

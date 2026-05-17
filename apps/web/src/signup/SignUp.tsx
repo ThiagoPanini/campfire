@@ -4,7 +4,7 @@ import { signInWithGoogle, signUpWithEmail } from "../auth/client";
 import { Button } from "../ui/Button";
 import { Field } from "../ui/Field";
 import { GhostLink } from "../ui/GhostLink";
-import { Modal, ModalBadge, TypingTitle } from "../ui/Modal";
+import { Modal, ModalBadge } from "../ui/Modal";
 import { StrengthMeter } from "../ui/StrengthMeter";
 import "./SignUp.css";
 
@@ -133,7 +133,9 @@ export function SignUp() {
     <Modal onClose={handleClose} className="signup-modal">
       <section className="signup" aria-labelledby="signup-title">
         <ModalBadge label="criar conta" />
-        <TypingTitle text="registre sua jornada musical." duration={2.5} />
+        <h1 className="signup__title" id="signup-title">
+          registre sua jornada musical.
+        </h1>
 
         <form className="signup__form" onSubmit={handleSubmit} noValidate>
           <Field
