@@ -1,4 +1,4 @@
-.signup-modal {
+.signin-modal {
   width: min(420px, 90vw);
   padding: clamp(1.5rem, 4vw, 2.5rem);
   background: var(--bg);
@@ -7,13 +7,13 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-.signup {
+.signin {
   display: grid;
   gap: 1.45rem;
   width: 100%;
 }
 
-.signup__title {
+.signin__title {
   max-width: 20ch;
   margin: 0 0 0.75rem;
   color: var(--ink);
@@ -26,22 +26,22 @@
   text-wrap: balance;
 }
 
-.signup__form {
+.signin__form {
   display: grid;
   gap: 1.3rem;
 }
 
-.signup__password-stack {
+.signin__password-stack {
   display: grid;
   gap: 0.68rem;
 }
 
-.signup__password-toggle {
+.signin__password-toggle {
   min-height: 0;
   font-size: var(--type-caption);
 }
 
-.signup__divider {
+.signin__divider {
   display: grid;
   grid-template-columns: minmax(36px, 1fr) auto minmax(36px, 1fr);
   align-items: center;
@@ -56,17 +56,17 @@
   text-transform: lowercase;
 }
 
-.signup__divider span {
+.signin__divider span {
   height: 1px;
   background: var(--hairline);
 }
 
-.signup__divider strong {
+.signin__divider strong {
   font-weight: 400;
 }
 
-.signup__pivot,
-.signup__error {
+.signin__pivot,
+.signin__error {
   margin: 0;
   font-family: var(--font-display);
   font-size: var(--type-caption);
@@ -76,34 +76,12 @@
   text-transform: lowercase;
 }
 
-.signup__pivot {
+.signin__pivot {
   color: var(--ink-muted);
 }
 
-.signup__error {
+.signin__error {
   color: var(--tracking-red);
-}
-
-.signup__inline-link {
-  position: relative;
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.signup__inline-link::after {
-  position: absolute;
-  right: 0;
-  bottom: -0.12rem;
-  left: 0;
-  height: 1px;
-  content: "";
-  background: var(--crt-chroma);
-  opacity: 0.82;
-}
-
-.signup__inline-link:focus-visible {
-  outline: 1px solid var(--ink);
-  outline-offset: 7px;
 }
 
 .google-icon {
@@ -111,7 +89,7 @@
 }
 
 @media (max-width: 520px) {
-  .signup-modal {
+  .signin-modal {
     width: 100vw;
     height: 100vh;
     border: none;
@@ -119,7 +97,7 @@
     padding: 2rem 1rem 1rem;
   }
 
-  .signup {
+  .signin {
     gap: 1.25rem;
   }
 }

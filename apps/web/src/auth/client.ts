@@ -3,6 +3,10 @@ type SignUpResult =
   | { ok: true }
   | { ok: false; reason: "duplicate" | "network" | "generic" };
 
+type SignInResult =
+  | { ok: true }
+  | { ok: false; reason: "invalid" | "network" | "generic" };
+
 type VerifyResult = { ok: true } | { ok: false; reason: "invalid" | "expired" };
 
 type GoogleResult = { ok: true; redirectUrl: string } | { ok: false };
@@ -19,6 +23,19 @@ export async function signUpWithEmail(
 
   if (email.toLowerCase().includes("taken@")) {
     return { ok: false, reason: "duplicate" };
+  }
+
+  return { ok: true };
+}
+
+export async function signInWithEmail(
+  email: string,
+  _password: string,
+): Promise<SignInResult> {
+  await sleep(800);
+
+  if (email.toLowerCase().includes("invalid@")) {
+    return { ok: false, reason: "invalid" };
   }
 
   return { ok: true };

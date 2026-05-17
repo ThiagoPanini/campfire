@@ -1,16 +1,11 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { signInWithGoogle, signUpWithEmail } from "../auth/client";
+import { useNavigate } from "react-router-dom";
+import { signInWithGoogle, signInWithEmail } from "../auth/client";
 import { Button } from "../ui/Button";
 import { Field } from "../ui/Field";
 import { GhostLink } from "../ui/GhostLink";
 import { Modal, ModalBadge, TypingTitle } from "../ui/Modal";
-import { StrengthMeter } from "../ui/StrengthMeter";
-import "./SignUp.css";
-
-type SignUpLocationState = {
-  email?: string;
-};
+import "./SignIn.css";
 
 type FieldErrors = {
   email?: string;
@@ -19,44 +14,28 @@ type FieldErrors = {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function locationEmail(state: unknown) {
-  const candidate = state as SignUpLocationState | null;
-  return typeof candidate?.email === "string" ? candidate.email : "";
-}
-
 function validateEmail(email: string) {
   return EMAIL_PATTERN.test(email.trim()) ? undefined : "esse email parece incompleto";
 }
 
 function validatePassword(password: string) {
-  return password.length >= 8 ? undefined : "precisa de pelo menos 8 caracteres";
+  return password.length >= 1 ? undefined : "é preciso uma senha";
 }
 
-export function SignUp() {
-  const location = useLocation();
+export function SignIn() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState(() => locationEmail(location.state));
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [submitError, setSubmitError] = useState<"duplicate" | "network" | "generic" | null>(
-    null,
-  );
+  const [submitError, setSubmitError] = useState<"invalid" | "network" | "generic" | null>(null);
   const [oauthError, setOauthError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpeningGoogle, setIsOpeningGoogle] = useState(false);
 
   const submitErrorMessage = useMemo(() => {
-    if (submitError === "duplicate") {
-      return (
-        <>
-          esse email já tem conta. tenta{" "}
-          <Link className="signup__inline-link" to="/signin">
-            entrar
-          </Link>
-          ?
-        </>
-      );
+    if (submitError === "invalid") {
+      return "email ou senha incorretos.";
     }
 
     if (submitError === "network") {
@@ -92,10 +71,10 @@ export function SignUp() {
     setIsSubmitting(true);
 
     try {
-      const result = await signUpWithEmail(email.trim(), password);
+      const result = await signInWithEmail(email.trim(), password);
 
       if (result.ok) {
-        navigate("/signup/confirm", { state: { email: email.trim() } });
+        navigate("/app");
         return;
       }
 
@@ -130,12 +109,12 @@ export function SignUp() {
   };
 
   return (
-    <Modal onClose={handleClose} className="signup-modal">
-      <section className="signup" aria-labelledby="signup-title">
-        <ModalBadge label="criar conta" />
-        <TypingTitle text="registre sua jornada musical." duration={2.5} />
+    <Modal onClose={handleClose} className="signin-modal">
+      <section className="signin" aria-labelledby="signin-title">
+        <ModalBadge label="entrar" />
+        <TypingTitle text="acesse seu painel musical." duration={2.5} className="signin__title" />
 
-        <form className="signup__form" onSubmit={handleSubmit} noValidate>
+        <form className="signin__form" onSubmit={handleSubmit} noValidate>
           <Field
             autoComplete="email"
             error={errors.email}
@@ -152,11 +131,11 @@ export function SignUp() {
             value={email}
           />
 
-          <div className="signup__password-stack">
+          <div className="signin__password-stack">
             <Field
               action={
                 <Button
-                  className="signup__password-toggle"
+                  className="signin__password-toggle"
                   onClick={() => setShowPassword((current) => !current)}
                   type="button"
                   variant="ghost"
@@ -164,9 +143,8 @@ export function SignUp() {
                   {showPassword ? "esconder" : "mostrar"}
                 </Button>
               }
-              autoComplete="new-password"
+              autoComplete="current-password"
               error={errors.password}
-              helper="mín. 8 caracteres"
               label="senha"
               onBlur={() => {
                 setErrors((current) => ({
@@ -181,11 +159,10 @@ export function SignUp() {
               type={showPassword ? "text" : "password"}
               value={password}
             />
-            <StrengthMeter password={password} />
           </div>
 
           {submitErrorMessage ? (
-            <p className="signup__error" role="alert">
+            <p className="signin__error" role="alert">
               {submitErrorMessage}
             </p>
           ) : null}
@@ -193,14 +170,14 @@ export function SignUp() {
           <Button
             fullWidth
             isLoading={isSubmitting}
-            loadingLabel="criando..."
+            loadingLabel="acessando..."
             type="submit"
           >
-            criar conta
+            entrar
           </Button>
         </form>
 
-        <div className="signup__divider" aria-hidden="true">
+        <div className="signin__divider" aria-hidden="true">
           <span />
           <strong>ou</strong>
           <span />
@@ -231,13 +208,13 @@ export function SignUp() {
         </Button>
 
         {oauthError ? (
-          <p className="signup__error" role="alert">
+          <p className="signin__error" role="alert">
             google recusou. tenta de novo ou usa email.
           </p>
         ) : null}
 
-        <p className="signup__pivot">
-          já tem conta? <GhostLink to="/signin">entrar</GhostLink>
+        <p className="signin__pivot">
+          novo por aqui? <GhostLink to="/signup">criar conta</GhostLink>
         </p>
       </section>
     </Modal>
