@@ -51,20 +51,20 @@
   padding: 0.35rem 0.75rem;
   margin-bottom: 1rem;
   background: transparent;
-  border: 1px solid var(--hairline);
+  border: none;
   border-radius: 4px;
   font-family: var(--font-display);
   font-size: var(--type-caption);
   letter-spacing: 0.1em;
   text-transform: lowercase;
-  color: var(--ink);
+  color: var(--ink-muted);
 }
 
 .modal-badge::before {
   display: inline-block;
   width: 0.35rem;
   height: 0.35rem;
-  background: currentColor;
+  background: var(--tracking-red);
   border-radius: 50%;
   content: "";
 }

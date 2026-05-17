@@ -21,14 +21,15 @@
 
 .button--primary {
   padding: 0.5rem 1.2rem;
-  background: rgba(204, 51, 68, 0.15);
-  color: var(--ink);
+  background: rgba(70, 212, 208, 0.15);
+  color: var(--crt-chroma);
   border: none;
+  backdrop-filter: blur(4px);
 }
 
 .button--primary:hover {
-  background: rgba(204, 51, 68, 0.25);
-  color: var(--ink);
+  background: rgba(70, 212, 208, 0.25);
+  color: var(--crt-chroma);
 }
 
 .button--outline {

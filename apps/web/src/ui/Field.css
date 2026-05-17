@@ -23,9 +23,10 @@
 }
 
 .field__label {
-  color: var(--ink);
+  color: var(--ink-muted);
   font-size: var(--type-label);
   letter-spacing: 0.12em;
+  transition: color 160ms var(--ease-out-quart);
 }
 
 .field__input {
@@ -55,6 +56,10 @@
 .field__input:focus {
   padding-bottom: calc(0.44rem - 1px);
   border-bottom: 2px solid var(--crt-chroma);
+}
+
+.field:has(.field__input:focus) .field__label {
+  color: var(--crt-chroma);
 }
 
 .field__note,
