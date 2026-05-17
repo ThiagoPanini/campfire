@@ -1,0 +1,61 @@
+.confirm-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.confirm {
+  display: grid;
+  justify-items: center;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.confirm__title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.confirm__caption {
+  max-width: 28ch;
+  margin: 0 0 0.3rem;
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  line-height: 1.45;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: lowercase;
+}
+
+.confirm__caption span {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.confirm__form {
+  display: grid;
+  gap: 1.55rem;
+  width: 100%;
+}
+
+.confirm__resend {
+  max-width: 100%;
+  white-space: normal;
+}
+
+@media (max-width: 520px) {
+  .confirm-page__main {
+    padding-block: clamp(1.65rem, 5svh, 3rem);
+  }
+}

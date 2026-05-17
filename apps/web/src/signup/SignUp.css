@@ -1,0 +1,117 @@
+.signup-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.signup {
+  display: grid;
+  gap: 1.45rem;
+  width: 100%;
+}
+
+.signup__title {
+  max-width: 13ch;
+  margin: 0 0 0.75rem;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.signup__form {
+  display: grid;
+  gap: 1.3rem;
+}
+
+.signup__password-stack {
+  display: grid;
+  gap: 0.68rem;
+}
+
+.signup__password-toggle {
+  min-height: 0;
+  font-size: var(--type-caption);
+}
+
+.signup__divider {
+  display: grid;
+  grid-template-columns: minmax(36px, 1fr) auto minmax(36px, 1fr);
+  align-items: center;
+  gap: 0.85rem;
+  width: min(190px, 70%);
+  margin: 0 auto;
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+}
+
+.signup__divider span {
+  height: 1px;
+  background: var(--hairline);
+}
+
+.signup__divider strong {
+  font-weight: 400;
+}
+
+.signup__pivot,
+.signup__error {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  line-height: 1.45;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: lowercase;
+}
+
+.signup__pivot {
+  color: var(--ink-muted);
+}
+
+.signup__error {
+  color: var(--tracking-red);
+}
+
+.signup__inline-link {
+  position: relative;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.signup__inline-link::after {
+  position: absolute;
+  right: 0;
+  bottom: -0.12rem;
+  left: 0;
+  height: 1px;
+  content: "";
+  background: var(--crt-chroma);
+  opacity: 0.82;
+}
+
+.signup__inline-link:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 7px;
+}
+
+@media (max-width: 520px) {
+  .signup-page__main {
+    padding-block: clamp(1.65rem, 5svh, 3rem);
+  }
+
+  .signup {
+    gap: 1.25rem;
+  }
+}

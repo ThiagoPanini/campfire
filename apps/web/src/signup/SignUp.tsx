@@ -1,0 +1,237 @@
+import { useMemo, useState, type FormEvent } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { signInWithGoogle, signUpWithEmail } from "../auth/client";
+import { Button } from "../ui/Button";
+import { Field } from "../ui/Field";
+import { FooterHairline } from "../ui/FooterHairline";
+import { GhostLink } from "../ui/GhostLink";
+import { Nav } from "../ui/Nav";
+import { PageColumn } from "../ui/PageColumn";
+import { StrengthMeter } from "../ui/StrengthMeter";
+import "./SignUp.css";
+
+type SignUpLocationState = {
+  email?: string;
+};
+
+type FieldErrors = {
+  email?: string;
+  password?: string;
+};
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function locationEmail(state: unknown) {
+  const candidate = state as SignUpLocationState | null;
+  return typeof candidate?.email === "string" ? candidate.email : "";
+}
+
+function validateEmail(email: string) {
+  return EMAIL_PATTERN.test(email.trim()) ? undefined : "esse email parece incompleto";
+}
+
+function validatePassword(password: string) {
+  return password.length >= 8 ? undefined : "precisa de pelo menos 8 caracteres";
+}
+
+export function SignUp() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState(() => locationEmail(location.state));
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [submitError, setSubmitError] = useState<"duplicate" | "network" | "generic" | null>(
+    null,
+  );
+  const [oauthError, setOauthError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpeningGoogle, setIsOpeningGoogle] = useState(false);
+
+  const submitErrorMessage = useMemo(() => {
+    if (submitError === "duplicate") {
+      return (
+        <>
+          esse email já tem conta. tenta{" "}
+          <Link className="signup__inline-link" to="/signin">
+            entrar
+          </Link>
+          ?
+        </>
+      );
+    }
+
+    if (submitError === "network") {
+      return "sem conexão. checa sua internet e tenta de novo.";
+    }
+
+    if (submitError === "generic") {
+      return "algo travou aqui. tenta de novo num instante.";
+    }
+
+    return null;
+  }, [submitError]);
+
+  const validateForm = () => {
+    const nextErrors = {
+      email: validateEmail(email),
+      password: validatePassword(password),
+    };
+
+    setErrors(nextErrors);
+    return !nextErrors.email && !nextErrors.password;
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitError(null);
+    setOauthError(false);
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const result = await signUpWithEmail(email.trim(), password);
+
+      if (result.ok) {
+        navigate("/signup/confirm", { state: { email: email.trim() } });
+        return;
+      }
+
+      setSubmitError(result.reason);
+    } catch {
+      setSubmitError("network");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setOauthError(false);
+    setSubmitError(null);
+    setIsOpeningGoogle(true);
+
+    try {
+      const result = await signInWithGoogle();
+
+      if (result.ok) {
+        window.location.assign(result.redirectUrl);
+      }
+    } catch {
+      setOauthError(true);
+    } finally {
+      setIsOpeningGoogle(false);
+    }
+  };
+
+  return (
+    <div className="signup-page">
+      <Nav action={<GhostLink to="/signin">entrar</GhostLink>} />
+
+      <PageColumn className="signup-page__main">
+        <section className="signup" aria-labelledby="signup-title">
+          <h1 className="signup__title" id="signup-title">
+            acesse eu painel de controle
+          </h1>
+
+          <form className="signup__form" onSubmit={handleSubmit} noValidate>
+            <Field
+              autoComplete="email"
+              error={errors.email}
+              inputMode="email"
+              label="email"
+              onBlur={() => {
+                setErrors((current) => ({ ...current, email: validateEmail(email) }));
+              }}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setSubmitError(null);
+              }}
+              type="email"
+              value={email}
+            />
+
+            <div className="signup__password-stack">
+              <Field
+                action={
+                  <Button
+                    className="signup__password-toggle"
+                    onClick={() => setShowPassword((current) => !current)}
+                    type="button"
+                    variant="ghost"
+                  >
+                    {showPassword ? "esconder" : "mostrar"}
+                  </Button>
+                }
+                autoComplete="new-password"
+                error={errors.password}
+                helper="mín. 8 caracteres"
+                label="senha"
+                onBlur={() => {
+                  setErrors((current) => ({
+                    ...current,
+                    password: validatePassword(password),
+                  }));
+                }}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  setSubmitError(null);
+                }}
+                type={showPassword ? "text" : "password"}
+                value={password}
+              />
+              <StrengthMeter password={password} />
+            </div>
+
+            {submitErrorMessage ? (
+              <p className="signup__error" role="alert">
+                {submitErrorMessage}
+              </p>
+            ) : null}
+
+            <Button
+              fullWidth
+              isLoading={isSubmitting}
+              loadingLabel="criando..."
+              type="submit"
+            >
+              criar conta
+            </Button>
+          </form>
+
+          <div className="signup__divider" aria-hidden="true">
+            <span />
+            <strong>ou</strong>
+            <span />
+          </div>
+
+          <Button
+            fullWidth
+            isLoading={isOpeningGoogle}
+            loadingLabel="abrindo google..."
+            onClick={handleGoogle}
+            type="button"
+            variant="outline"
+          >
+            continuar com google
+          </Button>
+
+          {oauthError ? (
+            <p className="signup__error" role="alert">
+              google recusou. tenta de novo ou usa email.
+            </p>
+          ) : null}
+
+          <p className="signup__pivot">
+            já tem conta? <GhostLink to="/signin">entrar</GhostLink>
+          </p>
+        </section>
+      </PageColumn>
+
+      <FooterHairline />
+    </div>
+  );
+}
