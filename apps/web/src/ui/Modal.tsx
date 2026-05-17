@@ -28,7 +28,12 @@ export function Modal({
   className = "",
 }: ModalProps) {
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const onCloseRef = useRef(onClose);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     previouslyFocusedRef.current =
@@ -55,9 +60,9 @@ export function Modal({
     }, 0);
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && onClose) {
+      if (event.key === "Escape" && onCloseRef.current) {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -96,7 +101,7 @@ export function Modal({
       document.body.style.overflow = previousOverflow;
       previouslyFocusedRef.current?.focus();
     };
-  }, [onClose]);
+  }, []);
 
   const handleOverlayClick = () => {
     if (closeOnBackdrop) {
@@ -123,7 +128,7 @@ export function Modal({
             aria-label={closeLabel}
             onClick={onClose}
           >
-            <span aria-hidden="true">fechar</span>
+            <span aria-hidden="true">x</span>
           </button>
         ) : null}
         {children}

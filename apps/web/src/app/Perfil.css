@@ -227,7 +227,7 @@
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 6.4vw, 3.6rem);
   line-height: 0.9;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 

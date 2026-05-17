@@ -75,15 +75,6 @@ export function Home() {
           <div className="poster-fx poster-fx--vignette" />
         </div>
 
-        <section className="poster-cap" aria-labelledby="poster-title">
-          <h1 className="poster-headline" id="poster-title">
-            guarde as músicas que você toca em casa.
-          </h1>
-          <p className="poster-copy">
-            um repertório pessoal, quieto, para lembrar o que é seu antes da próxima roda.
-          </p>
-        </section>
-
         <footer className="poster-footer">
           <p className="poster-footer-text">alpha • coming soon</p>
         </footer>

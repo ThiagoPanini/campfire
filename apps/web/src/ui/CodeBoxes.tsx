@@ -105,6 +105,7 @@ export function CodeBoxes({
         {digits.map((digit, index) => (
           <input
             aria-label={`dígito ${index + 1} do código`}
+            aria-invalid={error ? true : undefined}
             autoComplete={index === 0 ? "one-time-code" : "off"}
             className="code-boxes__input"
             disabled={disabled}

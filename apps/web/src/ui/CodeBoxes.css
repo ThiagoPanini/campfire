@@ -18,7 +18,7 @@
   height: 56px;
   padding: 0 0 0.2rem;
   border: 0;
-  border-bottom: 2px solid var(--hairline);
+  border-bottom: 2px solid var(--hairline-strong);
   border-radius: 0;
   outline: none;
   background: transparent;
