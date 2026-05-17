@@ -1,4 +1,6 @@
 // STUB: temporary client-only auth surface until the FastAPI backend exists.
+import { deriveUsernameFromEmail, setSession } from "./session";
+
 type SignUpResult =
   | { ok: true }
   | { ok: false; reason: "duplicate" | "network" | "generic" };
@@ -11,6 +13,13 @@ type VerifyResult = { ok: true } | { ok: false; reason: "invalid" | "expired" };
 
 type GoogleResult = { ok: true; redirectUrl: string } | { ok: false };
 
+type PendingSignUp = {
+  email: string;
+  username: string;
+};
+
+let pendingSignUp: PendingSignUp | null = null;
+
 function sleep(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
@@ -18,6 +27,7 @@ function sleep(ms: number) {
 export async function signUpWithEmail(
   email: string,
   _password: string,
+  username: string,
 ): Promise<SignUpResult> {
   await sleep(800);
 
@@ -25,6 +35,7 @@ export async function signUpWithEmail(
     return { ok: false, reason: "duplicate" };
   }
 
+  pendingSignUp = { email: email.trim(), username: username.trim() };
   return { ok: true };
 }
 
@@ -38,21 +49,40 @@ export async function signInWithEmail(
     return { ok: false, reason: "invalid" };
   }
 
+  const trimmedEmail = email.trim();
+  setSession({
+    username: deriveUsernameFromEmail(trimmedEmail),
+    email: trimmedEmail,
+    joinedAt: new Date().toISOString(),
+  });
+
   return { ok: true };
 }
 
 export async function verifyCode(
-  _email: string,
+  email: string,
   code: string,
 ): Promise<VerifyResult> {
   await sleep(600);
 
-  if (code === "123456") {
-    return { ok: true };
-  }
-
   if (code === "000000") {
     return { ok: false, reason: "expired" };
+  }
+
+  if (code === "123456") {
+    const trimmedEmail = email.trim();
+    const username =
+      pendingSignUp && pendingSignUp.email === trimmedEmail
+        ? pendingSignUp.username
+        : deriveUsernameFromEmail(trimmedEmail);
+
+    setSession({
+      username,
+      email: trimmedEmail,
+      joinedAt: new Date().toISOString(),
+    });
+    pendingSignUp = null;
+    return { ok: true };
   }
 
   return { ok: false, reason: "invalid" };
