@@ -19,11 +19,21 @@ function codeErrorMessage(reason: "invalid" | "expired") {
   return "código inválido. tenta de novo.";
 }
 
+const RESEND_COOLDOWN = 60;
+const CODE_EXPIRY_TIME = 900; // 15 minutes in seconds
+
+function formatTimeRemaining(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
 export function SignUpConfirm({ email }: SignUpConfirmProps) {
   const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState<string | undefined>();
   const [cooldown, setCooldown] = useState(0);
+  const [expiryTime, setExpiryTime] = useState(CODE_EXPIRY_TIME);
   const [isResending, setIsResending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -38,6 +48,19 @@ export function SignUpConfirm({ email }: SignUpConfirmProps) {
 
     return () => window.clearTimeout(timeout);
   }, [cooldown]);
+
+  useEffect(() => {
+    if (expiryTime <= 0) {
+      setCodeError("código expirou. clica reenviar.");
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setExpiryTime((current) => Math.max(current - 1, 0));
+    }, 1000);
+
+    return () => window.clearTimeout(timeout);
+  }, [expiryTime]);
 
   const confirmCode = async (nextCode = code) => {
     if (isVerifying) {
@@ -73,7 +96,6 @@ export function SignUpConfirm({ email }: SignUpConfirmProps) {
 
   const handleResend = async () => {
     if (cooldown > 0) {
-      setCodeError("reenviado demais. espera um instante.");
       return;
     }
 
@@ -82,7 +104,9 @@ export function SignUpConfirm({ email }: SignUpConfirmProps) {
 
     try {
       await resendCode(email);
-      setCooldown(30);
+      setCooldown(RESEND_COOLDOWN);
+      setExpiryTime(CODE_EXPIRY_TIME);
+      setCode("");
     } finally {
       setIsResending(false);
     }
@@ -138,7 +162,7 @@ export function SignUpConfirm({ email }: SignUpConfirmProps) {
             type="button"
             variant="ghost"
           >
-            {cooldown > 0 ? `reenviar (${cooldown}s)` : "não chegou? reenviar"}
+            {cooldown > 0 ? `reenviando em ${cooldown}s` : "não chegou? reenviar"}
           </Button>
           <span className="confirm__divider">·</span>
           <GhostLink to="/signup" className="confirm__change-email">
@@ -148,16 +172,12 @@ export function SignUpConfirm({ email }: SignUpConfirmProps) {
 
         <div className="confirm__meta">
           <div className="confirm__meta-row">
-            <span className="confirm__meta-key">enviado</span>
-            <span className="confirm__meta-val">há 4 segundos</span>
-          </div>
-          <div className="confirm__meta-row">
             <span className="confirm__meta-key">expira em</span>
-            <span className="confirm__meta-val">14:56</span>
+            <span className="confirm__meta-val">{formatTimeRemaining(expiryTime)}</span>
           </div>
           <div className="confirm__meta-row">
             <span className="confirm__meta-key">via</span>
-            <span className="confirm__meta-val">e-mail · postal · aguardando</span>
+            <span className="confirm__meta-val">e-mail · postal · {expiryTime > 0 ? "aguardando" : "expirado"}</span>
           </div>
         </div>
       </section>
