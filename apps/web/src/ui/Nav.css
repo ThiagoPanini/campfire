@@ -1,0 +1,25 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(1rem, 4vw, 4rem);
+  min-height: clamp(68px, 10svh, 96px);
+  padding: 0 clamp(1rem, 5vw, 4.5rem);
+  border-bottom: 1px solid var(--hairline);
+  background:
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-elev) 100%),
+    var(--bg);
+}
+
+.nav__action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@media (max-width: 520px) {
+  .nav {
+    min-height: clamp(64px, 9svh, 78px);
+    padding-inline: clamp(1rem, 5.4vw, 2rem);
+  }
+}

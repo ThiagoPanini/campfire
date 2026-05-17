@@ -1,0 +1,23 @@
+.footer-hairline {
+  position: relative;
+  min-height: clamp(44px, 8svh, 72px);
+  background: var(--bg);
+}
+
+.footer-hairline::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(58vw, 520px);
+  height: 1px;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--hairline-strong),
+    rgb(var(--tracking-red-rgb) / 0.7),
+    var(--hairline-strong),
+    transparent
+  );
+  transform: translate(-50%, -50%);
+}

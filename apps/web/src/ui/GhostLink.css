@@ -1,0 +1,55 @@
+.ghost-link {
+  position: relative;
+  display: inline-block;
+  padding: 0.25rem 0;
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: var(--type-label);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: lowercase;
+  transition: color 160ms var(--ease-out-quart);
+}
+
+.ghost-link::after {
+  position: absolute;
+  right: 0;
+  bottom: -0.18rem;
+  left: 0;
+  height: 1px;
+  content: "";
+  background: var(--crt-chroma);
+  opacity: 0;
+  transform: scaleX(0.36);
+  transition:
+    opacity 180ms var(--ease-out-quart),
+    transform 180ms var(--ease-out-quart);
+}
+
+.ghost-link:hover {
+  color: var(--ink);
+}
+
+.ghost-link:hover::after,
+.ghost-link:focus-visible::after {
+  opacity: 0.82;
+  transform: scaleX(1);
+}
+
+.ghost-link:focus-visible {
+  color: var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 7px;
+}
+
+.ghost-link--dimmed {
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-link,
+  .ghost-link::after {
+    transition: none;
+  }
+}

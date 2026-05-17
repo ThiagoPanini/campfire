@@ -1,0 +1,25 @@
+.page-column {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: clamp(2.5rem, 8svh, 5.25rem) clamp(1.25rem, 6vw, 3rem);
+  background: var(--bg);
+  isolation: isolate;
+}
+
+.page-column::before {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: min(620px, 112vw);
+  height: min(620px, 112vw);
+  content: "";
+  background: radial-gradient(circle, rgb(var(--ink-rgb) / 0.04), transparent 64%);
+  transform: translate(-50%, -50%);
+}
+
+.page-column__inner {
+  width: min(100%, 360px);
+}
