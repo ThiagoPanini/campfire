@@ -1,5 +1,5 @@
 import { Route, Routes, useLocation } from "react-router-dom";
-import { AppPlaceholder } from "./app/Placeholder";
+import { AppConsole } from "./app/AppConsole";
 import { Home } from "./home/Home";
 import { SignIn } from "./signin/SignIn";
 import { SignUp } from "./signup/SignUp";
@@ -7,12 +7,14 @@ import { SignUpConfirm } from "./signup/SignUpConfirm";
 
 type ModalRouteLocationState = {
   email?: string;
+  username?: string;
 };
 
 function ModalRoute() {
   const location = useLocation();
   const state = location.state as ModalRouteLocationState | null;
   const email = typeof state?.email === "string" ? state.email : "";
+  const username = typeof state?.username === "string" ? state.username : "";
 
   if (location.pathname === "/signup") {
     return (
@@ -39,7 +41,7 @@ function ModalRoute() {
     return (
       <>
         <Home />
-        <SignUpConfirm email={email} />
+        <SignUpConfirm email={email} username={username} />
       </>
     );
   }
@@ -54,7 +56,7 @@ export function App() {
       <Route path="/signup" element={<ModalRoute />} />
       <Route path="/signup/confirm" element={<ModalRoute />} />
       <Route path="/signin" element={<ModalRoute />} />
-      <Route path="/app" element={<AppPlaceholder />} />
+      <Route path="/app/*" element={<AppConsole />} />
       <Route path="*" element={<div>404</div>} />
     </Routes>
   );
