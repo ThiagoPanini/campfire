@@ -112,12 +112,13 @@ export function SignIn() {
     <Modal
       ariaLabelledBy="signin-title"
       className="signin-modal"
+      closeOnBackdrop={false}
       onClose={handleClose}
     >
       <section className="signin" aria-labelledby="signin-title">
         <ModalBadge label="entrar" />
         <h1 className="signin__title" id="signin-title">
-          acesse seu painel musical.
+          volte para sua prateleira.
         </h1>
 
         <form className="signin__form" onSubmit={handleSubmit} noValidate>
