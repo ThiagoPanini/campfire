@@ -36,6 +36,8 @@ This is binary: the walking skeleton either works for an external user or it doe
 ## In scope
 
 - Account creation (email + password) and sign-in.
+- **Email verification at sign-up** (one-time code sent to the address, confirmed before the account becomes usable). Added 2026-05-16 during sign-up shape; protects against typos and stops trivially-fake addresses without committing to a full email/identity backend.
+- **Google OAuth as an alternative sign-up/sign-in path** alongside email+password. Added 2026-05-16; the email+password path remains the primary, OAuth is the quieter shortcut. Reduces friction for friends invited into the platform.
 - One personal repertoire per account.
 - Repertoire entries with three required fields: title, artist, instrument.
 - Full CRUD on repertoire entries (add, view, edit, delete).
@@ -58,16 +60,14 @@ The following features from the product vision are explicitly deferred. The MVP 
 The following operational features are also out of scope for the MVP and will be revisited when concrete need arises:
 
 - Password reset / forgot-password flow.
-- Email verification.
-- Third-party / OAuth sign-in.
+- OAuth providers beyond Google (Apple, GitHub, etc.).
 - Sorting, filtering, pagination, tagging, or categorization within a repertoire.
 - Bulk import/export of repertoire entries.
-- Internationalization beyond English UI.
 - Analytics, telemetry, error reporting beyond what the deploy provider exposes by default.
 - Native mobile applications (responsive web is sufficient for now).
+- Internationalization (the UI ships PT-BR per [ADR 0005](./decisions/0005-ui-language.md); a second language is post-MVP).
 
 ## Open questions
 
 - **Instrument field shape.** Free-text input, or a selection from a fixed list? Free-text is simpler to ship; a fixed list keeps the data tidy and aligns the field with future filtering. Defaulting to free-text in the absence of a decision.
 - **Account recovery.** Without password reset, a forgotten password means a lost account. For the author + one friend this is acceptable; before broader sharing it likely is not. Flagging here so the deferral is conscious.
-- **UI language.** The current landing-page slice ships in Portuguese (`<html lang="pt-BR">`, `entrar`, `criar conta`). The "Internationalization beyond English UI" out-of-scope item above implicitly assumes an English UI baseline that the implementation has not committed to. Resolve before the MVP screens are built — either by aligning the implementation with the English assumption or by writing a UI-language ADR that supersedes it.

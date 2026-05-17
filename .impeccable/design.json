@@ -166,6 +166,11 @@
         "purpose": "The growing-cyan underline on ghost links — scaleX(0.36 → 1) and opacity(0 → 0.82). System signature interaction."
       },
       {
+        "name": "vu-flicker",
+        "value": "80ms steps(3, end) 1",
+        "purpose": "CRT-style flicker animation when a strength meter segment newly activates."
+      },
+      {
         "name": "tracking-glitch",
         "value": "7s steps(2, end) infinite",
         "purpose": "VHS tracking band drift on hero surfaces. Honor prefers-reduced-motion."
@@ -191,6 +196,14 @@
       "description": "The promoted CTA. Ivory fill on black text; on hover the fill swaps to CRT Chroma. No lift, no scale.",
       "html": "<button class=\"ds-btn-primary\">criar conta</button>",
       "css": ".ds-btn-primary { background: #ece8df; color: #000000; padding: 0.5rem 1.2rem; border: none; border-radius: 0.25rem; font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 1rem; font-weight: 400; letter-spacing: 0.12em; text-transform: lowercase; cursor: pointer; transition: background 160ms ease-out, color 160ms ease-out; } .ds-btn-primary:hover { background: #46d4d0; color: #000000; } .ds-btn-primary:focus-visible { outline: 1px solid #46d4d0; outline-offset: 4px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action button. Transparent fill, ivory hairline border, ivory text. On hover, border and text shift to CRT Chroma. Used for OAuth and any non-primary action.",
+      "html": "<button class=\"ds-btn-outline\">continuar com google</button>",
+      "css": ".ds-btn-outline { background: transparent; color: #ece8df; padding: 0.5rem 1.2rem; border: 1px solid rgba(236, 232, 223, 0.13); border-radius: 0.25rem; font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 1rem; font-weight: 400; letter-spacing: 0.12em; text-transform: lowercase; cursor: pointer; transition: border-color 160ms ease-out, color 160ms ease-out; } .ds-btn-outline:hover { border-color: #46d4d0; color: #46d4d0; } .ds-btn-outline:focus-visible { outline: 1px solid #46d4d0; outline-offset: 4px; }"
     },
     {
       "name": "Ghost Link",
@@ -223,6 +236,14 @@
       "description": "Synthesized per DESIGN.md rules — not yet built in the product. Transparent fill, hairline bottom border only, label above. On focus the bottom border thickens and shifts to CRT Chroma. No box.",
       "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">título</span><input class=\"ds-field-input\" type=\"text\" placeholder=\"the night we met\" /></label>",
       "css": ".ds-field { display: flex; flex-direction: column; gap: 0.4rem; width: 100%; } .ds-field-label { color: #ece8df; font-family: 'Share Tech Mono', 'Courier New', ui-monospace, monospace; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: lowercase; } .ds-field-input { padding: 0.5rem 0; background: transparent; color: #ece8df; font-family: 'VT323', 'Courier New', ui-monospace, monospace; font-size: 1.2rem; letter-spacing: 0.035em; border: none; border-bottom: 1px solid rgba(236, 232, 223, 0.13); outline: none; transition: border-color 160ms ease-out, border-bottom-width 160ms ease-out; } .ds-field-input::placeholder { color: rgba(236, 232, 223, 0.42); } .ds-field-input:focus { border-bottom: 2px solid #46d4d0; padding-bottom: calc(0.5rem - 1px); }"
+    },
+    {
+      "name": "Password Strength Meter",
+      "kind": "custom",
+      "refersTo": "strength-meter",
+      "description": "16-segment VU-style meter for password strength. Empty segments are hairline ivory; filled segments shift color by zone: 1-3 red (weak), 4-11 ivory (ok/good), 12-16 cyan (strong). Each newly-filled segment does an 80ms CRT flicker on activation.",
+      "html": "<div class=\"ds-meter\" role=\"meter\" aria-valuemin=\"0\" aria-valuemax=\"16\" aria-valuenow=\"7\" aria-valuetext=\"ok\"><span class=\"ds-meter-seg ds-meter-seg-on\"></span><span class=\"ds-meter-seg ds-meter-seg-on\"></span><span class=\"ds-meter-seg ds-meter-seg-on\"></span><span class=\"ds-meter-seg ds-meter-seg-on\"></span><span class=\"ds-meter-seg ds-meter-seg-on\"></span><span class=\"ds-meter-seg ds-meter-seg-on\"></span><span class=\"ds-meter-seg ds-meter-seg-on\"></span><span class=\"ds-meter-seg\"></span><span class=\"ds-meter-seg\"></span><span class=\"ds-meter-seg\"></span><span class=\"ds-meter-seg\"></span><span class=\"ds-meter-seg\"></span><span class=\"ds-meter-seg\"></span><span class=\"ds-meter-seg\"></span><span class=\"ds-meter-seg\"></span><span class=\"ds-meter-seg\"></span></div>",
+      "css": ".ds-meter { display: flex; gap: 2px; width: 100%; max-width: 222px; } .ds-meter-seg { flex: 1; height: 5px; background: rgba(236, 232, 223, 0.13); } .ds-meter-seg-on { background: #ece8df; animation: ds-meter-flicker 80ms steps(3, end) 1; } @keyframes ds-meter-flicker { 0% { opacity: 0.4; } 33% { opacity: 0; } 100% { opacity: 1; } } @media (prefers-reduced-motion: reduce) { .ds-meter-seg-on { animation: none; } }"
     },
     {
       "name": "Repertoire List Item",
@@ -292,7 +313,7 @@
       "Don't look like a gamified practice app (Yousician, Simply Piano, Fender Play). No streak counters, no level meters, no progress bars on songs, no badges.",
       "Don't look like a DAW (Bandlab, Soundtrap, Ableton, Logic). No mixer surfaces, no timelines, no plugin-rack chrome.",
       "Don't drift into generic SaaS-dashboard look. If you reach for shadcn/ui, MUI, or Chakra defaults, you are about to lose the voice.",
-      "Don't carry the four exploratory data-fonts='a|b|c|d' variants forward. Prune them now that the canon is Share Tech Mono + VT323.",
+      "Don't carry the four exploratory data-fonts='a|b|c|d' variants forward. Keep them pruned now that the canon is Share Tech Mono + VT323.",
       "Don't keep #000000 forever as the canvas. Migrate toward a warm-tinted near-black (oklch(10% 0.006 22)) on the next intentional pass."
     ]
   }

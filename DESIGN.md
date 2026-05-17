@@ -54,6 +54,14 @@ components:
   button-primary-hover:
     backgroundColor: "{colors.crt-chroma}"
     textColor: "{colors.dead-channel}"
+  button-outline:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.sm}"
+    padding: "0.5rem 1.2rem"
+    typography: "{typography.label}"
+  button-outline-hover:
+    textColor: "{colors.crt-chroma}"
   button-ghost:
     backgroundColor: "transparent"
     textColor: "{colors.ink-muted}"
@@ -91,7 +99,7 @@ The aesthetic is committed across both registers — the brand surfaces (landing
 - **Hairline-driven layout** — 1px dividers at low opacity carry structure where other systems would use cards.
 - **Decorative ≠ functional** — CRT overlays are `aria-hidden` and never overlap text or focus rings.
 
-The current implementation also carries four exploratory font-set variants under `.poster[data-fonts="a|b|c|d"]` (Special Elite + Newsreader, Space Mono + IBM Plex Mono, Fraunces + JetBrains Mono, Major Mono Display + IBM Plex Mono). These are unused in the rendered markup and should be pruned now that this DESIGN.md commits to Share Tech Mono + VT323 as the canon.
+The earlier landing implementation carried four exploratory font-set variants under `.poster[data-fonts="a|b|c|d"]` (Special Elite + Newsreader, Space Mono + IBM Plex Mono, Fraunces + JetBrains Mono, Major Mono Display + IBM Plex Mono). They were unused in the rendered markup and have been pruned now that this DESIGN.md commits to Share Tech Mono + VT323 as the canon.
 
 ## 2. Colors: The Off-Air Palette
 
@@ -165,6 +173,9 @@ campfire is flat. There are zero drop shadows, anywhere. Depth is created entire
 - **Primary (`button-primary`):** Aged Manual Ivory fill (`#ece8df`) on Dead Channel Black text. Padding `0.5rem 1.2rem`. Label typography (lowercase mono, letter-spacing 0.12em). Currently the "criar conta" CTA in the landing nav.
 - **Primary hover:** background swaps to CRT Chroma (`#46d4d0`), text stays Dead Channel Black. Transition 160ms ease-out. No lift, no scale.
 - **Primary focus-visible:** outline cyan, offset 4px (`outline: 1px solid #46d4d0; outline-offset: 4px`).
+- **Outline (`button-outline`):** transparent fill, Aged Manual Ivory text, and a 1px Hairline border. Padding matches primary (`0.5rem 1.2rem`) and radius stays at `0.25rem`. Used for secondary actions with real weight, such as OAuth, where a ghost link would feel too quiet but a primary fill would steal the screen.
+- **Outline hover:** border and text shift to CRT Chroma (`#46d4d0`) over 160ms ease-out. No background fill, no lift, no scale. The border is intentionally prose-only in this frontmatter because the Stitch component schema does not support a border token directly; the sidecar carries the full CSS snippet.
+- **Outline focus-visible:** outline cyan, offset 4px (`outline: 1px solid #46d4d0; outline-offset: 4px`).
 - **Ghost (`button-ghost`):** transparent fill, Aged Manual Ivory Muted text at rest. Label typography. Zero padding-x, `0.25rem` padding-y so the underline can sit beneath the text. Currently the "entrar" link in the landing nav, and the default for any nav-style link.
 - **Ghost hover:** text brightens from `ink-muted` (64%) to `ink` (100%). A 1px CRT-Chroma underline grows in beneath the text, anchored right, via `transform: scaleX(0.36 → 1)` and `opacity: 0 → 0.82` over 180ms. The growing-underline is the signature interaction of the whole system; preserve it across new ghost link instances.
 - **Ghost focus-visible:** ivory 1px outline, offset 7px (`outline: 1px solid #ece8df; outline-offset: 7px`). The unusually wide offset gives the focus ring room to read against the dim canvas.
