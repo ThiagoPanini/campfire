@@ -28,13 +28,17 @@ type Song = {
   title: string;
   artist: string;
   instrument: string;
+  status: SongStatus;
   note?: string;
 };
+
+type SongStatus = "quero aprender" | "aprendendo" | "pronta pra tocar";
 
 type SongFormValues = {
   title: string;
   artist: string;
   instrument: string;
+  status: SongStatus;
   note: string;
 };
 
@@ -45,6 +49,24 @@ type SongModalState =
   | { mode: "edit"; song: Song };
 
 const CONSOLE_VIDEO_SRC = `${import.meta.env.BASE_URL}lofi-office.mp4`;
+const CONSOLE_REPERTOIRE_VIDEO_SRC = `${import.meta.env.BASE_URL}lofi-office-scene02.mp4`;
+
+const SONG_STATUS_OPTIONS: SongStatus[] = [
+  "quero aprender",
+  "aprendendo",
+  "pronta pra tocar",
+];
+
+const INSTRUMENT_OPTIONS = [
+  "violão",
+  "voz",
+  "baixo",
+  "cavaco",
+  "guitarra",
+  "teclado",
+  "bateria",
+  "outro",
+];
 
 const initialUiSongs: Song[] = [
   {
@@ -52,6 +74,7 @@ const initialUiSongs: Song[] = [
     title: "velha infância",
     artist: "tribalistas",
     instrument: "violão",
+    status: "pronta pra tocar",
     note: "boa para abrir a roda sem pressa",
   },
   {
@@ -59,12 +82,14 @@ const initialUiSongs: Song[] = [
     title: "mutante",
     artist: "rita lee",
     instrument: "voz",
+    status: "aprendendo",
   },
   {
     id: "song-trem-das-onze",
     title: "trem das onze",
     artist: "ademiran barbosa",
     instrument: "cavaco",
+    status: "quero aprender",
     note: "lembrar o tom antes da próxima jam",
   },
 ];
@@ -94,29 +119,39 @@ function hasErrors(errors: SongFormErrors) {
   return Boolean(errors.title || errors.artist || errors.instrument);
 }
 
+function formatTrackIndex(index: number) {
+  return String(index + 1).padStart(2, "0");
+}
+
 function songValues(song?: Song): SongFormValues {
   return {
     title: song?.title ?? "",
     artist: song?.artist ?? "",
     instrument: song?.instrument ?? "",
+    status: song?.status ?? "aprendendo",
     note: song?.note ?? "",
   };
 }
 
 function ConsoleBackground() {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const baseVideoRef = useRef<HTMLVideoElement | null>(null);
+  const repertoireVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const syncVideoMotion = () => {
-      const video = videoRef.current;
-      if (!video) return;
-      if (motionPreference.matches) {
-        video.pause();
-        return;
+      const videos = [baseVideoRef.current, repertoireVideoRef.current].filter(
+        (video): video is HTMLVideoElement => Boolean(video),
+      );
+
+      for (const video of videos) {
+        if (motionPreference.matches) {
+          video.pause();
+        } else {
+          void video.play().catch(() => {});
+        }
       }
-      void video.play().catch(() => {});
     };
 
     syncVideoMotion();
@@ -130,14 +165,24 @@ function ConsoleBackground() {
   return (
     <div className="console__bg" aria-hidden="true">
       <video
-        ref={videoRef}
-        className="console__bg-video"
+        ref={baseVideoRef}
+        className="console__bg-video console__bg-video--base"
         autoPlay
         muted
         loop
         playsInline
       >
         <source src={CONSOLE_VIDEO_SRC} type="video/mp4" />
+      </video>
+      <video
+        ref={repertoireVideoRef}
+        className="console__bg-video console__bg-video--repertoire"
+        autoPlay
+        muted
+        loop
+        playsInline
+      >
+        <source src={CONSOLE_REPERTOIRE_VIDEO_SRC} type="video/mp4" />
       </video>
       <div className="console__bg-scrim" />
       <div className="console__bg-vignette" />
@@ -150,9 +195,16 @@ type SidebarProps = {
   username: string;
   email: string;
   onLogout: () => void;
+  onRepertoireNavigate: () => void;
 };
 
-function Sidebar({ initials, username, email, onLogout }: SidebarProps) {
+function Sidebar({
+  initials,
+  username,
+  email,
+  onLogout,
+  onRepertoireNavigate,
+}: SidebarProps) {
   return (
     <aside className="console__sidebar" aria-label="navegação do app">
       <div className="console__brandline">
@@ -178,18 +230,24 @@ function Sidebar({ initials, username, email, onLogout }: SidebarProps) {
       </NavLink>
 
       <p className="console-nav__eyebrow" aria-hidden="true">
-        navegação
+        índice da fita
       </p>
 
       <nav className="console-nav" aria-label="principal">
         <NavLink className={appNavLinkClassName} end to="/app">
+          <span className="console-nav__track" aria-hidden="true">01</span>
           <span className="console-nav__icon" aria-hidden="true">
             <IconHome />
           </span>
           <span className="console-nav__label">início</span>
         </NavLink>
 
-        <NavLink className={appNavLinkClassName} to="/app/repertorio">
+        <NavLink
+          className={appNavLinkClassName}
+          onClick={onRepertoireNavigate}
+          to="/app/repertorio"
+        >
+          <span className="console-nav__track" aria-hidden="true">02</span>
           <span className="console-nav__icon" aria-hidden="true">
             <IconShelf />
           </span>
@@ -200,6 +258,7 @@ function Sidebar({ initials, username, email, onLogout }: SidebarProps) {
           className="console-nav__link console-nav__link--disabled"
           aria-disabled="true"
         >
+          <span className="console-nav__track" aria-hidden="true">03</span>
           <span className="console-nav__icon" aria-hidden="true">
             <IconJams />
           </span>
@@ -208,6 +267,7 @@ function Sidebar({ initials, username, email, onLogout }: SidebarProps) {
         </span>
 
         <NavLink className={appNavLinkClassName} to="/app/perfil">
+          <span className="console-nav__track" aria-hidden="true">04</span>
           <span className="console-nav__icon" aria-hidden="true">
             <IconUser />
           </span>
@@ -234,10 +294,11 @@ function Sidebar({ initials, username, email, onLogout }: SidebarProps) {
 }
 
 type ConsoleHomeProps = {
+  onRepertoireNavigate: () => void;
   username: string;
 };
 
-function ConsoleHome({ username }: ConsoleHomeProps) {
+function ConsoleHome({ onRepertoireNavigate, username }: ConsoleHomeProps) {
   const greeting = username ? `bem-vindo, ${username}.` : "bem-vindo de volta.";
 
   return (
@@ -262,7 +323,11 @@ function ConsoleHome({ username }: ConsoleHomeProps) {
           <span className="console-home__tape-line" />
         </div>
 
-        <NavLink to="/app/repertorio" className="console-home__cta">
+        <NavLink
+          to="/app/repertorio"
+          className="console-home__cta"
+          onClick={onRepertoireNavigate}
+        >
           <span className="console-home__cta-label">abrir o repertório</span>
           <span className="console-home__cta-arrow" aria-hidden="true">
             <svg
@@ -296,17 +361,33 @@ function nowCounter() {
 }
 
 type RepertoirePageProps = {
+  editedSongId?: string | null;
+  highlightedSongId?: string | null;
   onAddSong: () => void;
+  onCancelRemove: () => void;
+  onConfirmRemove: (songId: string) => void;
   onEditSong: (song: Song) => void;
-  onRemoveSong: (songId: string) => void;
+  onRequestRemove: (songId: string) => void;
+  onToggleScene: () => void;
+  pendingRemoveId?: string | null;
+  sceneEnabled: boolean;
   songs: Song[];
+  statusMessage: string;
 };
 
 function RepertoirePage({
+  editedSongId,
+  highlightedSongId,
   onAddSong,
+  onCancelRemove,
+  onConfirmRemove,
   onEditSong,
-  onRemoveSong,
+  onRequestRemove,
+  onToggleScene,
+  pendingRemoveId,
+  sceneEnabled,
   songs,
+  statusMessage,
 }: RepertoirePageProps) {
   return (
     <section className="repertoire" aria-labelledby="repertoire-title">
@@ -317,62 +398,183 @@ function RepertoirePage({
             repertório
           </h1>
         </div>
-        <Button onClick={onAddSong} type="button">
-          adicionar música
-        </Button>
+        <div className="repertoire__header-actions">
+          <button
+            type="button"
+            className="repertoire__scene-toggle"
+            role="switch"
+            aria-checked={sceneEnabled}
+            onClick={onToggleScene}
+          >
+            <span aria-hidden="true" className="repertoire__scene-toggle-mark" />
+            <span>cena {sceneEnabled ? "ligada" : "desligada"}</span>
+          </button>
+          <Button onClick={onAddSong} type="button">
+            adicionar música
+          </Button>
+        </div>
       </header>
 
       {songs.length > 0 ? (
         <ul className="repertoire-list" aria-label="músicas do repertório">
-          {songs.map((song) => (
-            <li className="repertoire-song" key={song.id}>
-              <div className="repertoire-song__content">
-                <h2 className="repertoire-song__title">{song.title}</h2>
-                <div className="repertoire-song__meta" aria-label="detalhes da música">
-                  <span>
-                    <b>artista</b>
-                    {song.artist}
-                  </span>
-                  <span>
-                    <b>instrumento</b>
-                    {song.instrument}
-                  </span>
-                </div>
-                {song.note ? (
-                  <p className="repertoire-song__note">nota: {song.note}</p>
-                ) : null}
-              </div>
-              <div className="repertoire-song__actions" aria-label={`ações de ${song.title}`}>
-                <Button
-                  className="repertoire-song__action"
-                  onClick={() => onEditSong(song)}
-                  type="button"
-                  variant="ghost"
-                >
-                  editar
-                </Button>
-                <Button
-                  className="repertoire-song__action repertoire-song__action--danger"
-                  onClick={() => onRemoveSong(song.id)}
-                  type="button"
-                  variant="ghost"
-                >
-                  remover
-                </Button>
-              </div>
-            </li>
+          {songs.map((song, index) => (
+            <RepertoireRow
+              edited={editedSongId === song.id}
+              highlighted={highlightedSongId === song.id}
+              index={index}
+              isConfirmingRemoval={pendingRemoveId === song.id}
+              key={song.id}
+              onCancelRemove={onCancelRemove}
+              onConfirmRemove={() => onConfirmRemove(song.id)}
+              onEditSong={() => onEditSong(song)}
+              onRequestRemove={() => onRequestRemove(song.id)}
+              song={song}
+            />
           ))}
         </ul>
       ) : (
-        <div className="repertoire-empty">
-          <h2>seu repertório ainda está quieto</h2>
-          <p>adicione a primeira música para começar a montar essa prateleira.</p>
-          <Button onClick={onAddSong} type="button">
-            adicionar primeira música
-          </Button>
-        </div>
+        <ShelfEmptyState onAddSong={onAddSong} />
       )}
+
+      <p className="repertoire__status" aria-live="polite" role="status">
+        {statusMessage}
+      </p>
     </section>
+  );
+}
+
+type RepertoireRowProps = {
+  edited: boolean;
+  highlighted: boolean;
+  index: number;
+  isConfirmingRemoval: boolean;
+  onCancelRemove: () => void;
+  onConfirmRemove: () => void;
+  onEditSong: () => void;
+  onRequestRemove: () => void;
+  song: Song;
+};
+
+function RepertoireRow({
+  edited,
+  highlighted,
+  index,
+  isConfirmingRemoval,
+  onCancelRemove,
+  onConfirmRemove,
+  onEditSong,
+  onRequestRemove,
+  song,
+}: RepertoireRowProps) {
+  const rowClassName = [
+    "repertoire-row",
+    highlighted ? "repertoire-row--new" : "",
+    edited ? "repertoire-row--edited" : "",
+    isConfirmingRemoval ? "repertoire-row--confirming" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <li className={rowClassName}>
+      <div className="repertoire-row__index" aria-hidden="true">
+        faixa {formatTrackIndex(index)}
+      </div>
+
+      <div className="repertoire-row__body">
+        <h2 className="repertoire-row__title">{song.title}</h2>
+        <div className="repertoire-row__meta" aria-label="detalhes da música">
+          <span className="repertoire-row__stamp">
+            <span>artista</span>
+            {song.artist}
+          </span>
+          <span className="repertoire-row__stamp">
+            <span>instrumento</span>
+            {song.instrument}
+          </span>
+          <span className="repertoire-row__stamp">
+            <span>status</span>
+            {song.status}
+          </span>
+        </div>
+        {song.note ? (
+          <p className="repertoire-row__note">
+            <span>anotação pessoal</span>
+            {song.note}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="repertoire-row__actions" aria-label={`ações de ${song.title}`}>
+        {isConfirmingRemoval ? (
+          <>
+            <p className="repertoire-row__confirm" role="alert">
+              remover da prateleira?
+            </p>
+            <Button
+              className="repertoire-row__action"
+              onClick={onCancelRemove}
+              type="button"
+              variant="ghost"
+            >
+              não
+            </Button>
+            <Button
+              className="repertoire-row__action repertoire-row__action--danger"
+              onClick={onConfirmRemove}
+              type="button"
+              variant="ghost"
+            >
+              remover
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              className="repertoire-row__action"
+              onClick={onEditSong}
+              type="button"
+              variant="ghost"
+            >
+              editar
+            </Button>
+            <Button
+              className="repertoire-row__action repertoire-row__action--danger"
+              onClick={onRequestRemove}
+              type="button"
+              variant="ghost"
+            >
+              remover
+            </Button>
+          </>
+        )}
+      </div>
+    </li>
+  );
+}
+
+type ShelfEmptyStateProps = {
+  onAddSong: () => void;
+};
+
+function ShelfEmptyState({ onAddSong }: ShelfEmptyStateProps) {
+  return (
+    <div className="shelf-empty">
+      <div className="shelf-empty__slots" aria-hidden="true">
+        {Array.from({ length: 4 }, (_, index) => (
+          <span className="shelf-empty__slot" key={index}>
+            <i>{formatTrackIndex(index)}</i>
+          </span>
+        ))}
+      </div>
+      <div className="shelf-empty__copy">
+        <h2>sua prateleira ainda está quieta</h2>
+        <p>guarde a primeira música quando ela pedir um lugar seu.</p>
+        <Button onClick={onAddSong} type="button">
+          guardar primeira música
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -389,7 +591,10 @@ function SongModal({ modal, onClose, onSave }: SongModalProps) {
   const [errors, setErrors] = useState<SongFormErrors>({});
   const title = modal.mode === "edit" ? "editar música" : "adicionar música";
 
-  const updateValue = (field: keyof SongFormValues, value: string) => {
+  const updateValue = <FieldName extends keyof SongFormValues>(
+    field: FieldName,
+    value: SongFormValues[FieldName],
+  ) => {
     setValues((current) => ({ ...current, [field]: value }));
     if (field !== "note") {
       setErrors((current) => ({ ...current, [field]: undefined }));
@@ -408,14 +613,16 @@ function SongModal({ modal, onClose, onSave }: SongModalProps) {
     <Modal
       ariaLabelledBy="song-modal-title"
       className="song-modal"
+      closeOnBackdrop={false}
       onClose={onClose}
     >
       <section className="song-form" aria-labelledby="song-modal-title">
         <header className="song-form__header">
+          <p className="song-form__eyebrow">ficha da prateleira</p>
           <h2 className="song-form__title" id="song-modal-title">
             {title}
           </h2>
-          <p>salvo só nesta tela por enquanto.</p>
+          <p>salvo nesta sessão por enquanto.</p>
         </header>
 
         <form className="song-form__fields" onSubmit={handleSubmit} noValidate>
@@ -438,21 +645,60 @@ function SongModal({ modal, onClose, onSave }: SongModalProps) {
             placeholder="quem toca ou compôs"
             value={values.artist}
           />
-          <Field
-            autoComplete="off"
-            error={errors.instrument}
-            inputId="song-instrument-field"
-            label="instrumento"
-            onChange={(event) => updateValue("instrument", event.target.value)}
-            placeholder="violão, voz, baixo..."
-            value={values.instrument}
-          />
+          <div className={`field${errors.instrument ? " field--error" : ""}`}>
+            <span className="field__header">
+              <label className="field__label" htmlFor="song-instrument-field">
+                instrumento
+              </label>
+            </span>
+            <select
+              className="field__input song-form__select"
+              id="song-instrument-field"
+              aria-invalid={errors.instrument ? true : undefined}
+              aria-describedby={errors.instrument ? "song-instrument-field-error" : undefined}
+              onChange={(event) => updateValue("instrument", event.target.value)}
+              value={values.instrument}
+            >
+              <option value="">escolha instrumento</option>
+              {INSTRUMENT_OPTIONS.map((instrument) => (
+                <option key={instrument} value={instrument}>
+                  {instrument}
+                </option>
+              ))}
+            </select>
+            {errors.instrument ? (
+              <span className="field__error" id="song-instrument-field-error">
+                {errors.instrument}
+              </span>
+            ) : null}
+          </div>
+          <div className="field">
+            <span className="field__header">
+              <label className="field__label" htmlFor="song-status-field">
+                status
+              </label>
+            </span>
+            <select
+              className="field__input song-form__select"
+              id="song-status-field"
+              onChange={(event) => updateValue("status", event.target.value as SongStatus)}
+              value={values.status}
+            >
+              {SONG_STATUS_OPTIONS.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
           <Field
             autoComplete="off"
             inputId="song-note-field"
             label="observação"
+            multiline
             onChange={(event) => updateValue("note", event.target.value)}
             placeholder="tom, memória, cuidado"
+            rows={3}
             value={values.note}
           />
 
@@ -474,6 +720,13 @@ export function AppConsole() {
   const session = useSession();
   const [songs, setSongs] = useState(initialUiSongs);
   const [modal, setModal] = useState<SongModalState | null>(null);
+  const [highlightedSongId, setHighlightedSongId] = useState<string | null>(null);
+  const [editedSongId, setEditedSongId] = useState<string | null>(null);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [isTurningToRepertoire, setIsTurningToRepertoire] = useState(false);
+  const [repertoireSceneEnabled, setRepertoireSceneEnabled] = useState(true);
+  const repertoireTurnTimeoutRef = useRef<number | null>(null);
 
   const user = useMemo(
     () =>
@@ -499,7 +752,16 @@ export function AppConsole() {
     return Array.from(seen);
   }, [songs]);
 
+  useEffect(() => {
+    return () => {
+      if (repertoireTurnTimeoutRef.current) {
+        window.clearTimeout(repertoireTurnTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const openAddSong = () => {
+    setPendingRemoveId(null);
     setModal({ mode: "add" });
   };
 
@@ -512,28 +774,72 @@ export function AppConsole() {
     navigate("/");
   };
 
+  const startRepertoireTurn = () => {
+    if (location.pathname !== "/app" || !repertoireSceneEnabled) {
+      return;
+    }
+
+    setIsTurningToRepertoire(true);
+
+    if (repertoireTurnTimeoutRef.current) {
+      window.clearTimeout(repertoireTurnTimeoutRef.current);
+    }
+
+    repertoireTurnTimeoutRef.current = window.setTimeout(() => {
+      setIsTurningToRepertoire(false);
+      repertoireTurnTimeoutRef.current = null;
+    }, 980);
+  };
+
   const saveSong = (values: SongFormValues) => {
+    const existingModal = modal;
     const nextSong = {
       title: values.title.trim(),
       artist: values.artist.trim(),
       instrument: values.instrument.trim(),
+      status: values.status,
       note: values.note.trim() || undefined,
     };
 
-    setSongs((current) => {
-      if (modal?.mode === "edit") {
+    if (existingModal?.mode === "edit") {
+      setSongs((current) => {
         return current.map((song) =>
-          song.id === modal.song.id ? { ...nextSong, id: song.id } : song,
+          song.id === existingModal.song.id ? { ...nextSong, id: song.id } : song,
         );
-      }
-      return [{ ...nextSong, id: newSongId() }, ...current];
-    });
+      });
+      setEditedSongId(existingModal.song.id);
+      setStatusMessage("música atualizada.");
+      window.setTimeout(() => setEditedSongId(null), 500);
+    } else {
+      const id = newSongId();
+      setSongs((current) => [{ ...nextSong, id }, ...current]);
+      setHighlightedSongId(id);
+      setStatusMessage("música guardada.");
+      window.setTimeout(() => setHighlightedSongId(null), 700);
+    }
 
+    setPendingRemoveId(null);
     setModal(null);
 
     if (location.pathname === "/app") {
       navigate("/app/repertorio");
     }
+  };
+
+  const requestRemoveSong = (songId: string) => {
+    setPendingRemoveId(songId);
+    setStatusMessage("confirme antes de remover.");
+  };
+
+  const cancelRemoveSong = () => {
+    setPendingRemoveId(null);
+    setStatusMessage("remoção cancelada.");
+  };
+
+  const confirmRemoveSong = (songId: string) => {
+    setSongs((current) => current.filter((song) => song.id !== songId));
+    setPendingRemoveId(null);
+    setStatusMessage("música removida.");
   };
 
   const mainClassName = [
@@ -543,8 +849,19 @@ export function AppConsole() {
     .filter(Boolean)
     .join(" ");
 
+  const consoleClassName = [
+    "console",
+    location.pathname === "/app" && !modal ? "" : "console--quiet",
+    location.pathname === "/app/repertorio" && repertoireSceneEnabled
+      ? "console--repertoire-scene"
+      : "",
+    isTurningToRepertoire ? "console--turning-to-repertoire" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className="console">
+    <div className={consoleClassName}>
       <ConsoleBackground />
 
       <Sidebar
@@ -552,22 +869,42 @@ export function AppConsole() {
         username={user.username}
         email={user.email}
         onLogout={handleLogout}
+        onRepertoireNavigate={startRepertoireTurn}
       />
 
       <main className={mainClassName}>
         <div className="console__content">
           <Routes>
-            <Route index element={<ConsoleHome username={user.username} />} />
+            <Route
+              index
+              element={
+                <ConsoleHome
+                  onRepertoireNavigate={startRepertoireTurn}
+                  username={user.username}
+                />
+              }
+            />
             <Route
               path="repertorio"
               element={
                 <RepertoirePage
+                  editedSongId={editedSongId}
+                  highlightedSongId={highlightedSongId}
                   onAddSong={openAddSong}
-                  onEditSong={(song) => setModal({ mode: "edit", song })}
-                  onRemoveSong={(songId) =>
-                    setSongs((current) => current.filter((song) => song.id !== songId))
+                  onCancelRemove={cancelRemoveSong}
+                  onConfirmRemove={confirmRemoveSong}
+                  onEditSong={(song) => {
+                    setPendingRemoveId(null);
+                    setModal({ mode: "edit", song });
+                  }}
+                  onRequestRemove={requestRemoveSong}
+                  onToggleScene={() =>
+                    setRepertoireSceneEnabled((current) => !current)
                   }
+                  pendingRemoveId={pendingRemoveId}
+                  sceneEnabled={repertoireSceneEnabled}
                   songs={songs}
+                  statusMessage={statusMessage}
                 />
               }
             />
