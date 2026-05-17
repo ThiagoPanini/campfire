@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./Home.css";
 
 const VIDEO_SRC = `${import.meta.env.BASE_URL}background.mp4`;
@@ -43,12 +44,12 @@ export function Home() {
         </span>
 
         <nav className="poster-actions" aria-label="Conta">
-          <a className="poster-link poster-link--secondary" href="#home">
+          <Link className="poster-link poster-link--secondary" to="/signin">
             entrar
-          </a>
-          <a className="poster-link poster-link--primary" href="#home">
+          </Link>
+          <Link className="poster-link poster-link--primary" to="/signup">
             criar conta
-          </a>
+          </Link>
         </nav>
       </header>
 
