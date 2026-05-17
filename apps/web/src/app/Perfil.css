@@ -1,0 +1,394 @@
+.perfil {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.4rem);
+  padding-top: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.perfil__head {
+  display: grid;
+  gap: 0.4rem;
+  padding-bottom: clamp(1rem, 2vw, 1.4rem);
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+.perfil__kicker {
+  margin: 0;
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: lowercase;
+}
+
+.perfil__title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+
+/* ── J-card (the cassette inlay) ────────────────────── */
+
+.jcard {
+  position: relative;
+  display: grid;
+  gap: 1.05rem;
+  padding: clamp(1.2rem, 3vw, 1.85rem);
+  border: 1px solid var(--hairline-strong);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(236, 232, 223, 0.018),
+      rgba(0, 0, 0, 0.12) 30%,
+      rgba(0, 0, 0, 0.45) 100%
+    ),
+    var(--bg-elev);
+  overflow: hidden;
+}
+
+.jcard::before,
+.jcard::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.jcard::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1px solid var(--crt-chroma);
+  border-left: 1px solid var(--crt-chroma);
+  opacity: 0.45;
+}
+
+.jcard::after {
+  right: -1px;
+  bottom: -1px;
+  border-right: 1px solid var(--tracking-red);
+  border-bottom: 1px solid var(--tracking-red);
+  opacity: 0.45;
+}
+
+.jcard__strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px dashed var(--hairline-strong);
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  line-height: 1;
+  letter-spacing: 0.22em;
+  text-transform: lowercase;
+}
+
+.jcard__identity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.jcard__avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(3.4rem, 8vw, 4.4rem);
+  height: clamp(3.4rem, 8vw, 4.4rem);
+  border: 1px solid var(--hairline-strong);
+  background:
+    linear-gradient(180deg, rgb(var(--ink-rgb) / 0.05), transparent),
+    var(--bg);
+}
+
+.jcard__avatar::before,
+.jcard__avatar::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  pointer-events: none;
+}
+
+.jcard__avatar::before {
+  top: -3px;
+  left: -3px;
+  border-top: 1px solid var(--ink-muted);
+  border-left: 1px solid var(--ink-muted);
+}
+
+.jcard__avatar::after {
+  right: -3px;
+  bottom: -3px;
+  border-right: 1px solid var(--ink-muted);
+  border-bottom: 1px solid var(--ink-muted);
+}
+
+.jcard__avatar-glyph {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.jcard__who {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.jcard__name {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.6vw, 1.5rem);
+  line-height: 1.1;
+  letter-spacing: 0;
+  text-transform: lowercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jcard__handle {
+  margin: 0;
+  color: var(--crt-chroma);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  opacity: 0.88;
+}
+
+.jcard__email {
+  margin: 0;
+  color: var(--ink-muted);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jcard__rule {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--hairline-strong) 8%,
+    var(--hairline-strong) 92%,
+    transparent
+  );
+}
+
+/* ── sides (A / B) ───────────────────────────────────── */
+
+.jcard__sides {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  align-items: stretch;
+}
+
+.jcard__side {
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 0.25rem 0;
+}
+
+.jcard__side-label {
+  margin: 0;
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: lowercase;
+}
+
+.jcard__side-number {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6.4vw, 3.6rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.jcard__side-foot {
+  margin: 0;
+  color: var(--ink-muted);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+}
+
+.jcard__side-divider {
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--hairline-strong) 20%,
+    var(--hairline-strong) 80%,
+    transparent
+  );
+}
+
+/* ── meta (dl) ───────────────────────────────────────── */
+
+.jcard__meta {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.jcard__meta-row {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) minmax(0, 1fr);
+  gap: 1.4rem;
+  align-items: baseline;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px dotted rgb(var(--ink-rgb) / 0.16);
+}
+
+.jcard__meta-row dt {
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+}
+
+.jcard__meta-row dd {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  line-height: 1.25;
+  letter-spacing: 0.03em;
+  text-align: right;
+  word-break: break-word;
+}
+
+/* ── tape illustration (decorative) ──────────────────── */
+
+.jcard__tape {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding-top: 0.6rem;
+}
+
+.jcard__tape-glyph {
+  color: var(--ink);
+  opacity: 0.68;
+}
+
+.jcard__tape-bar {
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  bottom: 4px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--tracking-red) 50%,
+    transparent
+  );
+  opacity: 0.35;
+  animation: jcard-tape-shimmer 4s var(--ease-out-quart) infinite;
+}
+
+@keyframes jcard-tape-shimmer {
+  0%,
+  100% {
+    transform: translateX(-10%);
+    opacity: 0.18;
+  }
+  50% {
+    transform: translateX(10%);
+    opacity: 0.42;
+  }
+}
+
+/* ── footer actions ──────────────────────────────────── */
+
+.perfil__actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.perfil__note {
+  margin: 0;
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  opacity: 0.7;
+}
+
+/* ── responsive ──────────────────────────────────────── */
+
+@media (max-width: 620px) {
+  .jcard__sides {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .jcard__side-divider {
+    display: none;
+  }
+
+  .jcard__side {
+    border-bottom: 1px dotted rgb(var(--ink-rgb) / 0.16);
+    padding-bottom: 0.8rem;
+  }
+
+  .jcard__side:last-of-type {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .jcard__identity {
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+  }
+
+  .jcard__meta-row {
+    grid-template-columns: 1fr;
+    gap: 0.18rem;
+  }
+
+  .jcard__meta-row dd {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jcard__tape-bar {
+    animation: none;
+  }
+}
