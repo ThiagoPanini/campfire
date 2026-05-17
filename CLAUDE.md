@@ -4,22 +4,28 @@ Conventions and context for AI sessions in this repository. Keep this file conci
 
 ## About the project
 
-`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Full vision in [PRODUCT_VISION.md](./PRODUCT_VISION.md). Intended MVP flow in [docs/mvp-scope.md](./docs/mvp-scope.md).
+`campfire` is a platform for amateur musicians to log personal repertoires and run jam sessions with friends. Product north star: [PRODUCT_VISION.md](./PRODUCT_VISION.md). MVP scope: [docs/mvp-scope.md](./docs/mvp-scope.md). Visual/product design system: [DESIGN.md](./DESIGN.md).
 
 ## Current implementation status
 
-The product vision and the intended MVP flow (accounts, repertoire CRUD, persistence) are **not yet implemented**. What exists today:
+The MVP walking skeleton (accounts, repertoire CRUD, persistence, deploy) is **not yet implemented end-to-end**. The front-end on `mvp/lofi-style` covers the pre-auth shape only, against a stubbed client:
 
-- `apps/web/` ships a single landing-page slice (`src/home/Home.tsx`) — a video-poster hero with a brand wordmark, two non-functional `entrar` / `criar conta` CTAs, and an `alpha • coming soon` footer. No routes, no forms, no client persistence, no backend calls.
+- `apps/web/` — React + TypeScript + Vite, with `react-router-dom` ([ADR 0006](./docs/decisions/0006-frontend-routing.md)). Routes:
+  - `/` — `Home` (full-bleed video poster, the canonical Hero Band; CTAs link to `/signin` and `/signup`).
+  - `/signup`, `/signup/confirm`, `/signin` — modal overlays on top of `Home`, with email+password forms, a Google OAuth stub button, a 6-digit OTP confirm step (resend cooldown + 15 min expiry), and a password strength meter.
+  - `/app` — placeholder ("painel de controle (tbd)") that successful sign-in / verification navigates to.
+- `apps/web/src/auth/client.ts` is a **stub** — `sleep()`-based fakes for `signUpWithEmail`, `signInWithEmail`, `verifyCode`, `resendCode`, `signInWithGoogle`. No real backend, no persistence, no session.
 - `apps/api/` is still an empty placeholder (`.gitkeep` only).
-- The next implementation milestone implied by the current state is wiring the landing-page CTAs to a real account creation + sign-in flow, then unlocking the repertoire screen described in [docs/mvp-scope.md](./docs/mvp-scope.md). Treat the landing page as a visual entry point, not as the MVP itself.
+- Shipped UI primitives (`src/ui/`): `Brand`, `Button` (primary/outline/ghost), `CodeBoxes`, `Field`, `FooterHairline`, `GhostLink`, `Modal` (+ `ModalBadge`), `Nav`, `PageColumn`, `StrengthMeter`, and `tokens.css`. New surfaces should reuse these.
+
+The implementation milestone implied by the current state is replacing the stub auth client with a real FastAPI backend and unlocking the repertoire screen described in [docs/mvp-scope.md](./docs/mvp-scope.md). The `/app` placeholder is the first screen that needs to become real.
 
 ## Repository layout
 
 Monorepo:
 
 - `apps/api/` — backend (FastAPI, Python). Empty `.gitkeep` placeholder until the first API code lands.
-- `apps/web/` — frontend (React + TypeScript + Vite, per [ADR 0004](./docs/decisions/0004-frontend-stack.md)). Currently a single landing-page slice; see [apps/web/README.md](./apps/web/README.md).
+- `apps/web/` — frontend (React + TypeScript + Vite + react-router-dom, per [ADR 0004](./docs/decisions/0004-frontend-stack.md) and [ADR 0006](./docs/decisions/0006-frontend-routing.md)). See [apps/web/README.md](./apps/web/README.md).
 - `packages/` — code shared between apps (empty until real sharing exists).
 - `docs/decisions/` — ADRs.
 - `.agents/skills/` — canonical location for AI agent skills shared across agents (Claude Code, Codex, etc.). Each agent surfaces them via its own expected path as a symlink. See [AI_WORKFLOW.md](./AI_WORKFLOW.md) and [docs/decisions/0003-shared-agent-skills.md](./docs/decisions/0003-shared-agent-skills.md).
@@ -40,12 +46,13 @@ Architectural decisions are formalized in [docs/decisions/](./docs/decisions/). 
 As patterns emerge, document them here or in dedicated ADRs. Current state:
 
 - **Backend**: Python + FastAPI. Internal structure (Clean/Hexagonal vs. flat) deferred until concrete pain justifies it.
-- **Frontend**: React + TypeScript + Vite in a pnpm workspace (`@campfire/web`). No router, state library, or UI/CSS framework yet — see [ADR 0004](./docs/decisions/0004-frontend-stack.md).
+- **Frontend**: React + TypeScript + Vite + `react-router-dom` in a pnpm workspace (`@campfire/web`). No state library or UI/CSS framework — see [ADR 0004](./docs/decisions/0004-frontend-stack.md) and [ADR 0006](./docs/decisions/0006-frontend-routing.md).
+- **Design system**: lo-fi / VHS / monospace, codified in [DESIGN.md](./DESIGN.md). Reuse the primitives in `apps/web/src/ui/` (Button, Field, Modal, etc.) before introducing new ones.
 - **Database**: not chosen.
 - **Deploy provider**: not chosen.
 - **Dates in ADRs and documents**: always absolute (YYYY-MM-DD).
-- **Language (persisted artifacts)**: English for documentation, commits, code identifiers, and comments — see [docs/decisions/0002-documentation-language.md](./docs/decisions/0002-documentation-language.md).
-- **Language (user-facing UI)**: not formally decided. The current landing-page slice ships Portuguese copy (`<html lang="pt-BR">`, `entrar`, `criar conta`). This predates any UI-language ADR; treat it as an implementation fact, not as a sanctioned policy, and raise the question explicitly before broadening it to new screens.
+- **Language (persisted artifacts)**: English for documentation, commits, code identifiers, and comments — see [ADR 0002](./docs/decisions/0002-documentation-language.md).
+- **Language (user-facing UI)**: Brazilian Portuguese (PT-BR) — see [ADR 0005](./docs/decisions/0005-ui-language.md). Copy lives inline in components; no i18n framework yet.
 
 ## Local development workflow
 

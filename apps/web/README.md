@@ -1,22 +1,23 @@
 # campfire web
 
-Frontend for the campfire project. Stack: React + TypeScript + Vite in a pnpm workspace (`@campfire/web`). See [ADR 0004](../../docs/decisions/0004-frontend-stack.md).
+Frontend for the campfire project. Stack: React + TypeScript + Vite + `react-router-dom` in a pnpm workspace (`@campfire/web`). See [ADR 0004](../../docs/decisions/0004-frontend-stack.md) and [ADR 0006](../../docs/decisions/0006-frontend-routing.md). Visual system: [DESIGN.md](../../DESIGN.md).
 
 ## Current implementation
 
-This app currently renders a **single landing-page slice** — not the MVP flow described in [../../docs/mvp-scope.md](../../docs/mvp-scope.md).
+This app currently covers the **pre-auth shape** of the MVP described in [../../docs/mvp-scope.md](../../docs/mvp-scope.md). No backend exists yet; the auth client is a stub.
 
-- `src/App.tsx` mounts `src/home/Home.tsx` directly. No router.
-- `src/home/Home.tsx` renders a full-bleed video poster (`public/background.mp4`, poster fallback `public/background.png`) with a top nav (brand wordmark + two non-functional `entrar` / `criar conta` links, both `href="#home"`) and an `alpha • coming soon` footer.
-- `src/home/Home.css` carries the visual treatment: warm-dark canvas, monospace type, layered CRT-style overlays (scanlines, halftone, grain, tracking glitch, vignette). The video pauses when `prefers-reduced-motion: reduce` is set.
-- No account creation, sign-in, repertoire CRUD, client persistence, or backend integration exists yet. `apps/api/` is still a placeholder.
-- `Home.css` defines optional font-set variants under `.poster[data-fonts="a|b|c|d"]`. They are unused today (no switcher is mounted); leave them in place only while the visual direction is still being explored, and prune them once the direction is settled.
+- `src/main.tsx` wraps the app in `BrowserRouter`. `src/App.tsx` defines the routes.
+- `src/home/Home.tsx` — the video poster (`public/background.mp4`, fallback `public/background.png`) with a top nav (brand wordmark, `entrar` and `criar conta` links pointing at `/signin` and `/signup`). `src/home/Home.css` carries the warm-dark canvas, monospace type, and CRT overlays (scanlines, halftone, grain, tracking glitch, vignette); the video pauses on `prefers-reduced-motion: reduce`.
+- `src/signup/SignUp.tsx`, `src/signup/SignUpConfirm.tsx`, `src/signin/SignIn.tsx` — modal overlays mounted **on top of `Home`** by `App.tsx`. Email+password form with strength meter, 6-digit OTP confirm step (resend cooldown + 15 min expiry), sign-in form, and a Google OAuth stub button. `Esc` and backdrop click close the modal back to `/`.
+- `src/auth/client.ts` — **stubbed** auth client. `sleep()`-based fakes for `signUpWithEmail`, `signInWithEmail`, `verifyCode` (accepts `123456`, rejects `000000` as expired), `resendCode`, and `signInWithGoogle` (rejects with an alert). To be replaced when the FastAPI backend lands.
+- `src/app/Placeholder.tsx` — the `/app` route, a "painel de controle (tbd)" stub that successful sign-in / verification navigates to. This is where the repertoire screen will be built next.
+- `src/ui/` — shipped primitives: `Brand`, `Button` (primary/outline/ghost), `CodeBoxes`, `Field`, `FooterHairline`, `GhostLink`, `Modal` (+ `ModalBadge`), `Nav`, `PageColumn`, `StrengthMeter`, `tokens.css`. Reuse these before adding new ones.
 
-The next step implied by the current state is wiring the CTAs to real flows and starting to deliver the MVP scope.
+`apps/api/` is still an empty placeholder. The next step is replacing the stub auth client with a real backend and starting to flesh out the `/app` repertoire screen.
 
 ### UI language
 
-The landing page ships Portuguese copy (`<html lang="pt-BR">`, `entrar`, `criar conta`, meta description). There is no UI-language ADR yet — treat this as an implementation fact and raise the open question before extending PT copy to new screens. Persisted artifacts (docs, code identifiers, commits) remain English per [ADR 0002](../../docs/decisions/0002-documentation-language.md).
+UI copy ships in Brazilian Portuguese per [ADR 0005](../../docs/decisions/0005-ui-language.md) (`<html lang="pt-BR">`, `entrar`, `criar conta`, etc.). No i18n framework — copy is inline in components. Persisted artifacts (docs, code identifiers, commits) remain English per [ADR 0002](../../docs/decisions/0002-documentation-language.md).
 
 ## Run locally
 

@@ -51,9 +51,10 @@ Each manager's configuration files (`pyproject.toml`, `package.json`) are **not 
 Items explicitly deferred to future ADRs, when concrete pain or a use case justifies them:
 
 - License (currently unspecified — code defaults to "all rights reserved").
-- Frontend stack.
 - Database.
 - Deploy provider.
 - Internal structure of `apps/api/` (Clean/Hexagonal vs. flat).
 - Testing strategy (unit, integration, e2e).
 - CI/CD.
+
+Resolved since this ADR was written: frontend stack ([ADR 0004](./0004-frontend-stack.md)), frontend routing ([ADR 0006](./0006-frontend-routing.md)), documentation language ([ADR 0002](./0002-documentation-language.md)), UI language ([ADR 0005](./0005-ui-language.md)), shared-agent-skills pattern ([ADR 0003](./0003-shared-agent-skills.md)).

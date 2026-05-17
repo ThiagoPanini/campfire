@@ -9,7 +9,7 @@
 
 That silence was tolerable while only the landing-page slice existed. The landing happens to ship Portuguese (`<html lang="pt-BR">`, `entrar`, `criar conta`, the meta description), but [docs/mvp-scope.md](../mvp-scope.md) implicitly assumed an English UI baseline (the "Internationalization beyond English UI" out-of-scope item, since removed by this ADR). The sign-up flow is the first non-landing surface; the decision can no longer be deferred.
 
-The product is, by design ([PRODUCT_VISION.md](../../PRODUCT_VISION.md)), an instrument for amateur musicians who play with friends. The MVP target audience is the author plus one trusted friend; both are Brazilian Portuguese speakers. Beyond the MVP, growth is via friend graphs, not virality; the realistic next ring of users is also Portuguese-speaking. The product's brand voice ([PRODUCT.md](../../PRODUCT.md)) is *warm, nostalgic, intimate* — a register that Brazilian Portuguese carries more naturally than the lowercase English variant the lo-fi aesthetic would otherwise enforce.
+The product is, by design ([PRODUCT_VISION.md](../../PRODUCT_VISION.md)), an instrument for amateur musicians who play with friends. The MVP target audience is the author plus one trusted friend; both are Brazilian Portuguese speakers. Beyond the MVP, growth is via friend graphs, not virality; the realistic next ring of users is also Portuguese-speaking. The product's brand voice ([DESIGN.md](../../DESIGN.md#1-brand-personality)) is *warm, nostalgic, intimate* — a register that Brazilian Portuguese carries more naturally than the lowercase English variant the lo-fi aesthetic would otherwise enforce.
 
 ## Decision
 

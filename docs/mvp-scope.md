@@ -2,11 +2,16 @@
 
 The single end-to-end flow campfire's first deployment delivers. Everything not listed here is explicitly deferred. Product context: [../PRODUCT_VISION.md](../PRODUCT_VISION.md).
 
-## Implementation status (as of 2026-05-16)
+## Implementation status (as of 2026-05-17)
 
-This document specifies the **intended** MVP flow. None of it is implemented yet. The only runnable code today is a landing-page slice in [apps/web/src/home/Home.tsx](../apps/web/src/home/Home.tsx) — a video-poster hero with non-functional `entrar` / `criar conta` CTAs. There is no backend, no account creation, no repertoire, and no persistence. The CTAs currently link to `#home` rather than to real flows.
+This document specifies the **intended** end-to-end MVP flow. The front-end on `mvp/lofi-style` currently covers the pre-auth shape only, against a stubbed in-browser client:
 
-The immediate next milestone implied by this state is wiring those CTAs to actual account creation and sign-in, then exposing the repertoire view below.
+- `/` ([apps/web/src/home/Home.tsx](../apps/web/src/home/Home.tsx)) — video-poster landing; CTAs link to `/signin` and `/signup`.
+- `/signup`, `/signup/confirm`, `/signin` — modal overlays on `Home` with email+password forms, a 6-digit OTP step, password strength meter, and a Google OAuth stub button.
+- `/app` ([apps/web/src/app/Placeholder.tsx](../apps/web/src/app/Placeholder.tsx)) — placeholder ("painel de controle (tbd)") that successful sign-in or verification navigates to.
+- [apps/web/src/auth/client.ts](../apps/web/src/auth/client.ts) is a **stub** with `sleep()`-based fakes. No real account creation, no session, no persistence. `apps/api/` is still a `.gitkeep`.
+
+The immediate next milestone is replacing the stub auth client with a real FastAPI backend and turning the `/app` placeholder into the repertoire view specified below.
 
 ## MVP goal
 

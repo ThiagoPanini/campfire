@@ -36,6 +36,10 @@ No frontend application framework, UI component library, global state library, r
 - Production hosting and deploy provider.
 - End-to-end test strategy.
 
-## Implementation note (2026-05-16)
+## Implementation note (2026-05-17)
 
-The stack decision (React + TypeScript + Vite in a pnpm workspace) stands. The first runnable slice that actually landed under this ADR was **not** the MVP CRUD described in the Context section above — it is a single landing-page poster (`apps/web/src/home/Home.tsx`) on the `mvp/lofi-style` branch, used to explore visual direction. The "Workshop" direction named in the original Context has shifted in practice toward a warm-dark, monospace, VHS-poster aesthetic; whether that is a refinement of Workshop or a new direction is still open. None of the account, repertoire, or persistence code described in the original Context exists yet. This note preserves the original decision while keeping current readers honest about what shipped.
+The stack decision (React + TypeScript + Vite in a pnpm workspace) stands and has been extended:
+
+- `react-router-dom` was added later for browser routing — see [ADR 0006](./0006-frontend-routing.md). The "no routing library" stance in the original decision is superseded by 0006 for the MVP, not by this note.
+- The "Workshop" direction named in the original Context evolved into the lo-fi / VHS / monospace aesthetic now codified in [DESIGN.md](../../DESIGN.md). DESIGN.md is the source of truth for design direction going forward; this ADR is no longer the place to track that.
+- What has shipped on `mvp/lofi-style`: the landing poster (`/`), modal auth surfaces (`/signup`, `/signup/confirm`, `/signin`), an `/app` placeholder, and a stub auth client in `apps/web/src/auth/client.ts`. The account, repertoire, and persistence code described in the original Context still does not exist; the next step against this ADR is the FastAPI backend + repertoire screen.
