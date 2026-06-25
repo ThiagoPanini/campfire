@@ -20,7 +20,7 @@ jobs:
       deploy_sha: ${{ steps.guard.outputs.deploy_sha }}
     steps:
       - name: Checkout guard scripts
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Guard main ref and CI result
         id: guard
@@ -46,7 +46,7 @@ jobs:
     environment: production
     steps:
       - name: Checkout deploy scripts
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs['branch-guard'].outputs.deploy_sha }}
 
